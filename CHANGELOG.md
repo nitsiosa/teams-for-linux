@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.27.1](https://github.com/IsmaelMartinez/teams-for-linux/compare/v2.27.0...v2.27.1) (2026-10-19)
+
+
+### CI/CD
+
+* **flatpak:** fix the smoke build's app module and use Flathub's builder ([#3118](https://github.com/IsmaelMartinez/teams-for-linux/issues/3118)) ([39ac73b](https://github.com/IsmaelMartinez/teams-for-linux/commit/39ac73bb0e8f113fabc8b30aed980fc12ca1166f))
+
 ## [2.27.0](https://github.com/IsmaelMartinez/teams-for-linux/compare/v2.26.0...v2.27.0) (2026-10-19)
 
 
