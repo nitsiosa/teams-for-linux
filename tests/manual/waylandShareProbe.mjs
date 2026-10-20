@@ -4,10 +4,12 @@
 //
 //   node tests/manual/waylandShareProbe.mjs <x11|wayland> [config.json] [attempts]
 //
-// Each attempt calls getDisplayMedia in the main window and prints one JSON
+// It opens a solid magenta window titled "PICK THIS - TFL probe target" to pick for window
+// shares. Each attempt calls getDisplayMedia in the main window and prints one JSON
 // line: whether the in-app picker appeared, the xdg-desktop-portal ScreenCast
-// calls the app made, the source types it asked the portal for, and whether
-// the captured frame has content. Frames never leave the renderer; only their
+// calls the app made, the source types it asked the portal for, the app's own
+// screen-share log lines, and whether the captured frame has content. An
+// attempt that gets no answer ends the run. Frames never leave the renderer; only their
 // mean brightness and its spread are reported. The app runs with --no-sandbox
 // because Chromium cannot start sandboxed from a checkout on Ubuntu 24.04.
 import { _electron as electron } from 'playwright';
@@ -18,7 +20,8 @@ import { join } from 'node:path';
 import { findMainTeamsWindow, waitForLoginRedirect } from '../e2e/helpers/electronApp.js';
 
 const PORTAL_SOURCE_TYPES = { 1: 'monitor', 2: 'window', 3: 'monitor+window' };
-const ATTEMPT_TIMEOUT_MS = 120000;
+const ATTEMPT_TIMEOUT_MS = 90000;
+const LOG_PATTERN = /SCREEN_SHARE|StreamSelector|picker|desktopCapturer|getDisplayMedia/i;
 
 const RENDERER_PROBE = `(async () => {
   const started = Date.now();
@@ -39,10 +42,12 @@ const RENDERER_PROBE = `(async () => {
     const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
     let sum = 0;
     let sumOfSquares = 0;
+    let magenta = 0;
     for (let i = 0; i < data.length; i += 4) {
       const luma = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
       sum += luma;
       sumOfSquares += luma * luma;
+      if (data[i] > 200 && data[i + 1] < 70 && data[i + 2] > 200) magenta++;
     }
     const pixels = data.length / 4;
     const mean = sum / pixels;
@@ -56,6 +61,7 @@ const RENDERER_PROBE = `(async () => {
       height: settings.height ?? null,
       lumaMean: Math.round(mean),
       lumaSpread: Math.round(spread),
+      targetShare: Math.round((magenta / pixels) * 100) / 100,
     };
   } catch (error) {
     return { granted: false, ms: Date.now() - started, error: error.name };
@@ -79,21 +85,84 @@ function startPortalMonitor() {
   return { monitor, lines };
 }
 
+// The race lives in this process because a stuck share request can stop the
+// app's main process from running the probe's own timers.
+function withTimeout(promise, ms, fallback) {
+  return Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve(fallback), ms))]);
+}
+
+function collectLines(stream, lines) {
+  let pending = '';
+  stream?.on('data', (chunk) => {
+    const parts = (pending + String(chunk)).split('\n');
+    pending = parts.pop();
+    lines.push(...parts);
+  });
+}
+
+// The app's own screen-share log lines, with URLs removed.
+function relevantLines(lines) {
+  const matching = lines
+    .filter((line) => LOG_PATTERN.test(line))
+    .map((line) => line.replace(/https?:\/\/\S+/g, '<url>').slice(0, 160));
+  return [...new Set(matching)].slice(0, 12);
+}
+
 // Portal response codes: 0 granted, 1 cancelled by the user, 2 other failure.
 function summarisePortal(lines) {
-  const summary = { createSession: 0, selectSources: 0, start: 0, openPipeWireRemote: 0, sourceTypes: [], responses: [] };
+  const summary = {
+    createSession: 0,
+    selectSources: 0,
+    start: 0,
+    openPipeWireRemote: 0,
+    sourceTypes: [],
+    // SelectSources persist_mode (0 none, 1 this session, 2 until revoked) and
+    // restore tokens sent with SelectSources or returned in a response.
+    persistModes: [],
+    restoreTokensSent: 0,
+    restoreTokensReturned: 0,
+    selected: [],
+    streamSizes: [],
+    responses: [],
+    // Time from each Start call to the next portal response: a dialog the user
+    // answers takes seconds, a silently restored selection takes milliseconds.
+    startToResponseMs: [],
+  };
+  const timeOf = (line) => Number(/time=(\d+\.\d+)/.exec(line)?.[1]);
+  let startedAt = null;
+  let message = null;
   lines.forEach((line, i) => {
     const next = lines[i + 1] ?? '';
-    if (line.includes('member=CreateSession')) summary.createSession++;
-    else if (line.includes('member=SelectSources')) summary.selectSources++;
-    else if (line.includes('member=Start')) summary.start++;
-    else if (line.includes('member=OpenPipeWireRemote')) summary.openPipeWireRemote++;
-    else if (line.includes('string "types"')) {
+    const member = /member=(\w+)/.exec(line)?.[1];
+    if (member) message = member;
+    if (member === 'CreateSession') summary.createSession++;
+    else if (member === 'SelectSources') summary.selectSources++;
+    else if (member === 'Start') {
+      summary.start++;
+      startedAt = timeOf(line);
+    } else if (member === 'OpenPipeWireRemote') summary.openPipeWireRemote++;
+    else if (line.includes('string "persist_mode"') && message === 'SelectSources') {
+      const value = /uint32 (\d+)/.exec(next);
+      if (value) summary.persistModes.push(Number(value[1]));
+    } else if (line.includes('string "restore_token"')) {
+      if (message === 'SelectSources') summary.restoreTokensSent++;
+      else if (message === 'Response') summary.restoreTokensReturned++;
+    } else if (line.includes('string "types"')) {
       const value = /uint32 (\d+)/.exec(next);
       if (value) summary.sourceTypes.push(PORTAL_SOURCE_TYPES[value[1]] ?? value[1]);
-    } else if (line.includes('member=Response')) {
+    } else if (line.includes('string "source_type"')) {
+      const value = /uint32 (\d+)/.exec(next);
+      if (value) summary.selected.push(PORTAL_SOURCE_TYPES[value[1]] ?? value[1]);
+    } else if (line.includes('string "size"')) {
+      const size = lines.slice(i + 1, i + 5).map((l) => /int32 (\d+)/.exec(l)?.[1]).filter(Boolean);
+      if (size.length >= 2) summary.streamSizes.push(`${size[0]}x${size[1]}`);
+    } else if (member === 'Response') {
       const code = /uint32 (\d+)/.exec(next);
       if (code) summary.responses.push(Number(code[1]));
+      if (startedAt !== null) {
+        summary.startToResponseMs.push(Math.round((timeOf(line) - startedAt) * 1000));
+        startedAt = null;
+      }
     }
   });
   return summary;
@@ -139,7 +208,9 @@ const userDataDir = mkdtempSync(join(tmpdir(), 'tfl-probe-'));
 if (configPath) {
   writeFileSync(join(userDataDir, 'config.json'), readFileSync(configPath));
 }
-const env = { ...process.env, E2E_USER_DATA_DIR: userDataDir };
+// E2E_TESTING lifts the main process eval() guard that blocks
+// electronApp.evaluate; it changes nothing else in the app.
+const env = { ...process.env, E2E_USER_DATA_DIR: userDataDir, E2E_TESTING: 'true' };
 delete env.ELECTRON_RUN_AS_NODE;
 
 const { monitor, lines } = startPortalMonitor();
@@ -148,6 +219,13 @@ const app = await electron.launch({
   env,
   timeout: 30000,
 });
+// Kept here because ElectronApplication.process() throws once the app is closed.
+const appProcess = app.process();
+const appOutput = [];
+collectLines(appProcess.stdout, appOutput);
+collectLines(appProcess.stderr, appOutput);
+const rendererOutput = [];
+console.error(`[probe] app launched (--ozone-platform=${ozone})`);
 
 try {
   await app.firstWindow({ timeout: 30000 });
@@ -157,18 +235,46 @@ try {
     if (!mainWindow) await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   if (!mainWindow) throw new Error('main window not found');
+  mainWindow.on('console', (message) => rendererOutput.push(message.text()));
   await waitForLoginRedirect(mainWindow);
+  console.error('[probe] sign-in page loaded');
+
+  // A solid magenta window to pick for window shares: the captured frame's
+  // magenta share (targetShare) tells a window capture from a whole screen.
+  await app.evaluate(({ BrowserWindow }) => {
+    const target = new BrowserWindow({ width: 900, height: 600, title: 'PICK THIS - TFL probe target', backgroundColor: '#ff00ff' });
+    target.loadURL('data:text/html,<title>PICK THIS - TFL probe target</title><body style="margin:0;background:%23ff00ff"></body>');
+  });
+  console.error('[probe] magenta "PICK THIS - TFL probe target" window opened');
 
   const attempts = Number(attemptsArg);
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    console.error(`attempt ${attempt}/${attempts}: waiting for the picker`);
-    const from = lines.length;
-    const result = await runAttempt(app);
+    console.error(`[probe] attempt ${attempt}/${attempts}: calling getDisplayMedia, answer the prompt if one appears`);
+    const fromPortal = lines.length;
+    const fromApp = appOutput.length;
+    const fromRenderer = rendererOutput.length;
+    const result = await withTimeout(runAttempt(app), ATTEMPT_TIMEOUT_MS + 5000, { granted: false, error: 'timeout' });
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log(JSON.stringify({ ozone, attempt, ...result, portal: summarisePortal(lines.slice(from)) }));
+    const mainProcessResponsive = result.error === 'timeout'
+      ? await withTimeout(app.evaluate(() => true), 5000, false)
+      : true;
+    console.log(JSON.stringify({
+      ozone,
+      attempt,
+      ...result,
+      mainProcessResponsive,
+      portal: summarisePortal(lines.slice(fromPortal)),
+      appLog: relevantLines(appOutput.slice(fromApp)),
+      rendererLog: relevantLines(rendererOutput.slice(fromRenderer)),
+    }));
+    if (result.error === 'timeout') {
+      console.error('[probe] no answer within the timeout; skipping the remaining attempts');
+      break;
+    }
   }
 } finally {
-  await app.close().catch(() => {});
+  await withTimeout(app.close().catch(() => {}), 10000);
+  if (appProcess.exitCode === null) appProcess.kill('SIGKILL');
   monitor.kill();
   rmSync(userDataDir, { recursive: true, force: true });
 }
