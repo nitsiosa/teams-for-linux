@@ -41,7 +41,9 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 | Build .deb | PASS | `npm run generate-release-info`, then `npx electron-builder --x64 -l deb --publish never` | At `2c9cc7dd`: `dist/teams-for-linux_2.27.0_amd64.deb`, 103,014,796 bytes, SHA-256 `80796e751a0607a36790d08582000b0ee06cc12e2e47b28f899c95d479b8c722`. Baseline on `39ac73bb`: 103,317,920 bytes, SHA-256 `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`. About 225 s per build; x64 only (`npm run dist:linux:deb` also builds arm64) |
 | Package inspect | PASS | `dpkg-deb -I`, `dpkg-deb -c`, control scripts, `desktop-file-validate` | See "Baseline package" and "Phase 1 package and launch" below |
 | Wayland launcher | PASS (packaged binary); installed launcher NOT RUN | `env -u ELECTRON_RUN_AS_NODE WAYLAND_DEBUG=client E2E_USER_DATA_DIR=<temp> timeout 60 dist/linux-unpacked/teams-for-linux --no-sandbox --ozone-platform=wayland` | Native Wayland: 0 X11 windows about 30 s in, 22 `xdg_toplevel` messages, app_id `teams-for-linux`; still running at 60 s. Launching the installed entry from the GNOME menu (sandboxed through AppArmor) needs the `.deb` installed, which needs sudo |
-| Screen source regression tests | NOT RUN | target test | Phase 2 |
+| Screen source regression tests | PASS | `node --test tests/unit/portalPicker.test.js tests/unit/commandLine.test.js` | 7 portal picker handler tests (single source, cancel, several sources, getSources failure, duplicate request, throwing callback, request options) and 3 new switch tests; full unit suite at `cf91da0a`: 1052 tests, 1051 pass, 0 fail, 1 skipped |
+| E2E after the Phase 2 app change | NOT RUN | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | `cf91da0a` touched `app/mainAppWindow/index.js`; rerun needs a fresh sandbox-off approval |
+| Docs site build (CI parity) | PASS | `cd docs-site && npm ci --ignore-scripts && npm run build` | Built at `cf91da0a`; broken-anchor warnings only on the IPC API pages, which this work did not touch |
 
 ## Phase 0 baseline and gap analysis (HEAD `39ac73bb`)
 
@@ -83,6 +85,32 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 - Packaged binary from `dist/linux-unpacked` with `--ozone-platform=wayland` (60 s, `--no-sandbox`, throwaway profile): native Wayland (0 X11 windows about 30 s in; 22 `xdg_toplevel`, 12 `zwp_linux_dmabuf` messages); still running at 60 s; Teams navigation finished in 2.3 s; no fatal or error lines; Wayland app_id `teams-for-linux`.
 - Not yet verified: the installed entry launched from the GNOME menu with the sandbox on, window content not blank, and behaviour after restart. These need the `.deb` installed (sudo) and a human check.
 
+## Phase 2 screen sharing evidence (probe, 2026-10-20)
+
+`tests/manual/waylandShareProbe.mjs` runs the app from the checkout (`--no-sandbox`, throwaway profile), calls `getDisplayMedia` in the main window, and reads the portal's ScreenCast traffic with `dbus-monitor`. A person answers each dialog; a solid magenta "PICK THIS - TFL probe target" window makes window shares measurable (`targetShare` = magenta fraction of the captured frame). Frames never leave the renderer. Host: two monitors, eDP-1 2256x1504 (primary) and DP-2 3440x1440, so L-09 applies; Chromium sizes captured frames to the largest width and height (3440x1504).
+
+The first two runs were invalid: the probe's `electronApp.evaluate` was blocked by the app's main-process `eval()` guard, so no share request was made and no dialog appeared. Fixed by setting `E2E_TESTING=true` in the probe, which only lifts that guard.
+
+Baseline on `abc2e712` (no Phase 2 code; fake media UI switch on):
+
+| Mode | User pick | Portal | Result |
+|---|---|---|---|
+| Native Wayland | Entire screen | 1 session; types monitor+window; picked monitor | Real content; magenta window visible as 4% of the frame |
+| Native Wayland | A window | 1 session; picked window | Real content without magenta; the user was unsure which window they picked, so inconclusive |
+| Native Wayland | Cancel | 1 session; Start answered "cancelled" | **Defect, 2 of 2 runs:** `getDisplayMedia` still resolved, with a black track that ended at once |
+| XWayland | Magenta window, 3 times | 1 session each; picked window | Correct window capture through the portal (81% magenta) |
+| XWayland | Entire screen, Cancel | | NOT RUN (the user picked the window each time) |
+
+With `wayland.portalPicker: true` at `cf91da0a` (native Wayland):
+
+| User pick | Portal | Result |
+|---|---|---|
+| Magenta window | 2 sessions: the dialog (answered in 11.5 s), then Chromium's capture session restored silently from a restore token (13 ms) | 78% magenta; one visible dialog |
+| Entire screen | 2 sessions: dialog (4.0 s), silent restore (12 ms) | Desktop content, magenta window at 11% |
+| Cancel | 1 session; Start answered "cancelled" | `getDisplayMedia` rejected with `AbortError` in 2.4 s; no capture started; app logs `Portal picker ended without a source { reason: 'Failed to get sources.' }` |
+
+In every run the in-app picker never appeared and the main process stayed responsive. Without the setting `getDisplayMedia` resolves before the user picks; with it, only after. Known quirk: with the setting on, the track's `displaySurface` reads "window" even for a monitor pick (without it, "monitor" for everything).
+
 ## Live tests (requires human)
 
 | IDs | Status | Notes / date |
@@ -93,7 +121,7 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 
 - [x] Phase 0 baseline: environment, upstream triage, install, lint, config docs, audit, unit, E2E, `.deb` build, package inspection and launch baseline
 - [ ] Phase 1 launch: Wayland switch characterization tests (`9e58d2b4`) and the opt-in native Wayland `.deb` launcher (`2c9cc7dd`) done; the packaged binary runs native Wayland. Remaining: installed-launcher check with the sandbox on, window not blank, restart behaviour (need the `.deb` installed and a human check)
-- [ ] Phase 2 screen capture
+- [ ] Phase 2 screen capture: baseline measured; opt-in `wayland.portalPicker` fix (`cf91da0a`) verified with the probe on native Wayland. Remaining: E2E rerun after the app change (needs sandbox-off approval), having the Wayland launcher pass `--wayland.portalPicker=true` (packaging approval; CLI parsing verified), and live Teams checks, including whether Teams' repeated `getDisplayMedia` calls open extra dialogs
 - [ ] Phase 3 media/receive/UX
 - [ ] Phase 4 package/review
 
@@ -106,6 +134,10 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 | `9e58d2b4` | Eight characterization tests for `CommandLineManager`'s Wayland switch selection | Unit: 1037 tests, 1036 pass, 0 fail, 1 skipped; lint pass. E2E not rerun (unit-test-only change) |
 | `5203f919` | Phase 1 progress note | Docs only |
 | `2c9cc7dd` | Opt-in "Teams for Linux (Wayland)" desktop entry in the `.deb` via `build.deb.fpm`, plus five unit tests guarding it | Unit: 1042 tests, 1041 pass, 0 fail, 1 skipped; lint pass; `.deb` built and inspected; packaged binary runs native Wayland. E2E not rerun (packaging config only) |
+| `7192cd53` | Phase 1 evidence in `PROGRESS.md` and `DECISIONS.md` | Docs only |
+| `abc2e712` | Interactive screen-sharing probe (`tests/manual/`, not run by CI) | Lint pass; usage path checked |
+| `cf91da0a` | Opt-in `wayland.portalPicker` for native Wayland: skips the fake media UI switch, single portal enumeration handler with cancel, several-source and duplicate-request guards; generated config docs, `configuration.md` and module README updated | Unit: 1052 tests, 1051 pass, 0 fail, 1 skipped; lint pass; config docs in sync; docs site builds; probe on native Wayland as in "Phase 2 screen sharing evidence". E2E not rerun yet |
+| `3724a152` | Probe: `E2E_TESTING`, process-side timeout, app logs, portal pick type, stream size, persist mode, restore tokens, Start timing, magenta target window | Lint pass; used for the runs above |
 
 ## Known failures and blockers
 
@@ -114,6 +146,10 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 | Electron from the checkout cannot start with the Chromium sandbox | Worked around for local tests; not a product defect (the installed `.deb` ships an AppArmor profile) | `env -u ELECTRON_RUN_AS_NODE node_modules/electron/dist/electron --version` | `FATAL ... setuid_sandbox_host.cc:166`, exit 133; `kernel.apparmor_restrict_unprivileged_userns=1` | Local E2E and source launches use `--no-sandbox` (approved); check sandboxed behaviour on the installed `.deb` |
 | "Teams for Linux (Wayland)" cannot start in an X11 desktop session | Low; expected | Choose the Wayland entry while logged into an Xorg session | `--ozone-platform=wayland` needs a Wayland compositor | Use the default "Teams for Linux" entry there |
 | Windows opened from the Wayland entry group under the default "Teams for Linux" icon | Cosmetic | Launch "Teams for Linux (Wayland)" and look at the dash | Wayland app_id is `teams-for-linux`, matching `teams-for-linux.desktop` | Leave; a per-entry app_id (`--class`) could also change the profile directory |
+| Cancelling the share dialog hands Teams a dead stream (setting off) | High for native Wayland sharing | Native Wayland, `wayland.portalPicker` off, press Cancel in the dialog | Probe: `getDisplayMedia` resolves with a black, already-ended track (2 of 2 runs) | Fixed when `wayland.portalPicker` is on (`cf91da0a`); the Wayland launcher should turn it on |
+| Teams may call `getDisplayMedia` more than once per share | Unknown | Real meeting share | Upstream comment in `injectedScreenSharing.js`; with the portal picker, concurrent calls are rejected, sequential calls each open a dialog | Watch for extra dialogs in L-04 and L-08 |
+| `displaySurface` reads "window" for monitor picks with the portal picker | Low | Probe, entire-screen pick with the setting on | Track settings | Note for upstream; check whether Teams changes behaviour in L-05 |
+| xdg-desktop-portal 1.21+ refuses sessions for app IDs without an installed `.desktop` file | Future risk | Newer Ubuntu with portal 1.21+ | Electron 44 `app.setDesktopName` docs; this host runs 1.18.4 | The `.deb` installs `teams-for-linux.desktop`, matching the default app ID; source runs may be refused there |
 
 ## Build artifact and human acceptance handoff
 
