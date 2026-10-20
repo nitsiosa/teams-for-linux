@@ -1,0 +1,40 @@
+---
+description: Teams-for-Linux Ubuntu Wayland media, upstream contribution, and autonomous delivery contract
+alwaysApply: true
+---
+
+# Implementation rules (apply to every agent edit)
+
+## User goal and scope
+- Target **Ubuntu Linux on Wayland**. Must support Teams audio, video, window capture, full-monitor/desktop capture, receiving another participant's share, reliable notifications and normal authentication.
+- **No remote control**. Do not implement Outlook in this codebase.
+- Prototype first, evidence first, minimal diff against `IsmaelMartinez/teams-for-linux`.
+
+## Required repository reading
+- Upstream `CLAUDE.md` and `CONTRIBUTING.md` are applicable engineering standards; read local `docs-site/docs/` before looking online for the same topic.
+- Project files to inspect, not blindly rewrite: `app/index.js`, `app/startup/`, `app/mainAppWindow/`, `app/screenSharing/`, `app/browser/tools/`, `app/appConfiguration/`, `app/security/ipcValidator.js`, `app/config/options.js`, `package.json`, `tests/`, `docs-site/docs/`.
+- Inspect actual paths/head before editing; some names may change in newer commits.
+
+## Change and testing requirements
+- Before implementation: reproduce or identify the failing behavior and write a precise test/assertion when feasible.
+- Prefer existing desktopCapturer/getDisplayMedia/ScreenCast portal and Chromium WebRTC over new proprietary media, Graph calls or low-level DBus code.
+- Honor Chromium/Electron's startup-time flags and native Wayland/XWayland distinction. Avoid changes to the Windows/macOS default behavior.
+- If changing configuration options: maintain AppConfiguration semantics and run `npm run generate-config-docs` if available.
+- If changing IPC: use existing patterns, update allowlist in `app/security/ipcValidator.js`, comment registrations, run `npm run generate-ipc-docs` if available.
+- Never use blanket `--no-sandbox` in distributable production settings. Dev-only `start:dev` existing behavior is not authority to weaken release configuration.
+- Never weaken domain allowlists, node integration, context isolation/sandboxing further; existing upstream exceptions require security review before enterprise deployment.
+- Never commit a log containing tenant IDs, emails, meeting links, access tokens, auth cookies, URLs with query parameters or media content. Redact diagnostics by default.
+- Use `npm ci`, `npm run lint`, `npm run test:unit`, `npm run test:e2e` where runnable, relevant module tests, plus `npm run dist:linux:deb`/`electron-builder` packaging. Run appropriate gates after each coherent change.
+- Use `const`/`let` not `var`, async/await, upstream code style and `electron-log` patterns; support plain Linux .deb first.
+
+## Autonomous execution
+- Work through `docs/wayland/IMPLEMENTATION_PLAN.md` from baseline to release candidate. Recheck already-fixed upstream work before coding.
+- For reversible choices, decide and document; never ask 'what should I do next?'. Don't busy-wait for the user or invent another feature.
+- Make small commits at successful boundaries with meaningful messages; never force-push or overwrite someone else's work.
+- Do not modify deployment environments, publish releases, or submit upstream PR without separate approval.
+- When a step requires human authentication/two-person call, mark BLOCKED-HUMAN and continue independent work. At the end provide ONE consolidated test script/checklist.
+- Maintain `docs/wayland/PROGRESS.md` with commands, results, evidence, decisions, commits, and remaining issues. FAIL is not PASS; NOT RUN is not PASS.
+
+## External research and REA
+- Consult current upstream code/issues before speculating. Use REA optionally **only** to investigate a specific unresolved front-end/Electron behavior after normal debugging; see `docs/wayland/REA.md`.
+- Do not harvest credentials, bypass enterprise policy, exfiltrate proprietary source, intercept third-party private traffic or circumvent access restrictions.
