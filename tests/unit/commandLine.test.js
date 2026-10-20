@@ -9,6 +9,7 @@ const commandLinePath = require.resolve('../../app/startup/commandLine');
 const originalElectron = require.cache[electronPath];
 const originalPlatform = process.platform;
 const originalArch = process.arch;
+const originalSessionType = process.env.XDG_SESSION_TYPE;
 
 // Run CommandLineManager.addSwitchesAfterConfigLoad under a mocked Electron
 // `app.commandLine`, forced platform and arch, returning the list of switches
@@ -84,6 +85,53 @@ function switchesBeforeConfigLoad(platform, existingDisableFeatures) {
   try {
     const CommandLineManager = require(commandLinePath);
     CommandLineManager.addSwitchesBeforeConfigLoad();
+    return { switches, warnings };
+  } finally {
+    console.warn = originalWarn;
+  }
+}
+
+// Same Electron cache stub as appendedSwitches, run on Linux under the given
+// XDG_SESSION_TYPE (null unsets it), with an optional explicit --ozone-platform
+// value and an optional caller-supplied enable-features list.
+function waylandSwitches(config, { sessionType = 'wayland', ozonePlatform = '', enableFeatures } = {}) {
+  const switches = [];
+  const warnings = [];
+  const originalWarn = console.warn;
+  console.warn = (...args) => warnings.push(args.map(String).join(' '));
+
+  const app = {
+    commandLine: {
+      appendSwitch: (name, value) => switches.push([name, value]),
+      hasSwitch: (name) => name === 'enable-features' && enableFeatures !== undefined,
+      getSwitchValue: (name) => {
+        if (name === 'ozone-platform') return ozonePlatform;
+        if (name === 'enable-features') return enableFeatures ?? '';
+        return '';
+      },
+    },
+    setName: () => {},
+    setDesktopName: () => {},
+    disableHardwareAcceleration: () => {},
+  };
+
+  require.cache[electronPath] = {
+    id: electronPath,
+    filename: electronPath,
+    loaded: true,
+    exports: { app },
+  };
+  Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+  if (sessionType === null) {
+    delete process.env.XDG_SESSION_TYPE;
+  } else {
+    process.env.XDG_SESSION_TYPE = sessionType;
+  }
+  delete require.cache[commandLinePath];
+
+  try {
+    const CommandLineManager = require(commandLinePath);
+    CommandLineManager.addSwitchesAfterConfigLoad(config);
     return { switches, warnings };
   } finally {
     console.warn = originalWarn;
@@ -214,5 +262,89 @@ describe('CommandLineManager disable-features defaults', () => {
     assert.ok(!hasSwitch(switches, 'disable-features'));
     assert.ok(warnings.some((warning) => warning.includes('HardwareMediaKeyHandling')));
     assert.ok(warnings.every((warning) => !warning.includes('UsePortalAccentColor')));
+  });
+});
+
+describe('CommandLineManager Wayland switches', () => {
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    if (originalSessionType === undefined) {
+      delete process.env.XDG_SESSION_TYPE;
+    } else {
+      process.env.XDG_SESSION_TYPE = originalSessionType;
+    }
+    if (originalElectron) {
+      require.cache[electronPath] = originalElectron;
+    } else {
+      delete require.cache[electronPath];
+    }
+    delete require.cache[commandLinePath];
+  });
+
+  it('enables PipeWire capture, disables the GPU and adds fake media UI on native Wayland', () => {
+    const { switches } = waylandSwitches({ authServerWhitelist: '*' });
+    assert.strictEqual(switchValue(switches, 'enable-features'), 'WebRTCPipeWireCapturer');
+    assert.ok(hasSwitch(switches, 'disable-gpu'), 'GPU disabled by default');
+    assert.ok(hasSwitch(switches, 'use-fake-ui-for-media-stream'), 'fake media UI added');
+  });
+
+  it('treats an explicit --ozone-platform=wayland as native Wayland', () => {
+    const { switches } = waylandSwitches(
+      { authServerWhitelist: '*', wayland: { xwaylandOptimizations: true } },
+      { ozonePlatform: 'wayland' },
+    );
+    assert.ok(hasSwitch(switches, 'disable-gpu'), 'xwaylandOptimizations only applies under XWayland');
+    assert.ok(hasSwitch(switches, 'use-fake-ui-for-media-stream'));
+  });
+
+  it('applies the same defaults under XWayland when xwaylandOptimizations is off', () => {
+    const { switches } = waylandSwitches({ authServerWhitelist: '*' }, { ozonePlatform: 'x11' });
+    assert.strictEqual(switchValue(switches, 'enable-features'), 'WebRTCPipeWireCapturer');
+    assert.ok(hasSwitch(switches, 'disable-gpu'));
+    assert.ok(hasSwitch(switches, 'use-fake-ui-for-media-stream'));
+  });
+
+  it('keeps the GPU and skips fake media UI under XWayland with xwaylandOptimizations', () => {
+    const { switches } = waylandSwitches(
+      { authServerWhitelist: '*', wayland: { xwaylandOptimizations: true } },
+      { ozonePlatform: 'x11' },
+    );
+    assert.strictEqual(switchValue(switches, 'enable-features'), 'WebRTCPipeWireCapturer');
+    assert.ok(!hasSwitch(switches, 'disable-gpu'));
+    assert.ok(!hasSwitch(switches, 'use-fake-ui-for-media-stream'));
+  });
+
+  it('respects an explicit disableGpu setting over the Wayland default', () => {
+    const { switches } = waylandSwitches({
+      authServerWhitelist: '*',
+      disableGpu: false,
+      disableGpuExplicitlySet: true,
+    });
+    assert.ok(!hasSwitch(switches, 'disable-gpu'));
+    assert.ok(hasSwitch(switches, 'use-fake-ui-for-media-stream'), 'fake media UI does not depend on the GPU setting');
+  });
+
+  it('leaves a caller-supplied enable-features list alone and warns when PipeWire is missing', () => {
+    const { switches, warnings } = waylandSwitches({ authServerWhitelist: '*' }, { enableFeatures: 'SomeFeature' });
+    assert.ok(!hasSwitch(switches, 'enable-features'));
+    assert.ok(warnings.some((warning) => warning.includes('WebRTCPipeWireCapturer')));
+  });
+
+  it('does not warn when a caller-supplied list already enables PipeWire', () => {
+    const { switches, warnings } = waylandSwitches(
+      { authServerWhitelist: '*' },
+      { enableFeatures: 'SomeFeature,WebRTCPipeWireCapturer' },
+    );
+    assert.ok(!hasSwitch(switches, 'enable-features'));
+    assert.deepStrictEqual(warnings, []);
+  });
+
+  it('adds none of the Wayland switches outside a Wayland session', () => {
+    for (const sessionType of ['x11', null]) {
+      const { switches } = waylandSwitches({ authServerWhitelist: '*' }, { sessionType });
+      assert.ok(!hasSwitch(switches, 'enable-features'), `no enable-features for ${sessionType}`);
+      assert.ok(!hasSwitch(switches, 'disable-gpu'), `GPU untouched for ${sessionType}`);
+      assert.ok(!hasSwitch(switches, 'use-fake-ui-for-media-stream'), `no fake media UI for ${sessionType}`);
+    }
   });
 });
