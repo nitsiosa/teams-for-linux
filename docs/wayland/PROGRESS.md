@@ -127,7 +127,16 @@ Run 1, the Wayland launcher's configuration (native Wayland, `wayland.portalPick
 
 So with the portal picker the camera survives share start, stop and cancel (the "camera stops" part of #2871 does not occur), and neither the dialog session nor the capture session outlives the share. An earlier attempt of this run timed out because nobody was at the desk; it showed the portal session stays open while the dialog waits, and the camera stayed live meanwhile.
 
-Run 2, the shipped default (XWayland, fake media UI switch on), with `--camera`, partial (19:52, nobody at the desk): camera and microphone granted (640x480, both tracks live, frames changing), so the default mode's camera works on this host. The share dialog went unanswered, so attempt 1 timed out with the camera still live and the dialog's portal session open until the app closed. The entire-screen, window and cancel steps under XWayland with the camera are NOT RUN. Next: `node --no-warnings tests/manual/waylandShareProbe.mjs x11 --camera > dist/tfl-probe-run2.log 2>&1` with someone answering entire screen, the magenta window, then Cancel.
+Run 2, the shipped default (XWayland, fake media UI switch on), with `--camera`, at `838280a3` (19:57 and 20:05; the second run placed the windows side by side and turned the preview thumbnail off):
+
+| Step | Result |
+|---|---|
+| Camera and microphone | Granted under the fake media UI switch: 640x480, both tracks live, frames changing (no camera crash, cf. #2169) |
+| Entire screen (twice) | Granted; monitor picked; one portal session; real content (magenta window visible at 9-11%), not black; camera still live; 0 portal sessions open afterwards |
+| Magenta window | Granted; window picked (77% magenta); camera still live with changing frames; 0 portal sessions open afterwards |
+| Cancel | NOT RUN. Expected to give the same dead, already-ended track as native Wayland without the portal picker, since the fake media UI switch is on |
+
+Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWayland goes through the portal, so whole-screen sharing showed real content on this host, contrary to upstream `troubleshooting.md` ("Sharing the whole screen shows black under XWayland"); worth re-checking before relying on either claim. Second, in the 19:57 run a second share dialog disappeared behind other windows when clicked (the always-on-top preview thumbnail and stacked windows were up), and the request then timed out; watch for this in L-08 with repeated shares.
 
 ## Live tests (requires human)
 
@@ -140,7 +149,7 @@ Run 2, the shipped default (XWayland, fake media UI switch on), with `--camera`,
 - [x] Phase 0 baseline: environment, upstream triage, install, lint, config docs, audit, unit, E2E, `.deb` build, package inspection and launch baseline
 - [ ] Phase 1 launch: Wayland switch characterization tests (`9e58d2b4`) and the opt-in native Wayland `.deb` launcher (`2c9cc7dd`) done; the packaged binary runs native Wayland. Remaining: installed-launcher check with the sandbox on, window not blank, restart behaviour (need the `.deb` installed and a human check)
 - [ ] Phase 2 screen capture: baseline measured; opt-in `wayland.portalPicker` fix (`cf91da0a`) verified with the probe on native Wayland; E2E passes after the change; the Wayland launcher turns the setting on (`9d557739`). Remaining: live Teams checks (including whether Teams' repeated `getDisplayMedia` calls open extra dialogs), and XWayland entire-screen and cancel measurements for the fallback
-- [ ] Phase 3 media/receive/UX: startup diagnostics (`0d6748b8`) and probe camera and cleanup checks (`260383c7`) done; camera and microphone verified in the Wayland launcher's configuration. Remaining: the share steps of probe run 2 (XWayland default with `--camera`; its camera start passed), rebuild the `.deb` at HEAD (the one in `dist/` predates `0d6748b8`; delete it first and check `ar t`), and the human-only checks: incoming share rendering (L-07, GPU is off by default on Wayland), two-way audio and video (L-02, L-03), 30-minute soak (L-10)
+- [ ] Phase 3 media/receive/UX: startup diagnostics (`0d6748b8`) and probe camera and cleanup checks (`260383c7`) done; camera and microphone verified in the Wayland launcher's configuration. Probe run 2 (XWayland default with `--camera`) done except Cancel. Remaining: rebuild the `.deb` at HEAD (the one in `dist/` predates `0d6748b8`; delete it first and check `ar t`), and the human-only checks: incoming share rendering (L-07, GPU is off by default on Wayland), two-way audio and video (L-02, L-03), 30-minute soak (L-10)
 - [ ] Phase 4 package/review
 
 ## Completed patches / commits
