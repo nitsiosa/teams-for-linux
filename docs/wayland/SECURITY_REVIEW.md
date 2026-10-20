@@ -1,0 +1,27 @@
+# Security and privacy review of the fork's changes
+
+Reviewed 2026-10-20 at `e133cf21`. Product code changed in four commits since upstream `39ac73bb`: `2c9cc7dd`, `cf91da0a`, `9d557739`, `0d6748b8` (12 files, +240/-11). This is an engineering review, not the enterprise security review upstream's README asks for before corporate deployment.
+
+## Findings
+
+| Change | Risk considered | Assessment | Evidence |
+|---|---|---|---|
+| `wayland.portalPicker` drops `--use-fake-ui-for-media-stream` on native Wayland (`cf91da0a`) | Camera and microphone requests could be denied or newly auto-granted | No change in effect. The app registers no permission request or check handler, so Electron's default approves media requests with or without the switch. Screen capture now starts only after the user picks a source in the portal dialog; before, `getDisplayMedia` resolved before the pick | `grep` for `setPermissionRequestHandler`, `setPermissionCheckHandler`, `setDevicePermissionHandler` in `app/`: none. Probe: camera and microphone granted in both modes |
+| Portal picker display-media handler (`app/screenSharing/portalPicker.js`) | Capturing a source the user did not choose; stacked dialogs | Shares only when the portal returns exactly one source; zero or several sources reject the request; a request arriving while a dialog is open is rejected. It does not check `request.frame`, the same as the existing in-app picker; every share still needs the user's pick in the system dialog | 7 unit tests; probe runs with screen, window and cancel picks |
+| Handler and startup logs | PII in logs | Fixed messages plus Electron's error text (`Failed to get sources.`); no source names, titles, paths or account data | Code review; probe app logs |
+| Opt-in "Teams for Linux (Wayland)" desktop entry (`2c9cc7dd`, `9d557739`) | Escaping the AppArmor profile or the Chromium sandbox; hijacking deep links | Starts the same `/opt/teams-for-linux/teams-for-linux` path the profile attaches to; adds only `--ozone-platform=wayland --wayland.portalPicker=true`; no `--no-sandbox`; no `MimeType`, so `msteams:` links keep going to the default entry | `.deb` inspection; unit test `waylandDesktopEntry.test.js` |
+| Package contents | Changed permissions or shipped test code | Binary and `chrome-sandbox` `755` as before (postinst sets `4755` only without user namespaces); the new desktop file is `664` root-owned like upstream's generated entry; `app.asar` holds no `tests/` files | `dpkg-deb -c`; `@electron/asar` listing (2684 entries, 0 under `/tests`) |
+| Startup diagnostics (`app/screenSharing/waylandPrerequisites.js`) | Information disclosure, slow or risky startup work | Reads environment variables, checks for files under `XDG_DATA_DIRS` and reads small `.portal` files; no subprocesses, D-Bus calls or network; messages carry no paths; skipped inside Flatpak and snap | 8 unit tests, including one that keeps user paths out of messages |
+| Test-only probe (`tests/manual/waylandShareProbe.mjs`) | Leaking screen or camera content; weakening the shipped app | Not shipped. Runs the checkout with `--no-sandbox` and `E2E_TESTING` only on a developer desktop; reduces captured frames to brightness numbers inside the renderer; never listens to the microphone; reads only ScreenCast portal traffic during a run and saves nothing | Code review; asar listing |
+
+Nothing in these changes adds IPC channels (so `app/security/ipcValidator.js` is unchanged), touches `contextIsolation`, `nodeIntegration` or `sandbox`, adds network endpoints, or adds dependencies.
+
+## Pre-existing risks, unchanged by the fork
+
+- `contextIsolation` and the renderer sandbox are off for the Teams windows so injected scripts can reach the Teams DOM (upstream README warning).
+- With no permission handler, Electron approves every permission request from Teams web content (camera, microphone, notifications and others).
+- Electron cannot start sandboxed from a source checkout on Ubuntu 24.04 (`kernel.apparmor_restrict_unprivileged_userns=1`); local tests use `--no-sandbox`, while the installed `.deb` keeps the sandbox through its AppArmor profile.
+
+## Licence
+
+GPL-3.0-or-later is unchanged. No third-party code was copied; the portal picker re-implements the approach from upstream PR #2872 and credits it in the commit message.

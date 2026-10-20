@@ -150,7 +150,7 @@ Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWaylan
 - [ ] Phase 1 launch: Wayland switch characterization tests (`9e58d2b4`) and the opt-in native Wayland `.deb` launcher (`2c9cc7dd`) done; the packaged binary runs native Wayland. Remaining: installed-launcher check with the sandbox on, window not blank, restart behaviour (need the `.deb` installed and a human check)
 - [ ] Phase 2 screen capture: baseline measured; opt-in `wayland.portalPicker` fix (`cf91da0a`) verified with the probe on native Wayland; E2E passes after the change; the Wayland launcher turns the setting on (`9d557739`). Remaining: live Teams checks (including whether Teams' repeated `getDisplayMedia` calls open extra dialogs), and XWayland entire-screen and cancel measurements for the fallback
 - [ ] Phase 3 media/receive/UX: startup diagnostics (`0d6748b8`) and probe camera and cleanup checks (`260383c7`) done; camera and microphone verified in the Wayland launcher's configuration. Probe run 2 (XWayland default with `--camera`) done except Cancel; `.deb` rebuilt at `57d72759`. Remaining, human-only: incoming share rendering (L-07, GPU is off by default on Wayland), two-way audio and video (L-02, L-03), 30-minute soak (L-10)
-- [ ] Phase 4 package/review
+- [ ] Phase 4 package/review: `.deb` built and inspected at `57d72759`; security review (`SECURITY_REVIEW.md`), one human acceptance checklist (`ACCEPTANCE_CHECKLIST.md`) and an upstream PR plan with a draft description (`UPSTREAM_PR_DRAFT.md`) written. Waiting on the human acceptance checks; pushing and opening PRs need separate approval
 
 ## Completed patches / commits
 
@@ -171,6 +171,8 @@ Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWaylan
 | `a0a1c6a3` | Corrected `.deb` checksum and the doubled-archive check | Docs only |
 | `0d6748b8` | Startup warnings when the PipeWire socket, the portal service or a ScreenCast backend is missing on Wayland; troubleshooting entry and module README | Unit: 1060 tests, 1059 pass, 0 fail, 1 skipped (8 new); lint pass; config docs in sync; docs site builds; E2E 17/17 at `260383c7` |
 | `260383c7` | Probe `--camera`: camera and microphone checks around each share, open portal session count after each share | Lint pass; usage path and session counter checked; used for Phase 3 run 1 |
+| `7add29c2` | Probe places the magenta window and the main window side by side | Lint pass; used for Phase 3 run 2 |
+| `57d72759`, `e133cf21` and the other `docs(wayland)` commits after `260383c7` | Phase 3 evidence and the rebuilt `.deb` | Docs only |
 
 ## Known failures and blockers
 
@@ -191,6 +193,7 @@ Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWaylan
 - SHA-256: `01948528be5c2a3aadb73eb2a8b130a0f3c98bb4cd00f1231f0a0d075ff9259b`
 - Native Wayland invocation / installed desktop entry: "Teams for Linux (Wayland)" in the application menu, or `teams-for-linux --ozone-platform=wayland --wayland.portalPicker=true` from a terminal
 - X11 fallback invocation and limitations: the default "Teams for Linux" entry, or `teams-for-linux --ozone-platform=x11`. Runs under XWayland, where sharing the whole screen shows black (upstream `troubleshooting.md`)
-- Redacted error logs:
-- User action required (one consolidated request):
-- Ready for upstream PR review? NO
+- Redacted error logs: none captured; the checklist says how to report failures without private data
+- User action required (one consolidated request): `docs/wayland/ACCEPTANCE_CHECKLIST.md` (install the `.deb`, then L-01 to L-12 with a second participant)
+- Security review: `docs/wayland/SECURITY_REVIEW.md` (no new IPC, permissions, sandbox or network changes; pre-existing upstream risks listed)
+- Ready for upstream PR review? Not yet. Plan and draft in `docs/wayland/UPSTREAM_PR_DRAFT.md`; open only after the acceptance checks pass and with your approval to push
