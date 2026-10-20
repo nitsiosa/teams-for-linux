@@ -12,6 +12,7 @@ const {
 } = require("electron");
 const { StreamSelector } = require("../screenSharing");
 const { createPortalPickerHandler } = require("../screenSharing/portalPicker");
+const { findScreenShareProblems } = require("../screenSharing/waylandPrerequisites");
 const CommandLineManager = require("../startup/commandLine");
 const login = require("../login");
 const customCSS = require("../customCSS");
@@ -766,6 +767,12 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
   }
 
   bindDisplayMediaHandler(window.webContents.session);
+
+  if (process.env.XDG_SESSION_TYPE === "wayland") {
+    for (const problem of findScreenShareProblems()) {
+      console.warn(`[SCREEN_SHARE] ${problem}`);
+    }
+  }
 
   // #2534: the Teams-side script pumps VideoFrames from the active
   // screen-share track through a MessagePort; the preview window reconstructs

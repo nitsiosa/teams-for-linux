@@ -9,6 +9,8 @@ Provides native screen/window selection and preview window management for Teams 
 - **browser.js** - Renderer process UI logic
 - **preload.js** - Context bridge for IPC
 - **injectedScreenSharing.js** - Client-side Teams DOM integration, executed by `mainAppWindow` into the root window and into every multi-account profile view on `did-finish-load` (#2979)
+- **portalPicker.js** - Display-media handler for native Wayland with `wayland.portalPicker`: one xdg-desktop-portal enumeration, picked source passed straight through
+- **waylandPrerequisites.js** - Startup checks on Wayland sessions for the PipeWire socket, the xdg-desktop-portal service and a ScreenCast backend; `mainAppWindow` logs each missing piece as a `[SCREEN_SHARE]` warning
 
 ## ScreenSharingService Class
 

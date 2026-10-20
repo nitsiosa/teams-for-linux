@@ -598,6 +598,17 @@ Teams for Linux currently launches with --ozone-platform=x11 by default on all L
 
 **Related GitHub Issues:** [#3066](https://github.com/IsmaelMartinez/teams-for-linux/issues/3066)
 
+#### Issue: No screen-sharing dialog on Wayland, or a sharing error after cancelling it
+
+**Description:** On a Wayland session, screen sharing goes through PipeWire and the system's xdg-desktop-portal screen-sharing dialog. If PipeWire, the portal, or a portal backend that offers screen casting is missing, no dialog appears. The app checks for these at startup on Wayland sessions and logs a `[SCREEN_SHARE]` warning for each one it cannot find.
+
+**Solutions/Workarounds:**
+
+1. **Check the startup log** for `[SCREEN_SHARE]` warnings (start `teams-for-linux` from a terminal to see them) and install what they name: `pipewire`, `xdg-desktop-portal`, and the backend for your desktop, such as `xdg-desktop-portal-gnome`, `xdg-desktop-portal-kde` or `xdg-desktop-portal-wlr`.
+2. **Enable the portal picker** with `"wayland": { "portalPicker": true }` if the dialog appears but Teams reports a sharing error after you cancel it. See [Configuration](configuration.md).
+
+**Related GitHub Issues:** [#2871](https://github.com/IsmaelMartinez/teams-for-linux/issues/2871)
+
 :::note Important
 The `performance.electronCLIFlags` config option (`config.json`) **cannot** override `--ozone-platform` because the flag must be set before the Electron process starts, and config is loaded after. Use command-line arguments or `.desktop` file edits instead.
 :::
