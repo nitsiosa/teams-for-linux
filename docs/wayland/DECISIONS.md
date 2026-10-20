@@ -43,3 +43,7 @@ On blocker: state the exact action needed, one command or checkbox, severity, an
 | Date | Decision | Alternatives | Evidence | Reversible? |
 |---|---|---|---|---|
 | 2026-10-20 | `.deb` P0, native Wayland, X11 fallback; Outlook later | Snap-first, full rewrite | Upstream package flags and reported Snap/portal problems | Yes |
+| 2026-10-20 | Node 24.22.0 from the official tarball in `~/.local/opt`, user-approved; no shell rc changes | apt (Node 18, too old), NodeSource (sudo), nvm (piped installer, edits `~/.bashrc`) | `.nvmrc` is 24; Node was absent | Yes, delete the directory |
+| 2026-10-20 | Install like CI: `npm ci --ignore-scripts`, then the Electron binary download and `npm run postinstall` | Plain `npm ci` | `build.yml` blocks dependency lifecycle scripts; only `cbor-extract` and `electron-winstaller` scripts are skipped | Yes |
+| 2026-10-20 | Local `.deb` builds are x64 only: `npx electron-builder --x64 -l deb --publish never` | `npm run dist:linux:deb` (adds arm64) | Host is x86_64; arm64 cannot be tested here; `--publish never` rules out uploads | Yes |
+| 2026-10-20 | Local E2E and source launches run with `--no-sandbox` (E2E via `CI=1`), user-approved, test processes only; sandboxed runs are checked on the installed `.deb` | setuid-root dev `chrome-sandbox` (sudo, reset by `npm ci`); disabling the Ubuntu userns restriction (system-wide) | Chromium aborts from the checkout on Ubuntu 24.04; upstream CI uses the same flag | Yes |
