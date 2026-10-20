@@ -36,13 +36,13 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 | Lint | PASS | `npm run lint` | Exit 0, no findings |
 | Config docs drift (CI parity) | PASS | `npm run generate-config-docs` then `git diff --quiet` on the generated files | 85 options, no diff |
 | Dependency audit (CI parity) | PASS | `npm audit --audit-level=critical` | 0 critical. 8 moderate, all in the electron-builder toolchain (`roarr` → `global-agent` → `@electron/get` → `app-builder-lib`); pre-existing on HEAD |
-| Unit tests | PASS | `npm run test:unit` | At `9d557739`: 1052 tests, 1051 pass, 0 fail, 1 skipped (Flatpak case that only runs off Linux). Baseline on `39ac73bb`: 1029 tests, 1028 pass, 1 skipped |
+| Unit tests | PASS | `npm run test:unit` | At `0d6748b8`: 1060 tests, 1059 pass, 0 fail, 1 skipped (Flatpak case that only runs off Linux). Baseline on `39ac73bb`: 1029 tests, 1028 pass, 1 skipped |
 | E2E | PASS | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | 17 passed, 0 failed, retries disabled, 2.4 min. Ran on the live GNOME Wayland desktop (no `xvfb-run`); `CI=1` adds `--no-sandbox` to test launches. The harness printed "Process cleanup: Close timeout" once during the smoke test without failing it |
 | Build .deb | PASS | `npm run generate-release-info`, then `npx electron-builder --x64 -l deb --publish never` | At `9d557739`: `dist/teams-for-linux_2.27.0_amd64.deb`, 103,339,924 bytes, SHA-256 `c1f5b439c2b674bb1f882cffb7b892d3f310b72bb7400642a24fb1c4002083ee`, three archive members, 101 files, Installed-Size 308,185 KiB. (A parallel run of this session built into the same file at the same time, producing a 206 MB archive with every member twice; it was deleted and rebuilt. Delete `dist/*.deb` before building and check `ar t` lists exactly `debian-binary control.tar.xz data.tar.xz`.) At `2c9cc7dd`: 103,014,796 bytes, SHA-256 `80796e751a0607a36790d08582000b0ee06cc12e2e47b28f899c95d479b8c722`. Baseline on `39ac73bb`: 103,317,920 bytes, SHA-256 `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`. About 225 s per build; x64 only (`npm run dist:linux:deb` also builds arm64) |
 | Package inspect | PASS | `dpkg-deb -I`, `dpkg-deb -c`, control scripts, `desktop-file-validate` | See "Baseline package" and "Phase 1 package and launch" below |
 | Wayland launcher | PASS (packaged binary); installed launcher NOT RUN | `env -u ELECTRON_RUN_AS_NODE WAYLAND_DEBUG=client E2E_USER_DATA_DIR=<temp> timeout 60 dist/linux-unpacked/teams-for-linux --no-sandbox --ozone-platform=wayland` | Native Wayland: 0 X11 windows about 30 s in, 22 `xdg_toplevel` messages, app_id `teams-for-linux`; still running at 60 s. Since `9d557739` the entry's `Exec` also passes `--wayland.portalPicker=true` (packaged entry identical to the source, `desktop-file-validate` exit 0; parsing of the flag verified against the app's yargs setup). Launching the installed entry from the GNOME menu (sandboxed through AppArmor) needs the `.deb` installed, which needs sudo |
 | Screen source regression tests | PASS | `node --test tests/unit/portalPicker.test.js tests/unit/commandLine.test.js` | 7 portal picker handler tests (single source, cancel, several sources, getSources failure, duplicate request, throwing callback, request options) and 3 new switch tests; full unit suite at `cf91da0a`: 1052 tests, 1051 pass, 0 fail, 1 skipped |
-| E2E after the Phase 2 app change | PASS | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | At `9d557739` (the app change landed in `cf91da0a`): 17 passed, 0 failed, retries disabled, 1.9 min, live desktop, test processes with `--no-sandbox` (user-approved) |
+| E2E after the Phase 2 and 3 app changes | PASS | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | At `260383c7` (includes the `0d6748b8` startup diagnostics): 17 passed, 0 failed, retries disabled, 2.3 min. At `9d557739`: 17 passed, 1.9 min. Live desktop, test processes with `--no-sandbox` (user-approved) |
 | Docs site build (CI parity) | PASS | `cd docs-site && npm ci --ignore-scripts && npm run build` | Built at `cf91da0a`; broken-anchor warnings only on the IPC API pages, which this work did not touch |
 
 ## Phase 0 baseline and gap analysis (HEAD `39ac73bb`)
@@ -111,6 +111,24 @@ With `wayland.portalPicker: true` at `cf91da0a` (native Wayland):
 
 In every run the in-app picker never appeared and the main process stayed responsive. Without the setting `getDisplayMedia` resolves before the user picks; with it, only after. Known quirk: with the setting on, the track's `displaySurface` reads "window" even for a monitor pick (without it, "monitor" for everything).
 
+## Phase 3 camera, microphone and cleanup evidence (probe `--camera`, 2026-10-20)
+
+Startup diagnostics (`0d6748b8`) report nothing on this host, which has the PipeWire socket, the portal service and `gnome.portal` with ScreenCast.
+
+Run 1, the Wayland launcher's configuration (native Wayland, `wayland.portalPicker: true`), at `260383c7`:
+
+| Step | Result |
+|---|---|
+| Camera and microphone | `getUserMedia` granted without the fake media UI switch: 1 video track (640x480) and 1 audio track; video and microphone tracks live, microphone not muted; frames changing |
+| Entire screen | Granted; monitor picked; dialog answered in 28.4 s, capture session restored silently in 10 ms; camera still live with changing frames; 0 portal sessions open afterwards |
+| Magenta window | Granted; window picked (78% magenta); camera still live; 0 portal sessions open afterwards |
+| Cancel | `AbortError` in 1.5 s; camera still live; 0 portal sessions open afterwards |
+| End | Both camera tracks stopped; 0 portal sessions open |
+
+So with the portal picker the camera survives share start, stop and cancel (the "camera stops" part of #2871 does not occur), and neither the dialog session nor the capture session outlives the share. An earlier attempt of this run timed out because nobody was at the desk; it showed the portal session stays open while the dialog waits, and the camera stayed live meanwhile.
+
+Run 2, the shipped default (XWayland, fake media UI switch on), with `--camera`: NOT RUN. The first try's output was lost when Cursor emptied its terminal folder mid-run, and the retry was blocked by this session's tooling. Next: `node --no-warnings tests/manual/waylandShareProbe.mjs x11 --camera > dist/tfl-probe-run2.log 2>&1` with someone answering entire screen, the magenta window, then Cancel.
+
 ## Live tests (requires human)
 
 | IDs | Status | Notes / date |
@@ -122,7 +140,7 @@ In every run the in-app picker never appeared and the main process stayed respon
 - [x] Phase 0 baseline: environment, upstream triage, install, lint, config docs, audit, unit, E2E, `.deb` build, package inspection and launch baseline
 - [ ] Phase 1 launch: Wayland switch characterization tests (`9e58d2b4`) and the opt-in native Wayland `.deb` launcher (`2c9cc7dd`) done; the packaged binary runs native Wayland. Remaining: installed-launcher check with the sandbox on, window not blank, restart behaviour (need the `.deb` installed and a human check)
 - [ ] Phase 2 screen capture: baseline measured; opt-in `wayland.portalPicker` fix (`cf91da0a`) verified with the probe on native Wayland; E2E passes after the change; the Wayland launcher turns the setting on (`9d557739`). Remaining: live Teams checks (including whether Teams' repeated `getDisplayMedia` calls open extra dialogs), and XWayland entire-screen and cancel measurements for the fallback
-- [ ] Phase 3 media/receive/UX
+- [ ] Phase 3 media/receive/UX: startup diagnostics (`0d6748b8`) and probe camera and cleanup checks (`260383c7`) done; camera and microphone verified in the Wayland launcher's configuration. Remaining: probe run 2 (XWayland default with `--camera`), rebuild the `.deb` at HEAD (the one in `dist/` predates `0d6748b8`; delete it first and check `ar t`), and the human-only checks: incoming share rendering (L-07, GPU is off by default on Wayland), two-way audio and video (L-02, L-03), 30-minute soak (L-10)
 - [ ] Phase 4 package/review
 
 ## Completed patches / commits
@@ -140,6 +158,10 @@ In every run the in-app picker never appeared and the main process stayed respon
 | `3724a152` | Probe: `E2E_TESTING`, process-side timeout, app logs, portal pick type, stream size, persist mode, restore tokens, Start timing, magenta target window | Lint pass; used for the runs above |
 | `4f937889` | Phase 2 evidence in `PROGRESS.md` and `DECISIONS.md` | Docs only |
 | `9d557739` | "Teams for Linux (Wayland)" passes `--wayland.portalPicker=true` | Unit: 1052 tests, 1051 pass, 0 fail, 1 skipped; lint pass; E2E 17/17; `.deb` rebuilt and inspected (entry validates, default entry unchanged) |
+| `b4d3bcec` | Progress update written by a parallel run of this session | Docs only; its `.deb` checksum was wrong and is corrected in `a0a1c6a3` |
+| `a0a1c6a3` | Corrected `.deb` checksum and the doubled-archive check | Docs only |
+| `0d6748b8` | Startup warnings when the PipeWire socket, the portal service or a ScreenCast backend is missing on Wayland; troubleshooting entry and module README | Unit: 1060 tests, 1059 pass, 0 fail, 1 skipped (8 new); lint pass; config docs in sync; docs site builds; E2E 17/17 at `260383c7` |
+| `260383c7` | Probe `--camera`: camera and microphone checks around each share, open portal session count after each share | Lint pass; usage path and session counter checked; used for Phase 3 run 1 |
 
 ## Known failures and blockers
 
@@ -155,7 +177,8 @@ In every run the in-app picker never appeared and the main process stayed respon
 
 ## Build artifact and human acceptance handoff
 
-- `.deb` path: `dist/teams-for-linux_2.27.0_amd64.deb` (build at `9d557739`, not a release candidate)
+- `.deb` path: `dist/teams-for-linux_2.27.0_amd64.deb` (build at `9d557739`, before `0d6748b8`; rebuild before handoff; not a release candidate)
+- Housekeeping: `git stash list` holds the parallel run's unfinished edit; its content is committed in `0d6748b8`, so the stash can be dropped
 - SHA-256: `c1f5b439c2b674bb1f882cffb7b892d3f310b72bb7400642a24fb1c4002083ee`
 - Native Wayland invocation / installed desktop entry: "Teams for Linux (Wayland)" in the application menu, or `teams-for-linux --ozone-platform=wayland --wayland.portalPicker=true` from a terminal
 - X11 fallback invocation and limitations: the default "Teams for Linux" entry, or `teams-for-linux --ozone-platform=x11`. Runs under XWayland, where sharing the whole screen shows black (upstream `troubleshooting.md`)
