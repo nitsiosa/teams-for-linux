@@ -336,8 +336,19 @@ try {
 
   // A solid magenta window to pick for window shares: the captured frame's
   // magenta share (targetShare) tells a window capture from a whole screen.
+  // Side by side with the main window so the portal dialog is not buried under
+  // either; native Wayland compositors may ignore the positions.
   await app.evaluate(({ BrowserWindow }) => {
-    const target = new BrowserWindow({ width: 900, height: 600, title: 'PICK THIS - TFL probe target', backgroundColor: '#ff00ff' });
+    const hosts = ['teams.cloud.microsoft', 'teams.microsoft.com', 'teams.live.com', 'login.microsoftonline.com'];
+    const main = BrowserWindow.getAllWindows().find((w) => {
+      try {
+        return hosts.includes(new URL(w.webContents.getURL()).hostname);
+      } catch {
+        return false;
+      }
+    });
+    main?.setBounds({ x: 760, y: 80, width: 900, height: 650 });
+    const target = new BrowserWindow({ x: 40, y: 80, width: 700, height: 450, title: 'PICK THIS - TFL probe target', backgroundColor: '#ff00ff' });
     target.loadURL('data:text/html,<title>PICK THIS - TFL probe target</title><body style="margin:0;background:%23ff00ff"></body>');
   });
   console.error('[probe] magenta "PICK THIS - TFL probe target" window opened');
