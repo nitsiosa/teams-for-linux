@@ -2,7 +2,12 @@
 // the app from the checkout on the live desktop and needs a person to answer
 // every picker it opens.
 //
-//   node tests/manual/waylandShareProbe.mjs <x11|wayland> [config.json] [attempts]
+//   node tests/manual/waylandShareProbe.mjs <x11|wayland> [config.json] [attempts] [--camera]
+//
+// --camera opens the camera and microphone first and reports, after every
+// share attempt, whether the camera track is still live and its frames still
+// change. Camera frames are reduced to the same brightness numbers; the
+// microphone is only checked for a live track, never listened to.
 //
 // It opens a solid magenta window titled "PICK THIS - TFL probe target" to pick for window
 // shares. Each attempt calls getDisplayMedia in the main window and prints one JSON
@@ -13,7 +18,7 @@
 // mean brightness and its spread are reported. The app runs with --no-sandbox
 // because Chromium cannot start sandboxed from a checkout on Ubuntu 24.04.
 import { _electron as electron } from 'playwright';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -67,6 +72,78 @@ const RENDERER_PROBE = `(async () => {
     return { granted: false, ms: Date.now() - started, error: error.name };
   }
 })()`;
+
+// Camera helpers for --camera, run in the main window. The stream and a video
+// element showing it live on window globals between calls.
+const CAMERA_START = `(async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    const video = document.createElement('video');
+    video.muted = true;
+    video.srcObject = stream;
+    await video.play();
+    window.__tflProbeCamera = { stream, video };
+    const [track] = stream.getVideoTracks();
+    const settings = track ? track.getSettings() : {};
+    return {
+      granted: true,
+      videoTracks: stream.getVideoTracks().length,
+      audioTracks: stream.getAudioTracks().length,
+      width: settings.width ?? null,
+      height: settings.height ?? null,
+    };
+  } catch (error) {
+    return { granted: false, error: error.name };
+  }
+})()`;
+
+// Two small frames 400 ms apart: frameChange near 0 means a frozen or black feed.
+const CAMERA_CHECK = `(async () => {
+  const camera = window.__tflProbeCamera;
+  if (!camera) return { open: false };
+  const sample = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 36;
+    const context = canvas.getContext('2d');
+    context.drawImage(camera.video, 0, 0, canvas.width, canvas.height);
+    return context.getImageData(0, 0, canvas.width, canvas.height).data;
+  };
+  const first = sample();
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const second = sample();
+  let change = 0;
+  let sum = 0;
+  for (let i = 0; i < first.length; i += 4) {
+    change += Math.abs(first[i] - second[i]) + Math.abs(first[i + 1] - second[i + 1]) + Math.abs(first[i + 2] - second[i + 2]);
+    sum += 0.2126 * second[i] + 0.7152 * second[i + 1] + 0.0722 * second[i + 2];
+  }
+  const pixels = first.length / 4;
+  const live = (tracks) => tracks.length > 0 && tracks.every((t) => t.readyState === 'live' && t.enabled);
+  return {
+    open: true,
+    videoLive: live(camera.stream.getVideoTracks()),
+    micLive: live(camera.stream.getAudioTracks()),
+    micMuted: camera.stream.getAudioTracks().some((t) => t.muted),
+    lumaMean: Math.round(sum / pixels),
+    frameChange: Math.round((change / (pixels * 3)) * 100) / 100,
+  };
+})()`;
+
+const CAMERA_STOP = `(() => {
+  const camera = window.__tflProbeCamera;
+  if (!camera) return 0;
+  const tracks = camera.stream.getTracks();
+  tracks.forEach((t) => t.stop());
+  delete window.__tflProbeCamera;
+  return tracks.length;
+})()`;
+
+// ScreenCast sessions the portal still holds (leaves under /session/<sender>/).
+function openPortalSessions() {
+  const tree = spawnSync('busctl', ['--user', 'tree', 'org.freedesktop.portal.Desktop'], { encoding: 'utf8' });
+  return (tree.stdout?.match(/\/org\/freedesktop\/portal\/desktop\/session\/[^/\s]+\/[^/\s]+/g) ?? []).length;
+}
 
 function startPortalMonitor() {
   const monitor = spawn('dbus-monitor', [
@@ -198,9 +275,27 @@ function runAttempt(app) {
   }, { probe: RENDERER_PROBE, timeoutMs: ATTEMPT_TIMEOUT_MS });
 }
 
-const [ozone, configPath, attemptsArg = '3'] = process.argv.slice(2);
+// Runs renderer code in the main window with a user gesture.
+function runInMainWindow(app, code) {
+  return app.evaluate(async ({ BrowserWindow }, source) => {
+    const hosts = ['teams.cloud.microsoft', 'teams.microsoft.com', 'teams.live.com', 'login.microsoftonline.com'];
+    const win = BrowserWindow.getAllWindows().find((w) => {
+      try {
+        return hosts.includes(new URL(w.webContents.getURL()).hostname);
+      } catch {
+        return false;
+      }
+    });
+    if (!win) return { error: 'main window not found' };
+    return win.webContents.executeJavaScript(source, true);
+  }, code);
+}
+
+const args = process.argv.slice(2);
+const withCamera = args.includes('--camera');
+const [ozone, configPath, attemptsArg = '3'] = args.filter((arg) => !arg.startsWith('--'));
 if (!['x11', 'wayland'].includes(ozone)) {
-  console.error('usage: node tests/manual/waylandShareProbe.mjs <x11|wayland> [config.json] [attempts]');
+  console.error('usage: node tests/manual/waylandShareProbe.mjs <x11|wayland> [config.json] [attempts] [--camera]');
   process.exit(2);
 }
 
@@ -247,6 +342,15 @@ try {
   });
   console.error('[probe] magenta "PICK THIS - TFL probe target" window opened');
 
+  if (withCamera) {
+    const camera = await withTimeout(runInMainWindow(app, CAMERA_START), 30000, { granted: false, error: 'timeout' });
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const before = camera.granted
+      ? await withTimeout(runInMainWindow(app, CAMERA_CHECK), 10000, { open: false, error: 'timeout' })
+      : null;
+    console.log(JSON.stringify({ ozone, step: 'camera-start', ...camera, before }));
+  }
+
   const attempts = Number(attemptsArg);
   for (let attempt = 1; attempt <= attempts; attempt++) {
     console.error(`[probe] attempt ${attempt}/${attempts}: calling getDisplayMedia, answer the prompt if one appears`);
@@ -258,11 +362,19 @@ try {
     const mainProcessResponsive = result.error === 'timeout'
       ? await withTimeout(app.evaluate(() => true), 5000, false)
       : true;
+    // Give Chromium a moment to close the capture before counting sessions.
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const openSessionsAfter = openPortalSessions();
+    const cameraAfter = withCamera
+      ? await withTimeout(runInMainWindow(app, CAMERA_CHECK), 10000, { open: false, error: 'timeout' })
+      : undefined;
     console.log(JSON.stringify({
       ozone,
       attempt,
       ...result,
       mainProcessResponsive,
+      openSessionsAfter,
+      cameraAfter,
       portal: summarisePortal(lines.slice(fromPortal)),
       appLog: relevantLines(appOutput.slice(fromApp)),
       rendererLog: relevantLines(rendererOutput.slice(fromRenderer)),
@@ -271,6 +383,11 @@ try {
       console.error('[probe] no answer within the timeout; skipping the remaining attempts');
       break;
     }
+  }
+
+  if (withCamera) {
+    const stopped = await withTimeout(runInMainWindow(app, CAMERA_STOP), 10000, null);
+    console.log(JSON.stringify({ ozone, step: 'camera-stop', tracksStopped: stopped, openSessionsAtEnd: openPortalSessions() }));
   }
 } finally {
   await withTimeout(app.close().catch(() => {}), 10000);
