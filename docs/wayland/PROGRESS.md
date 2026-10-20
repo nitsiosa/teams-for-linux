@@ -40,7 +40,7 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 | E2E | PASS | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | 17 passed, 0 failed, retries disabled, 2.4 min. Ran on the live GNOME Wayland desktop (no `xvfb-run`); `CI=1` adds `--no-sandbox` to test launches. The harness printed "Process cleanup: Close timeout" once during the smoke test without failing it |
 | Build .deb | PASS | `npm run generate-release-info`, then `npx electron-builder --x64 -l deb --publish never` | `dist/teams-for-linux_2.27.0_amd64.deb`, 103,317,920 bytes, SHA-256 `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`, built in about 225 s. x64 only; `npm run dist:linux:deb` also builds arm64 |
 | Package inspect | PASS | `dpkg-deb -I`, `dpkg-deb -c`, control scripts | See "Baseline package" below |
-| Wayland launcher | NOT RUN | documented runtime check | Phase 1 |
+| Wayland launcher | NOT RUN | documented runtime check | Phase 1: second `.deb` desktop entry proposed, awaiting packaging approval |
 | Screen source regression tests | NOT RUN | target test | Phase 2 |
 
 ## Phase 0 baseline and gap analysis (HEAD `39ac73bb`)
@@ -84,7 +84,7 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 ## Active work items
 
 - [x] Phase 0 baseline: environment, upstream triage, install, lint, config docs, audit, unit, E2E, `.deb` build, package inspection and launch baseline
-- [ ] Phase 1 launch
+- [ ] Phase 1 launch: characterization tests for the Wayland switches committed. Proposed, awaiting packaging approval: a second `.deb` desktop entry, "Teams for Linux (Wayland)", that runs `/opt/teams-for-linux/teams-for-linux --ozone-platform=wayland %U`, added through `build.deb.fpm`; the default entry keeps `--ozone-platform=x11` (ADR-031) as the fallback, and rpm, AppImage, snap and tar.gz are untouched
 - [ ] Phase 2 screen capture
 - [ ] Phase 3 media/receive/UX
 - [ ] Phase 4 package/review
@@ -94,6 +94,8 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 | Commit | Change | Test evidence |
 |---|---|---|
 | `6d18be9b` | Kit committed exactly as delivered (fork-internal; drop before upstream PRs) | Docs only; lint and unit tests pass on this tree |
+| `8a9b1a17` | Phase 0 baseline evidence in `PROGRESS.md` and `DECISIONS.md` | Docs only |
+| `9e58d2b4` | Eight characterization tests for `CommandLineManager`'s Wayland switch selection | Unit: 1037 tests, 1036 pass, 0 fail, 1 skipped; lint pass. E2E not rerun (unit-test-only change) |
 
 ## Known failures and blockers
 
