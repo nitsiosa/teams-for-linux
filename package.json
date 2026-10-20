@@ -160,6 +160,9 @@
       "recommends": [
         "libappindicator3-1",
         "fido2-tools"
+      ],
+      "fpm": [
+        "build/linux/teams-for-linux-wayland.desktop=/usr/share/applications/teams-for-linux-wayland.desktop"
       ]
     },
     "snap": {

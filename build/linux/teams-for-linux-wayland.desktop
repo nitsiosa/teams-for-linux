@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Teams for Linux (Wayland)
+Comment=Unofficial client for Microsoft Teams, running as a native Wayland window
+Exec=/opt/teams-for-linux/teams-for-linux --ozone-platform=wayland %U
+Terminal=false
+Type=Application
+Icon=teams-for-linux
+StartupWMClass=teams-for-linux
+Categories=Chat;Network;Office;
