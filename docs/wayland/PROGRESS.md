@@ -36,11 +36,11 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 | Lint | PASS | `npm run lint` | Exit 0, no findings |
 | Config docs drift (CI parity) | PASS | `npm run generate-config-docs` then `git diff --quiet` on the generated files | 85 options, no diff |
 | Dependency audit (CI parity) | PASS | `npm audit --audit-level=critical` | 0 critical. 8 moderate, all in the electron-builder toolchain (`roarr` → `global-agent` → `@electron/get` → `app-builder-lib`); pre-existing on HEAD |
-| Unit tests | PASS | `npm run test:unit` | 1029 tests in 164 suites: 1028 pass, 0 fail, 1 skipped (Flatpak case that only runs off Linux); 4.8 s |
+| Unit tests | PASS | `npm run test:unit` | At `2c9cc7dd`: 1042 tests, 1041 pass, 0 fail, 1 skipped (Flatpak case that only runs off Linux). Baseline on `39ac73bb`: 1029 tests, 1028 pass, 1 skipped |
 | E2E | PASS | `env -u ELECTRON_RUN_AS_NODE CI=1 npm run test:e2e -- --retries=0` | 17 passed, 0 failed, retries disabled, 2.4 min. Ran on the live GNOME Wayland desktop (no `xvfb-run`); `CI=1` adds `--no-sandbox` to test launches. The harness printed "Process cleanup: Close timeout" once during the smoke test without failing it |
-| Build .deb | PASS | `npm run generate-release-info`, then `npx electron-builder --x64 -l deb --publish never` | `dist/teams-for-linux_2.27.0_amd64.deb`, 103,317,920 bytes, SHA-256 `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`, built in about 225 s. x64 only; `npm run dist:linux:deb` also builds arm64 |
-| Package inspect | PASS | `dpkg-deb -I`, `dpkg-deb -c`, control scripts | See "Baseline package" below |
-| Wayland launcher | NOT RUN | documented runtime check | Phase 1: second `.deb` desktop entry proposed, awaiting packaging approval |
+| Build .deb | PASS | `npm run generate-release-info`, then `npx electron-builder --x64 -l deb --publish never` | At `2c9cc7dd`: `dist/teams-for-linux_2.27.0_amd64.deb`, 103,014,796 bytes, SHA-256 `80796e751a0607a36790d08582000b0ee06cc12e2e47b28f899c95d479b8c722`. Baseline on `39ac73bb`: 103,317,920 bytes, SHA-256 `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`. About 225 s per build; x64 only (`npm run dist:linux:deb` also builds arm64) |
+| Package inspect | PASS | `dpkg-deb -I`, `dpkg-deb -c`, control scripts, `desktop-file-validate` | See "Baseline package" and "Phase 1 package and launch" below |
+| Wayland launcher | PASS (packaged binary); installed launcher NOT RUN | `env -u ELECTRON_RUN_AS_NODE WAYLAND_DEBUG=client E2E_USER_DATA_DIR=<temp> timeout 60 dist/linux-unpacked/teams-for-linux --no-sandbox --ozone-platform=wayland` | Native Wayland: 0 X11 windows about 30 s in, 22 `xdg_toplevel` messages, app_id `teams-for-linux`; still running at 60 s. Launching the installed entry from the GNOME menu (sandboxed through AppArmor) needs the `.deb` installed, which needs sudo |
 | Screen source regression tests | NOT RUN | target test | Phase 2 |
 
 ## Phase 0 baseline and gap analysis (HEAD `39ac73bb`)
@@ -75,6 +75,14 @@ Baseline launch from source (2026-10-20), each run `env -u ELECTRON_RUN_AS_NODE 
 
 Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland] Disabling GPU composition (default)`. Window content was not visually checked (no screenshot), so "not blank" is unverified. Observing whether a share request reaches `org.freedesktop.portal.ScreenCast` needs an interactive share: NOT RUN, planned for the Phase 2 probe and the human checklist. Temporary profiles and raw logs were deleted after extracting the evidence above.
 
+## Phase 1 package and launch (`2c9cc7dd`)
+
+- The `.deb` now ships two desktop entries. `teams-for-linux.desktop` is unchanged (`--ozone-platform=x11 %U`, `MimeType=x-scheme-handler/msteams;`). `teams-for-linux-wayland.desktop` ("Teams for Linux (Wayland)") runs `/opt/teams-for-linux/teams-for-linux --ozone-platform=wayland %U`, has no `MimeType`, and is byte-identical to `build/linux/teams-for-linux-wayland.desktop`.
+- 101 files (baseline 100), Installed-Size 308,180 KiB, `postinst` and `postrm` unchanged.
+- `desktop-file-validate`: exit 0 with one hint, "Categories contains more than one main category". The default entry carries the same `Chat;Network;Office;` list from `linux.category`.
+- Packaged binary from `dist/linux-unpacked` with `--ozone-platform=wayland` (60 s, `--no-sandbox`, throwaway profile): native Wayland (0 X11 windows about 30 s in; 22 `xdg_toplevel`, 12 `zwp_linux_dmabuf` messages); still running at 60 s; Teams navigation finished in 2.3 s; no fatal or error lines; Wayland app_id `teams-for-linux`.
+- Not yet verified: the installed entry launched from the GNOME menu with the sandbox on, window content not blank, and behaviour after restart. These need the `.deb` installed (sudo) and a human check.
+
 ## Live tests (requires human)
 
 | IDs | Status | Notes / date |
@@ -84,7 +92,7 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 ## Active work items
 
 - [x] Phase 0 baseline: environment, upstream triage, install, lint, config docs, audit, unit, E2E, `.deb` build, package inspection and launch baseline
-- [ ] Phase 1 launch: characterization tests for the Wayland switches committed. Proposed, awaiting packaging approval: a second `.deb` desktop entry, "Teams for Linux (Wayland)", that runs `/opt/teams-for-linux/teams-for-linux --ozone-platform=wayland %U`, added through `build.deb.fpm`; the default entry keeps `--ozone-platform=x11` (ADR-031) as the fallback, and rpm, AppImage, snap and tar.gz are untouched
+- [ ] Phase 1 launch: Wayland switch characterization tests (`9e58d2b4`) and the opt-in native Wayland `.deb` launcher (`2c9cc7dd`) done; the packaged binary runs native Wayland. Remaining: installed-launcher check with the sandbox on, window not blank, restart behaviour (need the `.deb` installed and a human check)
 - [ ] Phase 2 screen capture
 - [ ] Phase 3 media/receive/UX
 - [ ] Phase 4 package/review
@@ -96,18 +104,23 @@ Both runs logged `[Wayland] Enabling PipeWire for screen sharing` and `[Wayland]
 | `6d18be9b` | Kit committed exactly as delivered (fork-internal; drop before upstream PRs) | Docs only; lint and unit tests pass on this tree |
 | `8a9b1a17` | Phase 0 baseline evidence in `PROGRESS.md` and `DECISIONS.md` | Docs only |
 | `9e58d2b4` | Eight characterization tests for `CommandLineManager`'s Wayland switch selection | Unit: 1037 tests, 1036 pass, 0 fail, 1 skipped; lint pass. E2E not rerun (unit-test-only change) |
+| `5203f919` | Phase 1 progress note | Docs only |
+| `2c9cc7dd` | Opt-in "Teams for Linux (Wayland)" desktop entry in the `.deb` via `build.deb.fpm`, plus five unit tests guarding it | Unit: 1042 tests, 1041 pass, 0 fail, 1 skipped; lint pass; `.deb` built and inspected; packaged binary runs native Wayland. E2E not rerun (packaging config only) |
 
 ## Known failures and blockers
 
 | Issue | Severity | Reproduction | Evidence | Next action |
 |---|---|---|---|---|
 | Electron from the checkout cannot start with the Chromium sandbox | Worked around for local tests; not a product defect (the installed `.deb` ships an AppArmor profile) | `env -u ELECTRON_RUN_AS_NODE node_modules/electron/dist/electron --version` | `FATAL ... setuid_sandbox_host.cc:166`, exit 133; `kernel.apparmor_restrict_unprivileged_userns=1` | Local E2E and source launches use `--no-sandbox` (approved); check sandboxed behaviour on the installed `.deb` |
+| "Teams for Linux (Wayland)" cannot start in an X11 desktop session | Low; expected | Choose the Wayland entry while logged into an Xorg session | `--ozone-platform=wayland` needs a Wayland compositor | Use the default "Teams for Linux" entry there |
+| Windows opened from the Wayland entry group under the default "Teams for Linux" icon | Cosmetic | Launch "Teams for Linux (Wayland)" and look at the dash | Wayland app_id is `teams-for-linux`, matching `teams-for-linux.desktop` | Leave; a per-entry app_id (`--class`) could also change the profile directory |
+
 ## Build artifact and human acceptance handoff
 
-- `.deb` path: `dist/teams-for-linux_2.27.0_amd64.deb` (unmodified upstream baseline, not a release candidate)
-- SHA-256: `81e33cb9cc2bb40e708e9ceebefe2ba517e81fb89aeb82b9f1390c31d6c8a70d`
-- Native Wayland invocation / installed desktop entry:
-- X11 fallback invocation and limitations:
+- `.deb` path: `dist/teams-for-linux_2.27.0_amd64.deb` (Phase 1 build at `2c9cc7dd`, not a release candidate)
+- SHA-256: `80796e751a0607a36790d08582000b0ee06cc12e2e47b28f899c95d479b8c722`
+- Native Wayland invocation / installed desktop entry: "Teams for Linux (Wayland)" in the application menu, or `teams-for-linux --ozone-platform=wayland` from a terminal
+- X11 fallback invocation and limitations: the default "Teams for Linux" entry, or `teams-for-linux --ozone-platform=x11`. Runs under XWayland, where sharing the whole screen shows black (upstream `troubleshooting.md`)
 - Redacted error logs:
 - User action required (one consolidated request):
 - Ready for upstream PR review? NO
