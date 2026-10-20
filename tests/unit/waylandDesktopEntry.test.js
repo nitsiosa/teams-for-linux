@@ -43,10 +43,10 @@ describe('native Wayland desktop entry in the deb', () => {
     assert.ok(pkg.build.rpm.fpm.every((arg) => !arg.includes(ENTRY_SOURCE)));
   });
 
-  it('starts the installed binary the AppArmor profile covers, in native Wayland mode', () => {
+  it('starts the installed binary the AppArmor profile covers, in native Wayland mode with the portal picker', () => {
     const [binary, ...args] = entry.Exec.split(' ');
     assert.strictEqual(binary, `/opt/${appName}/${executableName}`);
-    assert.deepStrictEqual(args, ['--ozone-platform=wayland', '%U']);
+    assert.deepStrictEqual(args, ['--ozone-platform=wayland', '--wayland.portalPicker=true', '%U']);
   });
 
   it('leaves msteams: links to the default launcher', () => {
