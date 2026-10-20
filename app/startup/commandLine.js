@@ -171,11 +171,22 @@ class CommandLineManager {
     }
   }
 
+  // Native Wayland with wayland.portalPicker on. The fake media UI switch and
+  // the display-media handler must agree on this: the switch makes Chromium
+  // resolve getDisplayMedia before the portal dialog, which bypasses the handler.
+  static isPortalPickerEnabled(config) {
+    return (
+      process.env.XDG_SESSION_TYPE === "wayland" &&
+      app.commandLine.getSwitchValue("ozone-platform") !== "x11" &&
+      config.wayland?.portalPicker === true
+    );
+  }
+
   // Wayland display server configuration.
   // Handles three independent concerns:
   //   1. PipeWire — always enabled for screen sharing
   //   2. GPU — auto-disabled unless user overrides or XWayland optimizations are on
-  //   3. Fake media UI — applied unless XWayland optimizations skip it
+  //   3. Fake media UI — applied unless XWayland optimizations or the portal picker skip it
   static #configureWayland(config) {
     // 1. PipeWire is always required for screen sharing on Wayland
     if (app.commandLine.hasSwitch("enable-features")) {
@@ -197,9 +208,13 @@ class CommandLineManager {
     // native Wayland and XWayland sessions.
     const isXWayland = app.commandLine.getSwitchValue("ozone-platform") === "x11";
     const xwaylandOptimizations = isXWayland && config.wayland?.xwaylandOptimizations;
+    const portalPicker = CommandLineManager.isPortalPickerEnabled(config);
 
     if (xwaylandOptimizations) {
       console.info("[Wayland] XWayland optimizations enabled (wayland.xwaylandOptimizations)");
+    }
+    if (portalPicker) {
+      console.info("[Wayland] Portal picker enabled (wayland.portalPicker)");
     }
 
     // 2. GPU handling: respect explicit user setting, otherwise auto-configure.
@@ -215,8 +230,9 @@ class CommandLineManager {
     }
 
     // 3. Fake media UI: needed for screen sharing (#2217), but breaks camera
-    //    under XWayland (#2169). Only skip when XWayland optimizations are on.
-    if (!xwaylandOptimizations) {
+    //    under XWayland (#2169). Skip it when XWayland optimizations are on, or
+    //    when the portal picker chooses the source before Teams gets a stream.
+    if (!xwaylandOptimizations && !portalPicker) {
       app.commandLine.appendSwitch("use-fake-ui-for-media-stream");
     }
   }

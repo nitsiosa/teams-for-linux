@@ -91,15 +91,11 @@ function switchesBeforeConfigLoad(platform, existingDisableFeatures) {
   }
 }
 
-// Same Electron cache stub as appendedSwitches, run on Linux under the given
+// Same Electron cache stub as appendedSwitches, loaded on Linux under the given
 // XDG_SESSION_TYPE (null unsets it), with an optional explicit --ozone-platform
 // value and an optional caller-supplied enable-features list.
-function waylandSwitches(config, { sessionType = 'wayland', ozonePlatform = '', enableFeatures } = {}) {
+function loadWithWaylandStub({ sessionType = 'wayland', ozonePlatform = '', enableFeatures } = {}) {
   const switches = [];
-  const warnings = [];
-  const originalWarn = console.warn;
-  console.warn = (...args) => warnings.push(args.map(String).join(' '));
-
   const app = {
     commandLine: {
       appendSwitch: (name, value) => switches.push([name, value]),
@@ -129,8 +125,17 @@ function waylandSwitches(config, { sessionType = 'wayland', ozonePlatform = '', 
   }
   delete require.cache[commandLinePath];
 
+  return { CommandLineManager: require(commandLinePath), switches };
+}
+
+// Runs addSwitchesAfterConfigLoad under loadWithWaylandStub, capturing warnings.
+function waylandSwitches(config, stubOptions) {
+  const warnings = [];
+  const originalWarn = console.warn;
+  console.warn = (...args) => warnings.push(args.map(String).join(' '));
+
   try {
-    const CommandLineManager = require(commandLinePath);
+    const { CommandLineManager, switches } = loadWithWaylandStub(stubOptions);
     CommandLineManager.addSwitchesAfterConfigLoad(config);
     return { switches, warnings };
   } finally {
@@ -337,6 +342,34 @@ describe('CommandLineManager Wayland switches', () => {
     );
     assert.ok(!hasSwitch(switches, 'enable-features'));
     assert.deepStrictEqual(warnings, []);
+  });
+
+  it('skips fake media UI on native Wayland when wayland.portalPicker is on', () => {
+    const { switches } = waylandSwitches({ authServerWhitelist: '*', wayland: { portalPicker: true } });
+    assert.ok(!hasSwitch(switches, 'use-fake-ui-for-media-stream'));
+    assert.strictEqual(switchValue(switches, 'enable-features'), 'WebRTCPipeWireCapturer');
+    assert.ok(hasSwitch(switches, 'disable-gpu'), 'GPU default unchanged');
+  });
+
+  it('ignores wayland.portalPicker under XWayland', () => {
+    const { switches } = waylandSwitches(
+      { authServerWhitelist: '*', wayland: { portalPicker: true } },
+      { ozonePlatform: 'x11' },
+    );
+    assert.ok(hasSwitch(switches, 'use-fake-ui-for-media-stream'));
+  });
+
+  it('reports the portal picker only for native Wayland with the option on', () => {
+    const enabled = (config, stubOptions) =>
+      loadWithWaylandStub(stubOptions).CommandLineManager.isPortalPickerEnabled(config);
+    const on = { wayland: { portalPicker: true } };
+    assert.strictEqual(enabled(on, {}), true);
+    assert.strictEqual(enabled(on, { ozonePlatform: 'wayland' }), true);
+    assert.strictEqual(enabled({ wayland: { portalPicker: false } }, {}), false);
+    assert.strictEqual(enabled({}, {}), false);
+    assert.strictEqual(enabled(on, { ozonePlatform: 'x11' }), false);
+    assert.strictEqual(enabled(on, { sessionType: 'x11' }), false);
+    assert.strictEqual(enabled(on, { sessionType: null }), false);
   });
 
   it('adds none of the Wayland switches outside a Wayland session', () => {

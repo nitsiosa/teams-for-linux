@@ -1118,14 +1118,20 @@ module.exports = {
       wayland: {
         default: {
           xwaylandOptimizations: false,
+          portalPicker: false,
         },
-        describe: "Wayland display server configuration. xwaylandOptimizations: keeps GPU enabled and skips fake media UI flag under XWayland (may fix camera issues but can break screen sharing)",
+        describe: "Wayland display server configuration. xwaylandOptimizations: keeps GPU enabled and skips fake media UI flag under XWayland (may fix camera issues but can break screen sharing). portalPicker: on native Wayland, the system screen-sharing dialog picks the screen or window before Teams gets the stream",
         type: "object",
         fields: {
           "xwaylandOptimizations": {
             type: "boolean",
             describe:
               "Keep GPU enabled and skip the fake media UI flag under XWayland; may fix camera issues but can break screen sharing.",
+          },
+          "portalPicker": {
+            type: "boolean",
+            describe:
+              "Native Wayland only: skip the fake media UI flag and let the xdg-desktop-portal dialog pick the screen or window before Teams gets the stream, so cancelling the dialog cancels the share. No effect under XWayland or X11.",
           },
         },
         applyMode: "restart",

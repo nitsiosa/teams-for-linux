@@ -1252,9 +1252,10 @@
       "name": "wayland",
       "type": "object",
       "default": {
-        "xwaylandOptimizations": false
+        "xwaylandOptimizations": false,
+        "portalPicker": false
       },
-      "description": "Wayland display server configuration. xwaylandOptimizations: keeps GPU enabled and skips fake media UI flag under XWayland (may fix camera issues but can break screen sharing)",
+      "description": "Wayland display server configuration. xwaylandOptimizations: keeps GPU enabled and skips fake media UI flag under XWayland (may fix camera issues but can break screen sharing). portalPicker: on native Wayland, the system screen-sharing dialog picks the screen or window before Teams gets the stream",
       "applyMode": "restart",
       "fields": [
         {
@@ -1262,6 +1263,12 @@
           "type": "boolean",
           "default": false,
           "description": "Keep GPU enabled and skip the fake media UI flag under XWayland; may fix camera issues but can break screen sharing."
+        },
+        {
+          "path": "portalPicker",
+          "type": "boolean",
+          "default": false,
+          "description": "Native Wayland only: skip the fake media UI flag and let the xdg-desktop-portal dialog pick the screen or window before Teams gets the stream, so cancelling the dialog cancels the share. No effect under XWayland or X11."
         }
       ]
     },

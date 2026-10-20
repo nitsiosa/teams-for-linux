@@ -835,7 +835,8 @@ Wayland display server settings are organized under the `wayland` configuration 
 ```json
 {
   "wayland": {
-    "xwaylandOptimizations": false
+    "xwaylandOptimizations": false,
+    "portalPicker": false
   }
 }
 ```
@@ -843,6 +844,7 @@ Wayland display server settings are organized under the `wayland` configuration 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `wayland.xwaylandOptimizations` | `boolean` | `false` | Enable XWayland-specific optimizations: keeps GPU enabled and skips fake media UI flag under XWayland. May fix camera issues but can break screen sharing on some systems |
+| `wayland.portalPicker` | `boolean` | `false` | Native Wayland only: the system screen-sharing dialog picks the screen or window before Teams gets the stream, so cancelling the dialog cancels the share. No effect under XWayland or X11 |
 
 ### Cache & Storage
 
@@ -916,6 +918,28 @@ When enabled, this flag:
 > **Warning:** Enabling this may break screen sharing on XWayland for some systems. Only enable it if you are experiencing camera problems.
 
 **Related issues:** [#2169](https://github.com/IsmaelMartinez/teams-for-linux/issues/2169), [#2217](https://github.com/IsmaelMartinez/teams-for-linux/issues/2217)
+:::
+
+:::note Native Wayland Portal Picker
+When the app runs as a native Wayland window (`--ozone-platform=wayland`), screen sharing goes through the system's screen-sharing dialog (xdg-desktop-portal). By default the app also passes `--use-fake-ui-for-media-stream`, so Teams receives the share before you choose anything in that dialog, and cancelling the dialog leaves Teams with a share that has already ended. To let the dialog choose first:
+
+```json
+{
+  "wayland": {
+    "portalPicker": true
+  }
+}
+```
+
+or on the command line: `teams-for-linux --ozone-platform=wayland --wayland.portalPicker=true`.
+
+When enabled on native Wayland, this flag:
+- Skips the `--use-fake-ui-for-media-stream` Chromium flag
+- Passes the screen or window you pick in the system dialog straight to Teams, and turns a cancelled dialog into a cancelled share
+
+It has no effect under XWayland or X11.
+
+**Related issues:** [#2871](https://github.com/IsmaelMartinez/teams-for-linux/issues/2871), [#2713](https://github.com/IsmaelMartinez/teams-for-linux/issues/2713)
 :::
 
 ## Usage Examples & Guides

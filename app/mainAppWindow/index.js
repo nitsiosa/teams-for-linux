@@ -8,8 +8,11 @@ const {
   nativeImage,
   ipcMain,
   MessageChannelMain,
+  desktopCapturer,
 } = require("electron");
 const { StreamSelector } = require("../screenSharing");
+const { createPortalPickerHandler } = require("../screenSharing/portalPicker");
+const CommandLineManager = require("../startup/commandLine");
 const login = require("../login");
 const customCSS = require("../customCSS");
 const Menus = require("../menus");
@@ -79,10 +82,21 @@ function bindWindowOpenHandler(targetWebContents, loadTargetWebContents, activat
   });
 }
 
-// Register the in-app screen-share picker on a given session. `setDisplayMediaRequestHandler`
-// fires only for the session it is bound to, so multi-account profile views (running against
-// their own partition session) need their own binding. See #2529.
+// Register the screen-share picker on a given session: the xdg-desktop-portal dialog when
+// wayland.portalPicker is on under native Wayland, otherwise the in-app picker.
+// `setDisplayMediaRequestHandler` fires only for the session it is bound to, so multi-account
+// profile views (running against their own partition session) need their own binding. See #2529.
 function bindDisplayMediaHandler(targetSession) {
+  if (CommandLineManager.isPortalPickerEnabled(config)) {
+    targetSession.setDisplayMediaRequestHandler(
+      createPortalPickerHandler({
+        getSources: (options) => desktopCapturer.getSources(options),
+        onSourceSelected: handleScreenSourceSelection,
+      })
+    );
+    return;
+  }
+
   targetSession.setDisplayMediaRequestHandler((_request, callback) => {
     streamSelector.show((source) => {
       if (source) {
