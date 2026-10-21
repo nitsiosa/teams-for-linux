@@ -1,28 +1,74 @@
 const fs = require("node:fs");
 const { resolveTheme } = require("./themes");
+const { isTeamsHost } = require("../helpers/teamsHosts");
 
-exports.onDidFinishLoad = function onDidFinishLoad(content, config, customCssLocation = resolveTheme(config)) {
-  if (customCssLocation) {
-    applyCustomCSSToContent(content, customCssLocation);
-  }
-  content.insertCSS(
-    "#download-mobile-app-button, #download-app-button, #get-app-button { display:none; }"
-  );
-  content.insertCSS(".zoetrope { animation-iteration-count: 1 !important; }");
-};
+const cssCache = new Map();
 
-exports.onDidFrameFinishLoad = function onDidFrameFinishLoad(webFrame, config, customCssLocation = resolveTheme(config)) {
-  if (customCssLocation) {
-    applyCustomCSSToFrame(webFrame, customCssLocation);
-  }
-};
-
-function applyCustomCSSToContent(content, cssLocation) {
-  fs.readFile(cssLocation, "utf-8", (error, data) => {
-    if (!error) {
-      content.insertCSS(data);
+function isTeamsContentUrl(value) {
+  try {
+    const url = new URL(value);
+    if (
+      process.env.E2E_TESTING === "true" &&
+      (url.protocol === "file:" || url.protocol === "about:")
+    ) {
+      return true;
     }
-  });
+    return url.protocol === "https:" && isTeamsHost(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function readCss(cssLocation) {
+  if (!cssCache.has(cssLocation)) {
+    cssCache.set(
+      cssLocation,
+      fs.promises.readFile(cssLocation, "utf8").catch((error) => {
+        cssCache.delete(cssLocation);
+        throw error;
+      })
+    );
+  }
+  return cssCache.get(cssLocation);
+}
+
+exports.onDidFinishLoad = async function onDidFinishLoad(
+  content,
+  config,
+  customCssLocation = resolveTheme(config)
+) {
+  if (customCssLocation && isTeamsContentUrl(content.getURL?.())) {
+    await applyCustomCSSToContent(content, customCssLocation);
+  }
+  await content.insertCSS(
+    "#download-mobile-app-button, #download-app-button, #get-app-button { display:none; }"
+  ).catch(() => {});
+  await content.insertCSS(
+    ".zoetrope { animation-iteration-count: 1 !important; }"
+  ).catch(() => {});
+};
+
+exports.onDidFrameFinishLoad = async function onDidFrameFinishLoad(
+  webFrame,
+  config,
+  customCssLocation = resolveTheme(config)
+) {
+  if (
+    customCssLocation &&
+    webFrame &&
+    isTeamsContentUrl(webFrame.url)
+  ) {
+    await applyCustomCSSToFrame(webFrame, customCssLocation);
+  }
+};
+
+async function applyCustomCSSToContent(content, cssLocation) {
+  try {
+    const data = await readCss(cssLocation);
+    await content.insertCSS(data);
+  } catch {
+    console.warn("[customCSS] Unable to apply the selected theme.");
+  }
 }
 
 /**
@@ -34,18 +80,14 @@ function applyCustomCSSToContent(content, cssLocation) {
  * @param {Electron.WebFrameMain} webFrame - The iframe's web frame
  * @param {string} cssLocation - Path to the CSS file to inject
  */
-function applyCustomCSSToFrame(webFrame, cssLocation) {
+async function applyCustomCSSToFrame(webFrame, cssLocation) {
   const customCssId = "tfl-custom-css-style";
 
-  fs.readFile(cssLocation, "utf-8", (error, data) => {
-    if (error) {
-      return;
-    }
-
+  try {
+    let data = await readCss(cssLocation);
     data = data.replaceAll("`", String.raw`\u0060`);
 
-    webFrame
-      .executeJavaScript(`
+    await webFrame.executeJavaScript(`
 			if(!document.getElementById("${customCssId}")) {
 				const style = document.createElement('style');
 				style.id = "${customCssId}";
@@ -53,13 +95,13 @@ function applyCustomCSSToFrame(webFrame, cssLocation) {
 				style.textContent = ${JSON.stringify(data)};
 				document.head.appendChild(style);
 			}
-		`)
-      .catch((err) => {
-        // Sandboxed about:blank frames (Office Online paste) and frames
-        // disposed mid-flight reject here. Both are expected; swallow so
-        // the rejection does not trip the main-process unhandledRejection
-        // handler in app/index.js and terminate the app.
-        console.debug("[customCSS] executeJavaScript rejected:", err);
-      });
-  });
+		`);
+  } catch {
+    // Sandboxed about:blank frames, disposed frames and unreadable user theme
+    // files are expected failure modes. Never log their URL or filesystem path.
+    console.debug("[customCSS] Theme injection skipped.");
+  }
 }
+
+exports._clearCacheForTests = () => cssCache.clear();
+exports._isTeamsContentUrlForTests = isTeamsContentUrl;

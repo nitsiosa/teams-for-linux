@@ -77,6 +77,7 @@ function createFixture() {
 async function launchProbe(fixture) {
   const electronApp = await electron.launch({
     args: [fixture.script, ...(process.env.CI ? ['--no-sandbox'] : [])],
+    env: { ...process.env, E2E_TESTING: 'true' },
     timeout: 30000,
   });
   const page = await electronApp.firstWindow();
@@ -128,17 +129,24 @@ test('native theme selection persists, injects CSS, and falls back safely after 
     context = await launchProbe(fixture);
     let state = await menuState(context.electronApp);
     expect(state.validationWarnings).toEqual([]);
-    expect(state.items.find((item) => item.label === 'Default').checked).toBe(true);
-    expect(checkedLabels(state)).toEqual(['Default']);
+    expect(state.items.find((item) => item.label === 'Default — Pearl Luxe').checked).toBe(true);
+    expect(checkedLabels(state)).toEqual(['Default — Pearl Luxe']);
     expect(state.items.find((item) => item.label === 'Built-in').submenu.map((item) => item.label))
-      .toEqual(['Compact Dark', 'Compact Light', 'Tweaks', 'Condensed Dark', 'Condensed Light']);
+      .toEqual(['Pearl Luxe Night', 'Compact Dark', 'Compact Light', 'Tweaks', 'Condensed Dark', 'Condensed Light']);
     expect(state.items.find((item) => item.label === 'Custom').submenu.map((item) => item.label))
       .toEqual(['Sample Theme']);
+    expect(state.selection.cssName).toBe('pearlLuxe');
+    expect(state.cssPath).toBe(resolve('app/assets/css/pearlLuxe.css'));
+    expect(JSON.parse(readFileSync(join(fixture.directory, 'config.pre-pearl-luxe-v1.json'), 'utf8')))
+      .toMatchObject({
+        appearance: { followSystemTheme: false },
+        window: { closeOnCross: true },
+      });
 
     await clickTheme(context.electronApp, 'Custom', 'Sample Theme');
     const readConfig = () => JSON.parse(readFileSync(join(fixture.directory, 'config.json'), 'utf8'));
     expect(readConfig()).toMatchObject({
-      appearance: { cssName: 'custom:sample', followSystemTheme: false },
+      appearance: { cssName: 'custom:sample', followSystemTheme: true },
       window: { closeOnCross: true },
     });
     // Applying CSS is restart-only: saving leaves the running document alone.
@@ -176,11 +184,11 @@ test('native theme selection persists, injects CSS, and falls back safely after 
     context = await launchProbe(fixture);
     state = await menuState(context.electronApp);
     expect(state.validationWarnings).toEqual([]);
-    expect(state.cssPath).toBeNull();
+    expect(state.cssPath).toBe(resolve('app/assets/css/pearlLuxe.css'));
     expect(state.selection.cssName).toBe('custom:sample');
     expect(readConfig().appearance.cssName).toBe('custom:sample');
-    expect(state.items.find((item) => item.label === 'Default').checked).toBe(true);
-    expect(checkedLabels(state)).toEqual(['Default']);
+    expect(state.items.find((item) => item.label === 'Default — Pearl Luxe').checked).toBe(true);
+    expect(checkedLabels(state)).toEqual(['Default — Pearl Luxe']);
     expect(state.items.find((item) => item.label === 'Custom')).toBeUndefined();
     await expectColors(context.page, 'rgb(230, 230, 230)');
     await expect(context.page.locator('.theme-target')).toHaveCSS('max-width', '17px');

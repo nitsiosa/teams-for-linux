@@ -187,9 +187,9 @@ module.exports = {
         applyMode: "restart",
       },
       customCSSName: {
-        default: "",
+        default: "pearlLuxe",
         describe:
-          'Packaged CSS theme name (compactDark, compactLight, tweaks, condensedDark, condensedLight), or custom:<id> for a discovered user theme. An empty name uses customCSSLocation when configured.',
+          'Packaged CSS theme name (pearlLuxe, pearlLuxeNight, compactDark, compactLight, tweaks, condensedDark, condensedLight, teamsDefault), or custom:<id> for a discovered user theme. An empty name uses customCSSLocation when configured, then Pearl Luxe.',
         type: "string",
         applyMode: "restart",
         deprecated: "use appearance.cssName instead",
@@ -484,9 +484,9 @@ module.exports = {
         deprecated: "use incomingCalls.toast instead",
       },
       followSystemTheme: {
-        default: false,
+        default: true,
         describe:
-          "Follow the operating-system dark/light theme preference. Default is false; set true to drive Teams's theme from the OS preference.",
+          "Follow the operating-system dark/light theme preference. Enabled by default for adaptive Pearl Luxe.",
         type: "boolean",
         applyMode: "restart",
         deprecated: "use appearance.followSystemTheme instead",
@@ -1263,17 +1263,17 @@ module.exports = {
       },
       appearance: {
         default: {
-          cssName: "",
+          cssName: "pearlLuxe",
           cssLocation: "",
-          followSystemTheme: false,
+          followSystemTheme: true,
         },
         describe:
-          "Custom CSS and theme configuration. Replaces the deprecated customCSSName, customCSSLocation and followSystemTheme options.",
+          "Custom CSS and theme configuration. Pearl Luxe is the default and follows the operating-system light/dark preference. Use teamsDefault to disable custom Teams CSS. Replaces the deprecated customCSSName, customCSSLocation and followSystemTheme options.",
         type: "object",
         fields: {
           "cssName": {
             type: "string",
-            describe: "Packaged CSS theme name (compactDark, compactLight, tweaks, condensedDark, condensedLight), or custom:<id> for a discovered user theme. An empty name uses appearance.cssLocation when configured.",
+            describe: "Packaged CSS theme name (pearlLuxe, pearlLuxeNight, compactDark, compactLight, tweaks, condensedDark, condensedLight, teamsDefault), or custom:<id> for a discovered user theme. An empty name uses appearance.cssLocation when configured, then Pearl Luxe.",
           },
           "cssLocation": {
             type: "string",
@@ -1281,7 +1281,7 @@ module.exports = {
           },
           "followSystemTheme": {
             type: "boolean",
-            describe: "Follow the operating-system dark/light theme preference. Default is false; set true to drive Teams's theme from the OS preference.",
+            describe: "Follow the operating-system dark/light theme preference and drive Teams's theme from the OS preference. Enabled by default for adaptive Pearl Luxe.",
           },
         },
         applyMode: "restart",

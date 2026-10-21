@@ -53,6 +53,9 @@ let config;
 let window = null;
 let appConfig = null;
 let customBackgroundService = null;
+let profileViewManagerRef = null;
+let systemThemeListener = null;
+let systemThemeTimer = null;
 let streamSelector;
 let screenSharingService = null;
 let connectionManager = null;
@@ -946,7 +949,12 @@ exports.performIncomingCallAction = function (action) {
 exports.bindDisplayMediaHandler = bindDisplayMediaHandler;
 exports.bindWindowOpenHandler = bindWindowOpenHandler;
 exports.injectScreenSharingLogic = injectScreenSharingLogic;
+exports.onProfileDidFinishLoad = onProfileDidFinishLoad;
+exports.onProfileDidFrameFinishLoad = onDidFrameFinishLoad;
 exports.setTitleOverride = setTitleOverride;
+exports.setProfileViewManager = function setProfileViewManager(manager) {
+  profileViewManagerRef = manager;
+};
 
 exports.setQuickChatManager = function (quickChatManager) {
   if (menus) {
@@ -1116,20 +1124,34 @@ function injectScreenSharingLogic(webContents) {
   }
 }
 
+function onProfileDidFinishLoad(webContents) {
+  injectScreenSharingLogic(webContents);
+  customCSS.onDidFinishLoad(
+    webContents,
+    config,
+    appConfig.customCSSPath
+  );
+}
+
+function sendSystemTheme() {
+  const dark = nativeTheme.shouldUseDarkColors;
+  if (window && !window.isDestroyed()) {
+    window.webContents.send("system-theme-changed", dark);
+  }
+  profileViewManagerRef?.sendToProfileViews(
+    "system-theme-changed",
+    dark
+  );
+}
+
 function initSystemThemeFollow(config) {
   if (config.followSystemTheme) {
-    nativeTheme.on("updated", () => {
-      window.webContents.send(
-        "system-theme-changed",
-        nativeTheme.shouldUseDarkColors
-      );
-    });
-    setTimeout(() => {
-      window.webContents.send(
-        "system-theme-changed",
-        nativeTheme.shouldUseDarkColors
-      );
-    }, 2500);
+    if (!systemThemeListener) {
+      systemThemeListener = () => sendSystemTheme();
+      nativeTheme.on("updated", systemThemeListener);
+    }
+    clearTimeout(systemThemeTimer);
+    systemThemeTimer = setTimeout(sendSystemTheme, 2500);
   }
 }
 
@@ -1494,6 +1516,13 @@ function onWindowClosed() {
     screenSharingService.setSelectedSource(null);
   }
 
+  clearTimeout(systemThemeTimer);
+  systemThemeTimer = null;
+  if (systemThemeListener) {
+    nativeTheme.off("updated", systemThemeListener);
+    systemThemeListener = null;
+  }
+  profileViewManagerRef = null;
   window = null;
   app.quit();
 }

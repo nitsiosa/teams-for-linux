@@ -84,6 +84,7 @@ class ProfileViewManager {
   #bindDisplayMediaHandler;
   #bindWindowOpenHandler;
   #onViewDidFinishLoad;
+  #onViewDidFrameFinishLoad;
   #setTitleOverride;
   #views = new Map();
   // Phase 2 foundation: webContents → profile attribution for main-process
@@ -135,6 +136,9 @@ class ProfileViewManager {
    *   Sets the window title from the active profile view's page title, or
    *   hands it back to the root window (Profile 0) with null. Electron only
    *   mirrors the root webContents' title onto the window (#3068).
+   * @param {(event: Electron.Event, isMainFrame: boolean, frameProcessId: number, frameRoutingId: number) => void} [onViewDidFrameFinishLoad]
+   *   Mirrors the root window's frame lifecycle so Teams content iframes in
+   *   secondary profiles receive the selected custom theme.
    */
   constructor(
     window,
@@ -143,7 +147,8 @@ class ProfileViewManager {
     bindDisplayMediaHandler,
     bindWindowOpenHandler = () => {},
     onViewDidFinishLoad = () => {},
-    setTitleOverride = () => {}
+    setTitleOverride = () => {},
+    onViewDidFrameFinishLoad = () => {}
   ) {
     this.#window = window;
     this.#profilesManager = profilesManager;
@@ -151,6 +156,7 @@ class ProfileViewManager {
     this.#bindDisplayMediaHandler = bindDisplayMediaHandler;
     this.#bindWindowOpenHandler = bindWindowOpenHandler;
     this.#onViewDidFinishLoad = onViewDidFinishLoad;
+    this.#onViewDidFrameFinishLoad = onViewDidFrameFinishLoad;
     this.#setTitleOverride = setTitleOverride;
     this.#registry = new SenderProfileMap(profilesManager);
   }
@@ -537,6 +543,16 @@ class ProfileViewManager {
     view.webContents.on("did-finish-load", () =>
       this.#onViewDidFinishLoad(view.webContents)
     );
+    view.webContents.on(
+      "did-frame-finish-load",
+      (event, isMainFrame, frameProcessId, frameRoutingId) =>
+        this.#onViewDidFrameFinishLoad(
+          event,
+          isMainFrame,
+          frameProcessId,
+          frameRoutingId
+        )
+    );
     // Only the active profile's title reaches the window (#3068).
     view.webContents.on("page-title-updated", (_event, title) => {
       if (this.#profilesManager.getActive()?.id === profileId) {
@@ -620,6 +636,14 @@ class ProfileViewManager {
     view.webContents.loadURL(url, {
       userAgent: this.#config.chromeUserAgent,
     });
+  }
+
+  sendToProfileViews(channel, ...args) {
+    for (const view of this.#views.values()) {
+      if (!view.webContents.isDestroyed()) {
+        view.webContents.send(channel, ...args);
+      }
+    }
   }
 
   // Make `profileId` the visible profile (no-op if it already is, or if it

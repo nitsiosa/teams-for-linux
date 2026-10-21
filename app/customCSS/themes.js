@@ -1,8 +1,13 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
+const DEFAULT_THEME_ID = "pearlLuxe";
+const NO_THEME_ID = "teamsDefault";
+
 // Keep existing persisted names: only user themes need a namespace.
 const BUILTIN_THEMES = Object.freeze([
+  { id: DEFAULT_THEME_ID, name: "Pearl Luxe" },
+  { id: "pearlLuxeNight", name: "Pearl Luxe Night" },
   { id: "compactDark", name: "Compact Dark" },
   { id: "compactLight", name: "Compact Light" },
   { id: "tweaks", name: "Tweaks" },
@@ -13,6 +18,16 @@ const BUILTIN_THEMES = Object.freeze([
   value: theme.id,
   cssPath: path.join(__dirname, "..", "assets", "css", `${theme.id}.css`),
 })));
+const NO_THEME = Object.freeze({
+  id: NO_THEME_ID,
+  name: "Microsoft Teams / No custom theme",
+  value: NO_THEME_ID,
+  cssPath: null,
+});
+const RESERVED_THEME_IDS = new Set([
+  ...BUILTIN_THEMES.map((theme) => theme.id),
+  NO_THEME_ID,
+]);
 
 const THEME_ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
 const OPTIONAL_METADATA = ["author", "version", "description"];
@@ -119,7 +134,7 @@ function discoverThemes(configPath) {
   }
 
   const themes = [];
-  const ids = new Set(BUILTIN_THEMES.map((theme) => theme.id));
+  const ids = new Set(RESERVED_THEME_IDS);
   for (const entry of entries) {
     try {
       const theme = loadTheme(themesRoot, entry.name);
@@ -146,6 +161,7 @@ function resolveTheme(config, configPath, customThemes) {
   const cssName = Object.hasOwn(config, "customCSSName")
     ? config.customCSSName : config.appearance?.cssName;
   if (cssName) {
+    if (cssName === NO_THEME_ID) return null;
     const builtin = BUILTIN_THEMES.find((theme) => theme.value === cssName);
     if (builtin) return builtin.cssPath;
     if (typeof cssName === "string" && cssName.startsWith("custom:")) {
@@ -154,11 +170,25 @@ function resolveTheme(config, configPath, customThemes) {
       if (custom) return custom.cssPath;
     }
     console.warn("[customCSS] Selected theme is unavailable; using the default theme.");
-    return null;
+    return BUILTIN_THEMES.find(
+      (theme) => theme.id === DEFAULT_THEME_ID
+    ).cssPath;
   }
   const cssLocation = Object.hasOwn(config, "customCSSLocation")
     ? config.customCSSLocation : config.appearance?.cssLocation;
-  return typeof cssLocation === "string" && cssLocation !== "" ? cssLocation : null;
+  if (typeof cssLocation === "string" && cssLocation !== "") {
+    return cssLocation;
+  }
+  return BUILTIN_THEMES.find(
+    (theme) => theme.id === DEFAULT_THEME_ID
+  ).cssPath;
 }
 
-module.exports = { BUILTIN_THEMES, discoverThemes, resolveTheme };
+module.exports = {
+  BUILTIN_THEMES,
+  DEFAULT_THEME_ID,
+  NO_THEME,
+  NO_THEME_ID,
+  discoverThemes,
+  resolveTheme,
+};

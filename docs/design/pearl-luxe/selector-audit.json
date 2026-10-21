@@ -1,0 +1,691 @@
+{
+  "schema": 1,
+  "pages": 1,
+  "frames": 1,
+  "records": [
+    {
+      "page": 0,
+      "frame": 0,
+      "selectors": {
+        "fluentRoot": {
+          ":root": {
+            "matches": 1,
+            "visible": 1
+          },
+          ".fui-FluentProvider": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[class*=\"fui-FluentProvider\"]": {
+            "matches": 1,
+            "visible": 1
+          }
+        },
+        "topBar": {
+          "[data-tid=\"app-header\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"title-bar\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "header[role=\"banner\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "search": {
+          "[data-tid=\"searchInputField\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "input[type=\"search\"]": {
+            "matches": 1,
+            "visible": 1
+          }
+        },
+        "appRail": {
+          "[data-tid=\"app-bar\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "chatList": {
+          "[data-tid=\"chat-list\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"left-rail\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[role=\"tree\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[role=\"treeitem\"]": {
+            "matches": 97,
+            "visible": 97
+          },
+          "[role=\"treeitem\"][aria-selected=\"true\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"chat-list-section-header\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "filters": {
+          "[role=\"toolbar\"] button[aria-pressed]": {
+            "matches": 6,
+            "visible": 5
+          },
+          "[role=\"toolbar\"] button[aria-pressed=\"true\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[data-tid*=\"filter\"] button": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "conversation": {
+          "[data-tid=\"chat-header-title\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"chat-title\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[role=\"tablist\"] [role=\"tab\"]": {
+            "matches": 6,
+            "visible": 6
+          },
+          "[role=\"tablist\"] [role=\"tab\"][aria-selected=\"true\"]": {
+            "matches": 1,
+            "visible": 1
+          }
+        },
+        "messages": {
+          "[data-tid=\"chat-pane-message\"]": {
+            "matches": 20,
+            "visible": 20
+          },
+          "[data-tid=\"message-body\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"chat-pane-message\"][data-mine=\"true\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"chat-pane-item\"] [data-tid=\"message-body\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"message-author-name\"]": {
+            "matches": 20,
+            "visible": 20
+          },
+          "[data-tid=\"message-timestamp\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "attachmentsAndReactions": {
+          "[data-tid=\"file-attachment-grid\"] > *": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid*=\"attachment\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid*=\"reaction\"] button": {
+            "matches": 2,
+            "visible": 2
+          },
+          "[data-tid*=\"reaction\"] [role=\"button\"]": {
+            "matches": 1,
+            "visible": 1
+          }
+        },
+        "composer": {
+          "[data-tid=\"ckeditor\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[data-tid=\"message-compose-box\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid*=\"compose\"]": {
+            "matches": 2,
+            "visible": 2
+          },
+          "[data-tid*=\"compose\"] [contenteditable=\"true\"]": {
+            "matches": 1,
+            "visible": 1
+          },
+          "[data-tid=\"newMessageCommands-send\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "badgesAndIndicators": {
+          "[data-tid*=\"badge\"]": {
+            "matches": 34,
+            "visible": 34
+          },
+          ".fui-CounterBadge": {
+            "matches": 2,
+            "visible": 1
+          },
+          "[data-tid*=\"unread-indicator\"]": {
+            "matches": 0,
+            "visible": 0
+          }
+        },
+        "transientSurfaces": {
+          "[role=\"menu\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[role=\"dialog\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[role=\"listbox\"]": {
+            "matches": 1,
+            "visible": 0
+          },
+          ".fui-PopoverSurface": {
+            "matches": 0,
+            "visible": 0
+          },
+          ".fui-DialogSurface": {
+            "matches": 0,
+            "visible": 0
+          }
+        }
+      },
+      "safeDataTidCounts": {
+        "all-phased-rendering-complete": {
+          "matches": 1,
+          "visible": 1
+        },
+        "experience-layout": {
+          "matches": 1,
+          "visible": 1
+        },
+        "app-layout-area--title-bar": {
+          "matches": 1,
+          "visible": 1
+        },
+        "slot-measurer": {
+          "matches": 14,
+          "visible": 5
+        },
+        "title-bar": {
+          "matches": 1,
+          "visible": 1
+        },
+        "titlebar-start-slot": {
+          "matches": 1,
+          "visible": 1
+        },
+        "window-controls-placeholder-TitleBarStart": {
+          "matches": 1,
+          "visible": 0
+        },
+        "waffle-open-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "hamburger-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "title-bar-toggle-search-btn": {
+          "matches": 1,
+          "visible": 0
+        },
+        "titlebar-main-slot-main-window": {
+          "matches": 1,
+          "visible": 1
+        },
+        "AUTOSUGGEST_INPUT": {
+          "matches": 1,
+          "visible": 1
+        },
+        "ms-searchux-popup": {
+          "matches": 1,
+          "visible": 0
+        },
+        "titlebar-end-slot": {
+          "matches": 1,
+          "visible": 1
+        },
+        "more-options-header": {
+          "matches": 1,
+          "visible": 1
+        },
+        "me-control-avatar-trigger": {
+          "matches": 1,
+          "visible": 1
+        },
+        "me-control-avatar": {
+          "matches": 1,
+          "visible": 1
+        },
+        "me-control-avatar-presence": {
+          "matches": 1,
+          "visible": 1
+        },
+        "app-layout-area--notifications": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--nav": {
+          "matches": 1,
+          "visible": 1
+        },
+        "app-bar-wrapper": {
+          "matches": 1,
+          "visible": 1
+        },
+        "app-bar-overflow": {
+          "matches": 1,
+          "visible": 1
+        },
+        "appbar-below-store-invalid-zone": {
+          "matches": 2,
+          "visible": 2
+        },
+        "appbar-flyout-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "app-layout-area--mid-nav": {
+          "matches": 1,
+          "visible": 1
+        },
+        "simple-collab-dnd-rail": {
+          "matches": 1,
+          "visible": 1
+        },
+        "PersonaAvatar": {
+          "matches": 25,
+          "visible": 25
+        },
+        "presence-badge": {
+          "matches": 34,
+          "visible": 34
+        },
+        "app-profile-card-trigger": {
+          "matches": 3,
+          "visible": 3
+        },
+        "app-layout-area--sub-nav": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--unified-areas": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--header": {
+          "matches": 1,
+          "visible": 1
+        },
+        "entity-header": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-header-emblem": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-title-avatar": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-title": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-topic-menu": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-topic-menu-list-item": {
+          "matches": 1,
+          "visible": 1
+        },
+        "data-tid-Chat": {
+          "matches": 1,
+          "visible": 1
+        },
+        "data-tid-Shared": {
+          "matches": 2,
+          "visible": 1
+        },
+        "data-tid-Notes": {
+          "matches": 2,
+          "visible": 1
+        },
+        "data-tid-Recap": {
+          "matches": 2,
+          "visible": 1
+        },
+        "data-tid-Storyline": {
+          "matches": 2,
+          "visible": 1
+        },
+        "add-tab-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "entity-header-toolbar": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-calling-meeting-buttons": {
+          "matches": 1,
+          "visible": 1
+        },
+        "default-chat-call-video-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "dropdown-calling-toggle-more-options-btn": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-header-participant-count": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-header-find-in-chat-search": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-info-pane-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-header-more-menu-trigger": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-header-share-screen-anchor": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--start": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--contextual-notifications": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--main": {
+          "matches": 1,
+          "visible": 1
+        },
+        "message-pane-layout": {
+          "matches": 1,
+          "visible": 1
+        },
+        "message-pane-body": {
+          "matches": 1,
+          "visible": 1
+        },
+        "message-pane-list-viewport": {
+          "matches": 1,
+          "visible": 1
+        },
+        "message-pane-list-runway": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-pane-item": {
+          "matches": 30,
+          "visible": 30
+        },
+        "message-author-name": {
+          "matches": 20,
+          "visible": 20
+        },
+        "chat-pane-message": {
+          "matches": 20,
+          "visible": 20
+        },
+        "message-actions-menu-hidden-button": {
+          "matches": 20,
+          "visible": 20
+        },
+        "message-avatar": {
+          "matches": 8,
+          "visible": 8
+        },
+        "diverse-reaction-summary": {
+          "matches": 1,
+          "visible": 1
+        },
+        "diverse-reaction-pill-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "emoticon-renderer": {
+          "matches": 1,
+          "visible": 1
+        },
+        "reactions-summary-item-renderer": {
+          "matches": 1,
+          "visible": 1
+        },
+        "add-reaction-picker-entry-point-button": {
+          "matches": 1,
+          "visible": 1
+        },
+        "add-reaction-picker-entry-point-icon": {
+          "matches": 2,
+          "visible": 1
+        },
+        "message-pane-footer": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-pane-compose-message-footer": {
+          "matches": 1,
+          "visible": 1
+        },
+        "chat-pane-gutter-box": {
+          "matches": 1,
+          "visible": 1
+        },
+        "smart-replies-renderer": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sr-feedback-trigger": {
+          "matches": 1,
+          "visible": 1
+        },
+        "simplified-formatting-toolbar": {
+          "matches": 1,
+          "visible": 0
+        },
+        "newMessageCommands-InsertHyperlink": {
+          "matches": 1,
+          "visible": 0
+        },
+        "newMessageCommands-more-options": {
+          "matches": 1,
+          "visible": 0
+        },
+        "newMessageCommands-discard-draft": {
+          "matches": 1,
+          "visible": 0
+        },
+        "ckeditor": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-expand-compose": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-UnifiedFunPicker": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-FilePicker": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-popup-semo": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-message-extension-flyout-command": {
+          "matches": 1,
+          "visible": 1
+        },
+        "sendMessageCommands-send": {
+          "matches": 1,
+          "visible": 1
+        },
+        "persisted-app-content-main": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--end": {
+          "matches": 1,
+          "visible": 0
+        },
+        "persisted-app-content-end": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--global-end": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--modal": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--toasts": {
+          "matches": 1,
+          "visible": 0
+        },
+        "in-app-toaster-container": {
+          "matches": 1,
+          "visible": 0
+        },
+        "app-layout-area--preview": {
+          "matches": 1,
+          "visible": 0
+        },
+        "pre-core-title-bar": {
+          "matches": 1,
+          "visible": 0
+        },
+        "pre-core-title-bar-minimize-button": {
+          "matches": 1,
+          "visible": 0
+        },
+        "pre-core-title-bar-maximize-button": {
+          "matches": 1,
+          "visible": 0
+        },
+        "pre-core-title-bar-close-button": {
+          "matches": 1,
+          "visible": 0
+        },
+        "ui-paint-timing-container": {
+          "matches": 1,
+          "visible": 0
+        }
+      },
+      "roleCounts": {
+        "application": 1,
+        "none": 75,
+        "button": 21,
+        "search": 1,
+        "presentation": 127,
+        "combobox": 1,
+        "listbox": 1,
+        "img": 64,
+        "navigation": 1,
+        "status": 3,
+        "toolbar": 10,
+        "tree": 1,
+        "treeitem": 97,
+        "text": 81,
+        "group": 32,
+        "slider": 4,
+        "list": 1,
+        "listitem": 1,
+        "tablist": 1,
+        "tab": 6,
+        "separator": 1,
+        "heading": 23,
+        "textbox": 1
+      },
+      "fluentClassCounts": {
+        "fui-FluentProvider": 1,
+        "fui-AppLayout": 1,
+        "fui-AppLayoutArea": 14,
+        "fui-Flex": 104,
+        "fui-Primitive": 279,
+        "fui-Grid": 2,
+        "fui-Button": 48,
+        "fui-Badge": 3,
+        "fui-CounterBadge": 2,
+        "fui-Avatar": 84,
+        "fui-PresenceBadge": 35,
+        "fui-Text": 1,
+        "fui-Toolbar": 4,
+        "fui-Overflow": 1,
+        "fui-ToggleButton": 6,
+        "fui-Tree": 13,
+        "fui-TreeItem": 97,
+        "fui-TreeItemLayout": 97,
+        "fui-StyledText": 61,
+        "fui-RailJumperToolbar": 1,
+        "fui-RailJumperToolbarPrimaryButton": 1,
+        "fui-List": 1,
+        "fui-ListItem": 1,
+        "fui-TabList": 1,
+        "fui-Tab": 5,
+        "fui-MenuButton": 1,
+        "fui-Divider": 3,
+        "fui-ToolbarGroup": 1,
+        "fui-ReaderHeading": 1,
+        "fui-Chat": 1,
+        "fui-ChatMyMessage": 9,
+        "fui-Image": 4,
+        "fui-ChatMessage": 11,
+        "fui-Link": 5
+      },
+      "mode": {
+        "prefersDark": false,
+        "htmlThemeDark": false,
+        "bodyThemeDark": false,
+        "htmlDataThemeDark": false,
+        "colorScheme": "not-dark"
+      },
+      "fluentVariables": {
+        "neutralBackground1": true,
+        "brandBackground": true
+      }
+    }
+  ]
+}

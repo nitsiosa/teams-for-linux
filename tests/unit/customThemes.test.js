@@ -3,7 +3,13 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { BUILTIN_THEMES, discoverThemes, resolveTheme } = require("../../app/customCSS/themes");
+const {
+  BUILTIN_THEMES,
+  DEFAULT_THEME_ID,
+  NO_THEME_ID,
+  discoverThemes,
+  resolveTheme,
+} = require("../../app/customCSS/themes");
 
 function fixture(t) {
   const directory = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "tfl-themes-")));
@@ -123,8 +129,9 @@ describe("custom theme discovery", () => {
   test("custom themes cannot replace any built-in theme", (t) => {
     const { configPath, themesPath, warnings } = fixture(t);
     for (const builtin of BUILTIN_THEMES) writeTheme(themesPath, builtin.id);
+    writeTheme(themesPath, NO_THEME_ID);
     assert.deepEqual(discoverThemes(configPath), []);
-    assert.equal(warnings.length, BUILTIN_THEMES.length);
+    assert.equal(warnings.length, BUILTIN_THEMES.length + 1);
     assert.ok(Object.isFrozen(BUILTIN_THEMES));
     assert.ok(BUILTIN_THEMES.every(Object.isFrozen));
   });
@@ -188,7 +195,8 @@ describe("custom theme discovery", () => {
 describe("theme selection compatibility", () => {
   test("every existing cssName resolves to its real packaged stylesheet", () => {
     assert.deepEqual(BUILTIN_THEMES.map((theme) => theme.id),
-      ["compactDark", "compactLight", "tweaks", "condensedDark", "condensedLight"]);
+      ["pearlLuxe", "pearlLuxeNight", "compactDark", "compactLight",
+        "tweaks", "condensedDark", "condensedLight"]);
     for (const builtin of BUILTIN_THEMES) {
       assert.equal(resolveTheme({ appearance: { cssName: builtin.id } }), builtin.cssPath);
       assert.equal(resolveTheme({ customCSSName: builtin.id }), builtin.cssPath);
@@ -199,12 +207,19 @@ describe("theme selection compatibility", () => {
   test("nested and legacy direct CSS locations work without discovery", () => {
     assert.equal(resolveTheme({ appearance: { cssLocation: "/custom/theme.css" } }), "/custom/theme.css");
     assert.equal(resolveTheme({ customCSSLocation: "/legacy/theme.css" }), "/legacy/theme.css");
-    assert.equal(resolveTheme({ appearance: { cssName: "", cssLocation: "" } }), null);
+    assert.match(
+      resolveTheme({ appearance: { cssName: "", cssLocation: "" } }),
+      /pearlLuxe\.css$/
+    );
+    assert.equal(
+      resolveTheme({ appearance: { cssName: NO_THEME_ID } }),
+      null
+    );
   });
 
   test("projected legacy aliases win over defaulted nested appearance values", () => {
     assert.equal(resolveTheme({ customCSSName: "compactDark", appearance: { cssName: "" } }),
-      BUILTIN_THEMES[0].cssPath);
+      BUILTIN_THEMES.find((theme) => theme.id === "compactDark").cssPath);
     assert.equal(resolveTheme({ customCSSLocation: "/legacy/theme.css", appearance: { cssLocation: "" } }),
       "/legacy/theme.css");
   });
@@ -232,7 +247,10 @@ describe("theme selection compatibility", () => {
     const config = { appearance: { cssName: "custom:removed", cssLocation: "/old/theme.css" } };
     assert.equal(resolveTheme(config, configPath), path.join(directory, "theme.css"));
     fs.rmSync(directory, { recursive: true });
-    assert.equal(resolveTheme(config, configPath), null);
+    assert.equal(
+      resolveTheme(config, configPath),
+      BUILTIN_THEMES.find((theme) => theme.id === DEFAULT_THEME_ID).cssPath
+    );
     assert.equal(config.appearance.cssName, "custom:removed");
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /Selected theme is unavailable/);
@@ -240,8 +258,11 @@ describe("theme selection compatibility", () => {
 
   test("invalid selected names cannot escape packaged assets and warnings do not expose values", (t) => {
     const { configPath, warnings } = fixture(t);
-    assert.equal(resolveTheme({ customCSSName: "../../private-user/theme" }, configPath), null);
-    assert.equal(resolveTheme({ customCSSName: "custom:private-user-missing" }, configPath), null);
+    const defaultPath = BUILTIN_THEMES.find(
+      (theme) => theme.id === DEFAULT_THEME_ID
+    ).cssPath;
+    assert.equal(resolveTheme({ customCSSName: "../../private-user/theme" }, configPath), defaultPath);
+    assert.equal(resolveTheme({ customCSSName: "custom:private-user-missing" }, configPath), defaultPath);
     assert.equal(warnings.length, 2);
     assert.ok(warnings.every((warning) => !warning.includes("private-user")));
   });

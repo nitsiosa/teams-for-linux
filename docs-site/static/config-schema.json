@@ -189,8 +189,8 @@
     {
       "name": "customCSSName",
       "type": "string",
-      "default": "",
-      "description": "Packaged CSS theme name (compactDark, compactLight, tweaks, condensedDark, condensedLight), or custom:<id> for a discovered user theme. An empty name uses customCSSLocation when configured.",
+      "default": "pearlLuxe",
+      "description": "Packaged CSS theme name (pearlLuxe, pearlLuxeNight, compactDark, compactLight, tweaks, condensedDark, condensedLight, teamsDefault), or custom:<id> for a discovered user theme. An empty name uses customCSSLocation when configured, then Pearl Luxe.",
       "applyMode": "restart",
       "deprecated": "use appearance.cssName instead"
     },
@@ -532,8 +532,8 @@
     {
       "name": "followSystemTheme",
       "type": "boolean",
-      "default": false,
-      "description": "Follow the operating-system dark/light theme preference. Default is false; set true to drive Teams's theme from the OS preference.",
+      "default": true,
+      "description": "Follow the operating-system dark/light theme preference. Enabled by default for adaptive Pearl Luxe.",
       "applyMode": "restart",
       "deprecated": "use appearance.followSystemTheme instead"
     },
@@ -1410,18 +1410,18 @@
       "name": "appearance",
       "type": "object",
       "default": {
-        "cssName": "",
+        "cssName": "pearlLuxe",
         "cssLocation": "",
-        "followSystemTheme": false
+        "followSystemTheme": true
       },
-      "description": "Custom CSS and theme configuration. Replaces the deprecated customCSSName, customCSSLocation and followSystemTheme options.",
+      "description": "Custom CSS and theme configuration. Pearl Luxe is the default and follows the operating-system light/dark preference. Use teamsDefault to disable custom Teams CSS. Replaces the deprecated customCSSName, customCSSLocation and followSystemTheme options.",
       "applyMode": "restart",
       "fields": [
         {
           "path": "cssName",
           "type": "string",
-          "default": "",
-          "description": "Packaged CSS theme name (compactDark, compactLight, tweaks, condensedDark, condensedLight), or custom:<id> for a discovered user theme. An empty name uses appearance.cssLocation when configured."
+          "default": "pearlLuxe",
+          "description": "Packaged CSS theme name (pearlLuxe, pearlLuxeNight, compactDark, compactLight, tweaks, condensedDark, condensedLight, teamsDefault), or custom:<id> for a discovered user theme. An empty name uses appearance.cssLocation when configured, then Pearl Luxe."
         },
         {
           "path": "cssLocation",
@@ -1432,8 +1432,8 @@
         {
           "path": "followSystemTheme",
           "type": "boolean",
-          "default": false,
-          "description": "Follow the operating-system dark/light theme preference. Default is false; set true to drive Teams's theme from the OS preference."
+          "default": true,
+          "description": "Follow the operating-system dark/light theme preference and drive Teams's theme from the OS preference. Enabled by default for adaptive Pearl Luxe."
         }
       ]
     },

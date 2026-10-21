@@ -26,6 +26,7 @@ class FakeWebContents {
     this._once = {};
     this._on = {};
     this._destroyed = false;
+    this.sent = [];
   }
   loadURL() {}
   async loadFile() {}
@@ -44,7 +45,9 @@ class FakeWebContents {
     this._once[event] = [];
   }
   removeListener() {}
-  send() {}
+  send(...args) {
+    this.sent.push(args);
+  }
   getTitle() {
     return this.title ?? '';
   }
@@ -517,6 +520,55 @@ describe('ProfileViewManager per-view load hook (#2979)', () => {
       viewB.webContents,
       viewA.webContents,
     ]);
+  });
+
+  it('mirrors frame-load hooks for profile views, never for the pill', () => {
+    const frames = [];
+    const pvm = new ProfileViewManager(
+      fakeWindow(),
+      fakeProfilesManager([LEGACY, PROFILE_A]),
+      { url: 'https://teams.cloud.microsoft' },
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      (...args) => frames.push(args)
+    );
+    pvm.initialize();
+    const profileView = createdViews[0];
+    const pillView = createdViews.at(-1);
+    const event = {};
+    profileView.webContents.emit(
+      'did-frame-finish-load',
+      event,
+      false,
+      10,
+      20
+    );
+    pillView.webContents.emit(
+      'did-frame-finish-load',
+      event,
+      false,
+      30,
+      40
+    );
+    assert.deepStrictEqual(frames, [[event, false, 10, 20]]);
+  });
+
+  it('broadcasts system-theme changes to profile views, not the pill', () => {
+    const { pvm } = build([LEGACY, PROFILE_A, PROFILE_B]);
+    const [viewA, viewB] = createdViews;
+    const pillView = createdViews.at(-1);
+    pvm.sendToProfileViews('system-theme-changed', true);
+    assert.deepStrictEqual(
+      viewA.webContents.sent,
+      [['system-theme-changed', true]]
+    );
+    assert.deepStrictEqual(
+      viewB.webContents.sent,
+      [['system-theme-changed', true]]
+    );
+    assert.deepStrictEqual(pillView.webContents.sent, []);
   });
 });
 

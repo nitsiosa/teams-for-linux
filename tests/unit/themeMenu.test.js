@@ -3,7 +3,13 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
 const buildThemesMenu = require("../../app/menus/themesMenu");
-const { BUILTIN_THEMES } = require("../../app/customCSS/themes");
+const {
+  BUILTIN_THEMES,
+  DEFAULT_THEME_ID,
+  NO_THEME,
+} = require("../../app/customCSS/themes");
+
+const DEFAULT_LABEL = "Default — Pearl Luxe";
 
 function fakeMenus({ cssName = "", cssLocation = "", customThemes = [] } = {}) {
   const calls = [];
@@ -30,11 +36,20 @@ describe("Settings theme menu", () => {
     const menu = buildThemesMenu(menus);
     assert.strictEqual(menu.label, "Theme");
     const builtins = findItem(menu, "Built-in").submenu;
-    assert.deepStrictEqual(builtins.map((item) => item.label), BUILTIN_THEMES.map((theme) => theme.name));
+    const expected = BUILTIN_THEMES.filter(
+      (theme) => theme.id !== DEFAULT_THEME_ID
+    );
+    assert.deepStrictEqual(
+      builtins.map((item) => item.label),
+      expected.map((theme) => theme.name)
+    );
     for (const [index, item] of builtins.entries()) {
       assert.strictEqual(item.type, "checkbox");
       item.click();
-      assert.deepStrictEqual(menus.calls.at(-1), ["selectTheme", BUILTIN_THEMES[index].value]);
+      assert.deepStrictEqual(
+        menus.calls.at(-1),
+        ["selectTheme", expected[index].value]
+      );
     }
   });
 
@@ -53,10 +68,11 @@ describe("Settings theme menu", () => {
     }
   });
 
-  it("omits the empty custom group and selects Default with no custom CSS", () => {
+  it("omits the empty custom group and selects Pearl Luxe by default", () => {
     const menu = buildThemesMenu(fakeMenus());
     assert.ok(!menu.submenu.some((item) => item.label === "Custom"));
-    assert.strictEqual(findItem(menu, "Default").checked, true);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, true);
+    assert.strictEqual(findItem(menu, NO_THEME.name).checked, false);
     assert.ok(!menu.submenu.some((item) => item.label === "Custom CSS file"));
   });
 
@@ -64,7 +80,7 @@ describe("Settings theme menu", () => {
     const menu = buildThemesMenu(fakeMenus({ cssName: "compactDark" }));
     const builtins = findItem(menu, "Built-in").submenu;
     assert.deepStrictEqual(builtins.filter((item) => item.checked).map((item) => item.label), ["Compact Dark"]);
-    assert.strictEqual(findItem(menu, "Default").checked, false);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, false);
   });
 
   it("marks the selected custom theme and leaves built-ins unchecked", () => {
@@ -74,13 +90,13 @@ describe("Settings theme menu", () => {
     }));
     assert.strictEqual(findItem(menu, "Custom").submenu[0].checked, true);
     assert.ok(findItem(menu, "Built-in").submenu.every((item) => !item.checked));
-    assert.strictEqual(findItem(menu, "Default").checked, false);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, false);
   });
 
   it("shows missing selections as Default without changing the stored value", () => {
     const menus = fakeMenus({ cssName: "custom:removed-theme", cssLocation: "/existing/direct.css" });
     const menu = buildThemesMenu(menus);
-    assert.strictEqual(findItem(menu, "Default").checked, true);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, true);
     assert.strictEqual(findItem(menu, "Custom CSS file").checked, false);
     assert.strictEqual(menus.configGroup.themeSelection.cssName, "custom:removed-theme");
     assert.deepStrictEqual(menus.calls, []);
@@ -98,15 +114,26 @@ describe("Settings theme menu", () => {
   it("marks direct CSS selected when no named theme is configured", () => {
     const menu = buildThemesMenu(fakeMenus({ cssLocation: "/existing/direct.css" }));
     assert.strictEqual(findItem(menu, "Custom CSS file").checked, true);
-    assert.strictEqual(findItem(menu, "Default").checked, false);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, false);
   });
 
-  it("wires Default and Open themes folder through the existing Menus object", () => {
+  it("wires default, no-theme and Open themes folder through Menus", () => {
     const menus = fakeMenus();
     const menu = buildThemesMenu(menus);
-    findItem(menu, "Default").click();
+    findItem(menu, DEFAULT_LABEL).click();
+    findItem(menu, NO_THEME.name).click();
     findItem(menu, "Open themes folder").click();
-    assert.deepStrictEqual(menus.calls, [["selectTheme", ""], ["openThemesFolder"]]);
+    assert.deepStrictEqual(menus.calls, [
+      ["selectTheme", DEFAULT_THEME_ID],
+      ["selectTheme", NO_THEME.value],
+      ["openThemesFolder"],
+    ]);
+  });
+
+  it("marks the explicit no-theme choice", () => {
+    const menu = buildThemesMenu(fakeMenus({ cssName: NO_THEME.value }));
+    assert.strictEqual(findItem(menu, NO_THEME.name).checked, true);
+    assert.strictEqual(findItem(menu, DEFAULT_LABEL).checked, false);
   });
 
   it("escapes metadata ampersands so Electron displays names as literal text", () => {

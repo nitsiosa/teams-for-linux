@@ -1,7 +1,15 @@
 const { default: Store } = require("electron-store");
 const fs = require("node:fs");
 const path = require("node:path");
-const { BUILTIN_THEMES, discoverThemes, resolveTheme } = require("../customCSS/themes");
+const {
+  BUILTIN_THEMES,
+  NO_THEME,
+  discoverThemes,
+  resolveTheme,
+} = require("../customCSS/themes");
+const {
+  migrateDefaultTheme,
+} = require("../customCSS/defaultThemeMigration");
 const { isPlainObject } = require("../config/validator");
 
 // WeakMap-based private fields pattern provides true privacy without relying on newer
@@ -28,6 +36,12 @@ class AppConfiguration {
    */
   constructor(configPath, appVersion) {
     _AppConfiguration_configPath.set(this, configPath);
+    const settingsStore = new Store({
+      name: "settings",
+      clearInvalidConfig: true,
+    });
+    _AppConfiguration_settingsStore.set(this, settingsStore);
+    migrateDefaultTheme(configPath, settingsStore);
     _AppConfiguration_startupConfig.set(
       this,
       require("../config")(configPath, appVersion)
@@ -38,13 +52,6 @@ class AppConfiguration {
       this,
       new Store({
         name: "config",
-        clearInvalidConfig: true,
-      })
-    );
-    _AppConfiguration_settingsStore.set(
-      this,
-      new Store({
-        name: "settings",
         clearInvalidConfig: true,
       })
     );
@@ -99,10 +106,12 @@ class AppConfiguration {
 
   // Theme selection is restart-only like appearance.cssName. Write only its
   // canonical fields; do not mutate startupConfig or migrate unrelated keys.
-  // null chooses the existing direct CSS file; "" explicitly chooses Default.
+  // null chooses the existing direct CSS file; "" resolves to the effective
+  // default (Pearl Luxe). NO_THEME.value explicitly disables custom CSS.
   setThemeSelection(selection) {
     if (selection !== null && selection !== "" &&
-        ![...BUILTIN_THEMES, ...this.#customThemes].some((theme) => theme.value === selection)) {
+        ![...BUILTIN_THEMES, NO_THEME, ...this.#customThemes]
+          .some((theme) => theme.value === selection)) {
       throw new Error("Unknown theme selection");
     }
     const configFile = this.configFilePath;

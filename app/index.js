@@ -780,10 +780,12 @@ async function handleAppReady() {
           config,
           mainAppWindow.bindDisplayMediaHandler,
           mainAppWindow.bindWindowOpenHandler,
-          mainAppWindow.injectScreenSharingLogic,
-          mainAppWindow.setTitleOverride
+          mainAppWindow.onProfileDidFinishLoad,
+          mainAppWindow.setTitleOverride,
+          mainAppWindow.onProfileDidFrameFinishLoad
         );
         profileViewManager.initialize();
+        mainAppWindow.setProfileViewManager(profileViewManager);
         await profileViewManager.bootstrapProfileZeroIfNeeded();
         unreadAggregator = createUnreadAggregator(profileViewManager);
       } else {

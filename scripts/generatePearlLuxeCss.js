@@ -11,7 +11,7 @@ const TOKEN_FILE = path.join(
   "tokens",
   "pearl-luxe.tokens.json"
 );
-const RULES_FILE = path.join(DESIGN_ROOT, "teams.rules.css");
+const RULES_FILE = path.join(DESIGN_ROOT, "teams.audited.css");
 const DARK_SELECTORS_FILE = path.join(
   DESIGN_ROOT,
   "teams-dark-selectors.json"
@@ -49,12 +49,11 @@ function readInputs() {
   }
   if (
     !Array.isArray(darkSelectors) ||
-    darkSelectors.length === 0 ||
     darkSelectors.some(
       (selector) => typeof selector !== "string" || !selector.trim()
     )
   ) {
-    throw new Error("Pearl Luxe dark selectors must be a non-empty array.");
+    throw new Error("Pearl Luxe dark selectors must be an array.");
   }
   return {
     version: String(tokens.version ?? "unknown"),
@@ -85,6 +84,9 @@ function header(version, target) {
 
 function buildAdaptive(inputs) {
   const darkSelector = inputs.darkSelectors.join(",\n");
+  const teamsDarkOverride = darkSelector
+    ? `${darkSelector} {\n${declarationBlock(inputs.dark)}\n}\n\n`
+    : "";
   return (
     header(inputs.version, "Teams adaptive light/night") +
     ":root {\n  color-scheme: light dark;\n" +
@@ -93,9 +95,7 @@ function buildAdaptive(inputs) {
     "@media (prefers-color-scheme: dark) {\n  :root {\n" +
     declarationBlock(inputs.dark, "    ") +
     "\n  }\n}\n\n" +
-    `${darkSelector} {\n` +
-    declarationBlock(inputs.dark) +
-    "\n}\n\n" +
+    teamsDarkOverride +
     inputs.rules
   );
 }

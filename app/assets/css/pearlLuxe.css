@@ -106,275 +106,254 @@
   }
 }
 
-html.theme-dark,
-html[data-theme="dark"],
-body.theme-dark {
-  --lx-canvas: #36312C;
-  --lx-sidebar: #423B35;
-  --lx-rail: #2B2723;
-  --lx-surface: #48413A;
-  --lx-surface-raised: #544C44;
-  --lx-mine: #5E4F3C;
-  --lx-selected: #5C4E3C;
-  --lx-hover: #4E463F;
-  --lx-hairline: #5F564C;
-  --lx-hairline-strong: #756A5D;
-  --lx-ink: #F6F1E8;
-  --lx-ink-muted: #D6CDC0;
-  --lx-ink-faint: #A69A8A;
-  --lx-gold: #D4B47A;
-  --lx-gold-ink: #EBD3A3;
-  --lx-espresso: #3A322B;
-  --lx-espresso-hover: #4A4037;
-  --lx-primary: #EBDABA;
-  --lx-primary-hover: #F3E6CC;
-  --lx-primary-pressed: #DFCAA2;
-  --lx-on-primary: #2B2723;
-  --lx-sage: #43523F;
-  --lx-sage-ink: #C6DAC2;
-  --lx-blush: #5A423B;
-  --lx-blush-ink: #F2CABF;
-  --lx-mist: #3F4A57;
-  --lx-mist-ink: #CBD8E8;
-  --lx-butter: #5A4E31;
-  --lx-butter-ink: #F0DCAA;
-  --lx-badge: #E3A497;
-  --lx-on-badge: #2B2723;
-  --lx-status-on: #8FB593;
-  --lx-status-away: #DDBC70;
-  --lx-status-busy: #E3A497;
-  --lx-surface-alpha: rgba(72, 65, 58, .9);
-  --lx-backdrop: #221F1B;
-  --lx-shadow-1: 0 1px 2px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .16);
-  --lx-shadow-2: 0 1px 2px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .26);
-  --lx-shadow-3: 0 2px 6px rgba(0, 0, 0, .28), 0 28px 64px rgba(0, 0, 0, .38);
-}
+/* Pearl Luxe rules audited against current Teams v2 on 2026-10-21.
+ * Counts only: docs/design/pearl-luxe/selector-audit.json.
+ *
+ * Variables are scoped to chat-specific layout regions instead of :root or
+ * the global Fluent provider, so sign-in, call/meeting stages and embedded
+ * Office content do not inherit the remap.
+ */
 
-/* ---------- Layer 1: Fluent v9 token remap ---------- */
-:root,
-.fui-FluentProvider,
-[class*="fui-FluentProvider"] {
-  /* neutrals: backgrounds */
-  --colorNeutralBackground1:          var(--lx-canvas) !important;
-  --colorNeutralBackground1Hover:     var(--lx-hover) !important;
-  --colorNeutralBackground1Pressed:   var(--lx-selected) !important;
-  --colorNeutralBackground1Selected:  var(--lx-selected) !important;
-  --colorNeutralBackground2:          var(--lx-sidebar) !important;
-  --colorNeutralBackground2Hover:     var(--lx-hover) !important;
-  --colorNeutralBackground2Selected:  var(--lx-selected) !important;
-  --colorNeutralBackground3:          var(--lx-rail) !important;
-  --colorNeutralBackground4:          var(--lx-rail) !important;
-  --colorNeutralBackground5:          var(--lx-rail) !important;
-  --colorNeutralBackground6:          var(--lx-hairline) !important;
-  --colorNeutralBackgroundAlpha:      var(--lx-surface-alpha) !important;
-  --colorSubtleBackgroundHover:       var(--lx-hover) !important;
-  --colorSubtleBackgroundPressed:     var(--lx-selected) !important;
-  --colorSubtleBackgroundSelected:    var(--lx-selected) !important;
-  --colorNeutralCardBackground:       var(--lx-surface) !important;
-  --colorNeutralCardBackgroundHover:  var(--lx-surface-raised) !important;
-
-  /* neutrals: text */
-  --colorNeutralForeground1:          var(--lx-ink) !important;
-  --colorNeutralForeground1Hover:     var(--lx-ink) !important;
-  --colorNeutralForeground2:          var(--lx-ink) !important;
-  --colorNeutralForeground2Hover:     var(--lx-ink) !important;
-  --colorNeutralForeground3:          var(--lx-ink-muted) !important;
-  --colorNeutralForeground4:          var(--lx-ink-muted) !important;
-  --colorNeutralForegroundDisabled:   var(--lx-ink-faint) !important;
-  --colorNeutralForegroundOnBrand:    var(--lx-on-primary) !important;
-
-  /* neutrals: strokes */
-  --colorNeutralStroke1:              var(--lx-hairline-strong) !important;
-  --colorNeutralStroke1Hover:         var(--lx-gold) !important;
-  --colorNeutralStroke2:              var(--lx-hairline) !important;
-  --colorNeutralStroke3:              var(--lx-hairline) !important;
-  --colorNeutralStrokeAccessible:     var(--lx-ink-muted) !important;
-  --colorStrokeFocus2:                var(--lx-gold-ink) !important;
-
-  /* brand: primary fill (espresso / champagne at night), gold for text/indicators */
-  --colorBrandBackground:             var(--lx-primary) !important;
-  --colorBrandBackgroundHover:        var(--lx-primary-hover) !important;
-  --colorBrandBackgroundPressed:      var(--lx-primary-pressed) !important;
-  --colorBrandBackgroundSelected:     var(--lx-primary) !important;
-  --colorBrandBackground2:            var(--lx-mine) !important;
-  --colorBrandBackground2Hover:       var(--lx-selected) !important;
-  --colorBrandForeground1:            var(--lx-gold-ink) !important;
-  --colorBrandForeground2:            var(--lx-gold-ink) !important;
-  --colorBrandForegroundLink:         var(--lx-gold-ink) !important;
-  --colorBrandForegroundLinkHover:    var(--lx-ink) !important;
-  --colorBrandStroke1:                var(--lx-gold) !important;
-  --colorBrandStroke2:                var(--lx-hairline-strong) !important;
-  --colorCompoundBrandForeground1:    var(--lx-gold-ink) !important;
-  --colorCompoundBrandBackground:     var(--lx-gold-ink) !important;
-  --colorCompoundBrandStroke:         var(--lx-gold) !important;
-
-  /* status */
-  --colorPaletteRedBackground3:       var(--lx-badge) !important;
-  --colorPaletteRedForeground1:       var(--lx-blush-ink) !important;
-  --colorPaletteGreenForeground1:     var(--lx-sage-ink) !important;
-  --colorPaletteGreenBackground3:     var(--lx-status-on) !important;
-  --colorStatusDangerBackground3:     var(--lx-badge) !important;
-
-  /* shape, type, depth */
-  --borderRadiusSmall:   6px !important;
-  --borderRadiusMedium:  var(--lx-radius-sm) !important;
-  --borderRadiusLarge:   var(--lx-radius-md) !important;
-  --borderRadiusXLarge:  var(--lx-radius-lg) !important;
-  --fontFamilyBase:      var(--lx-font-body) !important;
-  --shadow2:  var(--lx-shadow-1) !important;
-  --shadow4:  var(--lx-shadow-1) !important;
-  --shadow8:  var(--lx-shadow-2) !important;
+/* ---------- Layer 1: region-scoped Fluent v9 token remap ---------- */
+:is(
+  [data-tid="title-bar"],
+  [data-tid="app-layout-area--nav"],
+  [data-tid="app-layout-area--mid-nav"],
+  [data-tid="entity-header"],
+  [data-tid="message-pane-layout"],
+  [data-tid="chat-pane-compose-message-footer"]
+) {
+  --colorNeutralBackground1: var(--lx-canvas) !important;
+  --colorNeutralBackground1Hover: var(--lx-hover) !important;
+  --colorNeutralBackground1Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground1Selected: var(--lx-selected) !important;
+  --colorNeutralBackground2: var(--lx-sidebar) !important;
+  --colorNeutralBackground2Hover: var(--lx-hover) !important;
+  --colorNeutralBackground2Selected: var(--lx-selected) !important;
+  --colorNeutralBackground3: var(--lx-rail) !important;
+  --colorNeutralBackground4: var(--lx-rail) !important;
+  --colorNeutralBackground5: var(--lx-rail) !important;
+  --colorNeutralBackground6: var(--lx-hairline) !important;
+  --colorNeutralBackgroundAlpha: var(--lx-surface-alpha) !important;
+  --colorSubtleBackgroundHover: var(--lx-hover) !important;
+  --colorSubtleBackgroundPressed: var(--lx-selected) !important;
+  --colorSubtleBackgroundSelected: var(--lx-selected) !important;
+  --colorNeutralCardBackground: var(--lx-surface) !important;
+  --colorNeutralCardBackgroundHover: var(--lx-surface-raised) !important;
+  --colorNeutralForeground1: var(--lx-ink) !important;
+  --colorNeutralForeground1Hover: var(--lx-ink) !important;
+  --colorNeutralForeground2: var(--lx-ink) !important;
+  --colorNeutralForeground2Hover: var(--lx-ink) !important;
+  --colorNeutralForeground3: var(--lx-ink-muted) !important;
+  --colorNeutralForeground4: var(--lx-ink-muted) !important;
+  --colorNeutralForegroundDisabled: var(--lx-ink-faint) !important;
+  --colorNeutralForegroundOnBrand: var(--lx-on-primary) !important;
+  --colorNeutralStroke1: var(--lx-hairline-strong) !important;
+  --colorNeutralStroke1Hover: var(--lx-gold) !important;
+  --colorNeutralStroke2: var(--lx-hairline) !important;
+  --colorNeutralStroke3: var(--lx-hairline) !important;
+  --colorNeutralStrokeAccessible: var(--lx-ink-muted) !important;
+  --colorStrokeFocus2: var(--lx-gold-ink) !important;
+  --colorBrandBackground: var(--lx-primary) !important;
+  --colorBrandBackgroundHover: var(--lx-primary-hover) !important;
+  --colorBrandBackgroundPressed: var(--lx-primary-pressed) !important;
+  --colorBrandBackgroundSelected: var(--lx-primary) !important;
+  --colorBrandBackground2: var(--lx-mine) !important;
+  --colorBrandBackground2Hover: var(--lx-selected) !important;
+  --colorBrandForeground1: var(--lx-gold-ink) !important;
+  --colorBrandForeground2: var(--lx-gold-ink) !important;
+  --colorBrandForegroundLink: var(--lx-gold-ink) !important;
+  --colorBrandForegroundLinkHover: var(--lx-ink) !important;
+  --colorBrandStroke1: var(--lx-gold) !important;
+  --colorBrandStroke2: var(--lx-hairline-strong) !important;
+  --colorCompoundBrandForeground1: var(--lx-gold-ink) !important;
+  --colorCompoundBrandBackground: var(--lx-primary) !important;
+  --colorCompoundBrandStroke: var(--lx-gold) !important;
+  --colorPaletteRedBackground3: var(--lx-badge) !important;
+  --colorPaletteRedForeground1: var(--lx-blush-ink) !important;
+  --colorPaletteGreenForeground1: var(--lx-sage-ink) !important;
+  --colorPaletteGreenBackground3: var(--lx-status-on) !important;
+  --colorStatusDangerBackground3: var(--lx-badge) !important;
+  --borderRadiusSmall: var(--lx-radius-sm) !important;
+  --borderRadiusMedium: var(--lx-radius-sm) !important;
+  --borderRadiusLarge: var(--lx-radius-md) !important;
+  --borderRadiusXLarge: var(--lx-radius-lg) !important;
+  --fontFamilyBase: var(--lx-font-body) !important;
+  --shadow2: var(--lx-shadow-1) !important;
+  --shadow4: var(--lx-shadow-1) !important;
+  --shadow8: var(--lx-shadow-2) !important;
   --shadow16: var(--lx-shadow-2) !important;
   --shadow28: var(--lx-shadow-3) !important;
   --shadow64: var(--lx-shadow-3) !important;
 }
 
-/* ---------- Layer 2: region polish ---------- */
-body { background: var(--lx-canvas) !important; -webkit-font-smoothing: antialiased; }
-
-::selection { background: var(--lx-mine); color: var(--lx-ink); }
-
-:focus-visible {
+/* ---------- Layer 2: audited chat-region polish ---------- */
+:is(
+  [data-tid="title-bar"],
+  [data-tid="app-layout-area--nav"],
+  [data-tid="app-layout-area--mid-nav"],
+  [data-tid="entity-header"],
+  [data-tid="message-pane-layout"],
+  [data-tid="chat-pane-compose-message-footer"]
+) :focus-visible {
   outline: 2px solid var(--lx-gold-ink) !important;
   outline-offset: 2px !important;
 }
 
-/* Thin, warm scrollbars */
-* { scrollbar-width: thin; scrollbar-color: var(--lx-hairline-strong) transparent; }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb {
-  background: var(--lx-hairline-strong); border-radius: 999px;
-  border: 3px solid transparent; background-clip: content-box;
-}
-
-/* Title bar / top search band — VERIFY selectors */
-[data-tid="app-header"], [data-tid="title-bar"], header[role="banner"] {
+[data-tid="title-bar"] {
   background: var(--lx-rail) !important;
   border-bottom: 1px solid var(--lx-hairline) !important;
 }
-/* Search field: pill, ivory, hairline */
-[data-tid="searchInputField"], input[type="search"], input[placeholder^="Search"] {
+
+[data-tid="title-bar"] input[type="search"] {
   background: var(--lx-surface) !important;
   border: 1px solid var(--lx-hairline) !important;
   border-radius: var(--lx-radius-pill) !important;
   color: var(--lx-ink) !important;
 }
 
-/* App rail (far left) — VERIFY */
-[data-tid="app-bar"], nav[aria-label="App bar"] {
+[data-tid="app-layout-area--nav"],
+[data-tid="app-bar-wrapper"] {
   background: var(--lx-rail) !important;
   border-right: 1px solid var(--lx-hairline) !important;
 }
 
-/* Chat list column — VERIFY */
-[data-tid="chat-list"], [data-tid="left-rail"], [aria-label="Chat list"] {
+[data-tid="app-layout-area--mid-nav"] {
   background: var(--lx-sidebar) !important;
   border-right: 1px solid var(--lx-hairline) !important;
 }
-/* Rows: rounded, inset, quiet hover, champagne selection with gold bar */
-[role="treeitem"], [role="tree"] [role="treeitem"] > div {
+
+[data-tid="app-layout-area--mid-nav"] [role="treeitem"] {
   border-radius: var(--lx-radius-sm) !important;
   transition: background-color var(--lx-dur) var(--lx-ease) !important;
 }
-[role="treeitem"][aria-selected="true"] {
+
+[data-tid="app-layout-area--mid-nav"]
+  [role="treeitem"][aria-selected="true"] {
   background: var(--lx-selected) !important;
-  box-shadow: inset 3px 0 0 var(--lx-gold) !important;
+  box-shadow: inset var(--lx-space-1) 0 0 var(--lx-gold) !important;
 }
-/* Section headers (Testers / Product / Chats): small caps label */
-[role="treeitem"][aria-expanded] > div [class*="header"], [data-tid="chat-list-section-header"] {
-  font-size: 11px !important; letter-spacing: var(--lx-tracking-label) !important;
-  text-transform: uppercase !important; color: var(--lx-ink-muted) !important; font-weight: 600 !important;
+
+[data-tid="app-layout-area--mid-nav"]
+  [role="treeitem"][aria-expanded="true"] {
+  color: var(--lx-ink-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: var(--lx-tracking-label) !important;
+  text-transform: uppercase !important;
 }
-/* Filter chips (Unread / Channels / Chats / Meeting chats) */
-[role="toolbar"] button[aria-pressed], [data-tid*="filter"] button {
-  border-radius: var(--lx-radius-pill) !important;
-  border: 1px solid var(--lx-hairline-strong) !important;
+
+[data-tid="app-layout-area--mid-nav"]
+  [role="toolbar"]
+  button[aria-pressed] {
   background: var(--lx-surface) !important;
+  border: 1px solid var(--lx-hairline-strong) !important;
+  border-radius: var(--lx-radius-pill) !important;
 }
-[role="toolbar"] button[aria-pressed="true"] {
-  background: var(--lx-primary) !important; color: var(--lx-on-primary) !important;
+
+[data-tid="app-layout-area--mid-nav"]
+  [role="toolbar"]
+  button[aria-pressed="true"] {
+  background: var(--lx-primary) !important;
   border-color: var(--lx-primary) !important;
+  color: var(--lx-on-primary) !important;
 }
 
-/* Page + conversation titles in serif — VERIFY */
-[data-tid="chat-header-title"], [data-tid="chat-title"], h1, h2[class*="title"] {
+[data-tid="entity-header"] {
+  background: var(--lx-canvas) !important;
+  border-bottom: 1px solid var(--lx-hairline) !important;
+}
+
+[data-tid="chat-title"] {
+  color: var(--lx-ink) !important;
   font-family: var(--lx-font-display) !important;
-  font-weight: 600 !important; letter-spacing: .005em !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.005em !important;
 }
 
-/* Header tabs (Chat / Shared / Notes / Recap): gold underline */
-[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--lx-ink) !important; }
-[role="tablist"] [role="tab"][aria-selected="true"]::after,
-[role="tablist"] [role="tab"][aria-selected="true"] > span::after {
-  background: var(--lx-gold) !important; height: 2px !important; border-radius: 2px !important;
+[data-tid="entity-header"]
+  [role="tablist"]
+  [role="tab"][aria-selected="true"] {
+  color: var(--lx-ink) !important;
 }
 
-/* Message bubbles — VERIFY: find the bubble wrapper and the "mine" modifier */
-[data-tid="chat-pane-message"], [data-tid="message-body"] {
+[data-tid="entity-header"]
+  [role="tablist"]
+  [role="tab"][aria-selected="true"]::after,
+[data-tid="entity-header"]
+  [role="tablist"]
+  [role="tab"][aria-selected="true"]
+  > span::after {
+  background: var(--lx-gold) !important;
+  border-radius: var(--lx-radius-pill) !important;
+  height: 2px !important;
+}
+
+[data-tid="message-pane-layout"] {
+  background: var(--lx-canvas) !important;
+  color: var(--lx-ink) !important;
+}
+
+[data-tid="chat-pane-message"] {
   background: var(--lx-surface) !important;
   border: 1px solid var(--lx-hairline) !important;
   border-radius: var(--lx-radius-lg) !important;
   box-shadow: var(--lx-shadow-1) !important;
-  padding: 10px 14px !important;
   line-height: 1.55 !important;
+  padding: 10px 14px !important;
 }
-[data-tid="chat-pane-message"][data-mine="true"],
-[data-tid="chat-pane-item"] [class*="mine"] [data-tid="message-body"] {
+
+.fui-ChatMyMessage [data-tid="chat-pane-message"],
+[data-tid="chat-pane-message"].fui-ChatMyMessage {
   background: var(--lx-mine) !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
-/* Author / timestamp line */
-[data-tid="message-author-name"], [data-tid="message-timestamp"], time {
-  color: var(--lx-ink-muted) !important; font-size: 12px !important; letter-spacing: .01em !important;
+
+[data-tid="message-author-name"] {
+  color: var(--lx-ink-muted) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.01em !important;
 }
 
-/* File / link cards inside messages */
-[data-tid="file-attachment-grid"] > *, [data-tid*="attachment"] {
-  background: var(--lx-surface-raised) !important;
-  border: 1px solid var(--lx-hairline) !important;
-  border-radius: var(--lx-radius-md) !important;
-  box-shadow: var(--lx-shadow-1) !important;
-}
-
-/* Reactions: pale pill */
-[data-tid*="reaction"] button, [data-tid*="reaction"] [role="button"] {
-  border-radius: var(--lx-radius-pill) !important;
+[data-tid*="reaction"] button,
+[data-tid*="reaction"] [role="button"] {
   background: var(--lx-surface) !important;
   border: 1px solid var(--lx-hairline) !important;
-}
-
-/* Composer — VERIFY */
-[data-tid="ckeditor"], [data-tid="message-compose-box"], [data-tid*="compose"] [contenteditable="true"] {
-  background: var(--lx-surface-raised) !important;
-  border-radius: var(--lx-radius-lg) !important;
-}
-[data-tid*="compose"] {
-  border-radius: var(--lx-radius-lg) !important;
-  box-shadow: var(--lx-shadow-2) !important;
-  border-color: var(--lx-hairline) !important;
-}
-[data-tid="newMessageCommands-send"], button[aria-label^="Send"] {
-  background: var(--lx-primary) !important; color: var(--lx-on-primary) !important;
   border-radius: var(--lx-radius-pill) !important;
 }
 
-/* Unread badge on rail: blush, not red */
-[data-tid*="badge"], .fui-CounterBadge, [class*="CounterBadge"] {
-  background: var(--lx-badge) !important; color: var(--lx-on-badge) !important;
-}
-/* Unread dot in list */
-[data-tid*="unread-indicator"] { background: var(--lx-gold-ink) !important; }
-
-/* Menus, popovers, dialogs */
-[role="menu"], [role="dialog"], [role="listbox"], .fui-PopoverSurface, .fui-DialogSurface {
+[data-tid="chat-pane-compose-message-footer"] {
   background: var(--lx-surface-raised) !important;
   border: 1px solid var(--lx-hairline) !important;
   border-radius: var(--lx-radius-lg) !important;
-  box-shadow: var(--lx-shadow-3) !important;
+  box-shadow: var(--lx-shadow-2) !important;
 }
 
-/* Reduced motion */
+[data-tid="chat-pane-compose-message-footer"]
+  [data-tid="ckeditor"] {
+  background: var(--lx-surface-raised) !important;
+  border-radius: var(--lx-radius-lg) !important;
+  color: var(--lx-ink) !important;
+}
+
+[data-tid="sendMessageCommands-send"] {
+  background: var(--lx-primary) !important;
+  border-radius: var(--lx-radius-pill) !important;
+  color: var(--lx-on-primary) !important;
+}
+
+.fui-CounterBadge {
+  background: var(--lx-badge) !important;
+  color: var(--lx-on-badge) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  :is(
+    [data-tid="app-layout-area--mid-nav"],
+    [data-tid="message-pane-layout"],
+    [data-tid="chat-pane-compose-message-footer"]
+  ) * {
+    transition: none !important;
+  }
 }

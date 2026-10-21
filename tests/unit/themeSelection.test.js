@@ -145,7 +145,7 @@ describe("AppConfiguration theme selection persistence", () => {
     assert.match(createConfiguration().customCSSPath, /condensedLight\.css$/);
   });
 
-  it("clears both CSS settings for Default and suppresses inherited aliases on restart", () => {
+  it("clears both CSS settings and resolves the effective Pearl default", () => {
     writeConfig({ customCSSName: "compactDark", customCSSLocation: "/legacy/direct.css" });
     const config = createConfiguration();
     config.setThemeSelection("");
@@ -156,7 +156,7 @@ describe("AppConfiguration theme selection persistence", () => {
     });
     const restarted = createConfiguration();
     assert.deepStrictEqual(restarted.themeSelection, { cssName: "", cssLocation: "" });
-    assert.strictEqual(restarted.customCSSPath, null);
+    assert.match(restarted.customCSSPath, /pearlLuxe\.css$/);
   });
 
   it("can return from a built-in theme to the configured direct CSS file", () => {

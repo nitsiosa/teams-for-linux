@@ -133,4 +133,15 @@ describe("Pearl Luxe generated CSS", () => {
       /(?:^|[;{]\s*)margin(?:-[a-z]+)?\s*:/im
     );
   });
+
+  it("contains only audited, chat-scoped Teams selectors", () => {
+    const rules = readInputs().rules;
+    assert.doesNotMatch(rules, /\bVERIFY\b/);
+    assert.doesNotMatch(rules, /\[class\*=/);
+    assert.doesNotMatch(rules, /\[aria-label[\^*]?=/);
+    assert.doesNotMatch(rules, /\[placeholder[\^*]?=/);
+    assert.doesNotMatch(rules, /(^|})\s*:root\b/m);
+    assert.doesNotMatch(rules, /(^|})\s*body\b/m);
+    assert.doesNotMatch(rules, /\[role="dialog"\]/);
+  });
 });
