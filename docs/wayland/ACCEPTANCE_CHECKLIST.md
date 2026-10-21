@@ -13,7 +13,7 @@ Everything automatable has run; these checks need a person, a signed-in Teams ac
 ```bash
 cd ~/development/teams-for-linux
 sha256sum dist/teams-for-linux_2.27.0_amd64.deb
-# expect e15b142204add8bd163ce57a8c597e469cc63f9fdf4adcd95b124c2ac1628237
+# expect 8872897f5b65d123f95609aea225be8d75bb045a645a36627327b404788e11af
 sudo apt install ./dist/teams-for-linux_2.27.0_amd64.deb
 ```
 
@@ -22,6 +22,17 @@ The package registers `/usr/bin/teams-for-linux`, installs two launchers ("Teams
 ## Checks
 
 Use "Teams for Linux (Wayland)" unless a step says otherwise.
+
+Before L-01, verify Pearl Luxe in **Settings → Theme**:
+
+- **Default — Pearl Luxe** is selected after the one-time migration.
+- Light follows an OS Light preference; Night follows OS Dark.
+- **Pearl Luxe Night** forces the Night palette.
+- **Microsoft Teams / No custom theme** removes injected Teams CSS after a
+  restart.
+- Local dialogs, profile switcher, toasts, screen picker and Quick Chat use the
+  same Pearl palette; native menus, notifications and portal picker remain
+  system-rendered.
 
 | ID | Do this | PASS when |
 |---|---|---|

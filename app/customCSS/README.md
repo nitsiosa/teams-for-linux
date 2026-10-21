@@ -9,15 +9,27 @@ Provides custom styling capabilities for the Teams interface and its iframe cont
 
 `appearance.cssName` takes precedence over `appearance.cssLocation`. Existing built-in names and deprecated `customCSSName` / `customCSSLocation` aliases remain supported. Theme settings are restart-only; the native **Settings → Theme** menu persists selection through `AppConfiguration` and offers a restart.
 
+Pearl Luxe is the default. On the first launch of the version that introduced
+it, the app makes a permission-preserving
+`config.pre-pearl-luxe-v1.json` rollback copy and selects Pearl Luxe with
+system-theme following. This migration runs once; later theme choices are
+respected.
+
 ## Available Themes
 
+- `pearlLuxe`: default warm Light/Night theme, following the OS preference
+- `pearlLuxeNight`: forced Night palette
 - `compactDark`, `compactLight`: Compact interface variants
 - `condensedDark`, `condensedLight`: Condensed layout variants
 - `tweaks`: General UI improvements
+- `teamsDefault`: Microsoft Teams without injected custom theme CSS
 
 Themes sourced from [userstyles.org](https://userstyles.org). See [issue #77](https://github.com/IsmaelMartinez/teams-for-linux/issues/77) for adding new themes.
 
-These styles do not set Teams' own dark/light preference. Users can choose it in Teams or enable `appearance.followSystemTheme`.
+Pearl Luxe contains no remote font or image requests. The adaptive theme uses
+the OS colour preference; `appearance.followSystemTheme` (enabled by default)
+keeps Teams' own preference aligned. Pearl Luxe Night is always dark. Older
+themes do not set Teams' preference themselves.
 
 ## User Theme Discovery
 
@@ -46,10 +58,29 @@ Discovery runs at startup and accepts only valid local themes. It does not recur
 
 ## Selection and Fallback
 
-The native **Settings → Theme** menu lists **Default**, **Built-in**, and **Custom** choices using human-readable names. It also provides **Open themes folder**. Installing, removing, or updating themes requires a restart; no filesystem watching is used.
+The native **Settings → Theme** menu lists **Default — Pearl Luxe**,
+**Microsoft Teams / No custom theme**, **Built-in**, and **Custom** choices
+using human-readable names. It also provides **Open themes folder**.
+Installing, removing, or updating themes requires a restart; no filesystem
+watching is used.
 
-Selecting a theme saves only the relevant theme settings and preserves the rest of `config.json`. A custom selection uses `appearance.cssName: "custom:my-theme"`; built-ins retain their existing bare names. If the selected custom theme is missing or invalid, injection safely falls back to the default appearance without rewriting the saved selection or using `appearance.cssLocation` instead.
+Selecting a theme saves only the relevant theme settings and preserves the
+rest of `config.json`. A custom selection uses
+`appearance.cssName: "custom:my-theme"`; built-ins retain their existing bare
+names. If the selected custom theme is missing or invalid, injection safely
+falls back to Pearl Luxe without rewriting the saved selection or using
+`appearance.cssLocation` instead.
 
-The **Custom CSS file** option reuses an existing `appearance.cssLocation`. Selecting a built-in or discovered theme keeps that location available for later reuse. **Default** clears both theme settings. Restarting applies the saved choice and removes the previous theme's injected styling along with the old web content.
+The **Custom CSS file** option reuses an existing `appearance.cssLocation`.
+Selecting a built-in or discovered theme keeps that location available for
+later reuse. **Default — Pearl Luxe** selects `pearlLuxe`; **Microsoft Teams /
+No custom theme** selects `teamsDefault`. Restarting applies the saved choice
+and removes the previous theme's injected styling along with the old web
+content.
+
+CSS injection is restricted to supported HTTPS Teams hosts. It is applied to
+the root Teams document and to every secondary profile's main document and
+Teams content frames, but never to Microsoft sign-in or unrelated embedded
+content.
 
 Configuration details and user instructions: [Theming & Appearance](../../docs-site/docs/configuration.md#theming--appearance).

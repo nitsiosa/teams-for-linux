@@ -38,9 +38,17 @@ profile name, and adds:
   portal backend; and
 - Harbour Huddle application artwork for the package, launcher, windows,
   notifications, and default color tray icon.
+- **Pearl Luxe** as the default appearance: adaptive warm Light/Night styling
+  for audited chat regions and every wrapper-owned local view, with a forced
+  Night option and an explicit Microsoft Teams/no-custom-theme fallback.
 
 The monochrome tray variants remain upstream artwork because they are designed
 for contrast on light and dark desktop panels.
+
+On first launch after this theme was introduced, the app backs up
+`config.json` to `config.pre-pearl-luxe-v1.json`, selects Pearl Luxe, and turns
+on system-theme following. This happens once; later choices under
+**Settings → Theme** are respected.
 
 ### Install this fork's `.deb`
 

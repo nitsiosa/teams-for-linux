@@ -146,18 +146,33 @@ ignored. The examples below use whichever spelling actually applies.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `appearance.cssName` | `string` | `""` | Packaged CSS theme (`compactDark`, `compactLight`, `tweaks`, `condensedDark`, `condensedLight`) or discovered user theme (`custom:<id>`) |
-| `customCSSName` | `string` | `""` | Deprecated, use `appearance.cssName` |
+| `appearance.cssName` | `string` | `"pearlLuxe"` | Packaged CSS theme (`pearlLuxe`, `pearlLuxeNight`, `compactDark`, `compactLight`, `tweaks`, `condensedDark`, `condensedLight`, `teamsDefault`) or discovered user theme (`custom:<id>`) |
+| `customCSSName` | `string` | `"pearlLuxe"` | Deprecated, use `appearance.cssName` |
 | `appearance.cssLocation` | `string` | `""` | Custom CSS styles file location |
 | `customCSSLocation` | `string` | `""` | Deprecated, use `appearance.cssLocation` |
-| `appearance.followSystemTheme` | `boolean` | `false` | Follow the operating-system dark/light theme preference. Set `true` to drive Teams's theme from the OS preference. |
-| `followSystemTheme` | `boolean` | `false` | Deprecated, use `appearance.followSystemTheme` |
+| `appearance.followSystemTheme` | `boolean` | `true` | Follow the operating-system dark/light theme preference and drive Teams's theme from the OS preference |
+| `followSystemTheme` | `boolean` | `true` | Deprecated, use `appearance.followSystemTheme` |
 
 #### Selecting a CSS Theme
 
-Open the application's **Settings → Theme** menu to select **Default**, a **Built-in** theme, or a discovered **Custom** theme. The menu displays human-readable theme names and saves your choice in `config.json`, preserving unrelated settings. Theme changes require a restart; the app offers to restart after saving, or you can restart later.
+Open the application's **Settings → Theme** menu to select **Default — Pearl
+Luxe**, **Microsoft Teams / No custom theme**, another **Built-in** theme, or
+a discovered **Custom** theme. The menu displays human-readable theme names
+and saves your choice in `config.json`, preserving unrelated settings. Theme
+changes require a restart; the app offers to restart after saving, or you can
+restart later.
 
-CSS themes style the Teams web interface, including its iframe content. They do not change Teams' own dark/light preference. Choose the appropriate appearance in Teams itself, or use `appearance.followSystemTheme` to follow your desktop preference.
+Pearl Luxe is the default. It uses a warm Light palette and a lifted Night
+palette with no remote font or image requests. Pearl Luxe Night forces the
+Night palette. `appearance.followSystemTheme` is enabled by default so Teams
+and adaptive Pearl Luxe follow the desktop preference together.
+
+The first launch after upgrading to this version selects Pearl Luxe once for
+every user, including users who had another theme configured. Before changing
+the user config, the app writes `config.pre-pearl-luxe-v1.json` beside
+`config.json` with the same file permissions. The migration never runs again,
+so any later theme choice is respected. To roll back, quit the app and restore
+that backup over `config.json`.
 
 #### Installing a User Theme
 
@@ -204,11 +219,26 @@ Themes are local CSS files only; no JavaScript or executable theme code is loade
 
 Theme CSS may load remote resources through `@import` and `url()`, so only install themes from trusted sources.
 
-Invalid themes are ignored with concise warnings and never prevent startup. Built-in IDs are reserved. If several custom folders use the same ID, the first valid folder in sorted folder-name order wins. If a selected custom theme is missing or invalid, the app warns and uses the default appearance while retaining the saved selection, so reinstalling the theme restores it on the next restart.
+Invalid themes are ignored with concise warnings and never prevent startup.
+Built-in IDs are reserved. If several custom folders use the same ID, the
+first valid folder in sorted folder-name order wins. If a selected custom
+theme is missing or invalid, the app warns and uses Pearl Luxe while retaining
+the saved selection, so reinstalling the theme restores it on the next
+restart.
 
-Existing built-in names such as `compactDark` continue to work without migration. `appearance.cssName` takes precedence over `appearance.cssLocation`; a missing selected custom theme falls back to Default rather than loading a different stylesheet from `cssLocation`.
+Existing built-in names such as `compactDark` continue to work.
+`appearance.cssName` takes precedence over `appearance.cssLocation`; a missing
+selected custom theme falls back to Pearl Luxe rather than loading a different
+stylesheet from `cssLocation`.
 
-Direct CSS files remain supported through `appearance.cssLocation` and its legacy alias `customCSSLocation`. When a location is configured, **Custom CSS file** in the Theme menu lets you reuse that stylesheet. Choosing a built-in or discovered theme preserves the location for reuse; choosing **Default** clears both theme settings. Legacy `customCSSName` continues to work, with the nested `appearance` values taking precedence as described in [Renamed options](#renamed-options).
+Direct CSS files remain supported through `appearance.cssLocation` and its
+legacy alias `customCSSLocation`. When a location is configured, **Custom CSS
+file** in the Theme menu lets you reuse that stylesheet. Choosing a built-in
+or discovered theme preserves the location for reuse. **Default — Pearl Luxe**
+selects `pearlLuxe`; **Microsoft Teams / No custom theme** selects
+`teamsDefault`. Legacy `customCSSName` continues to work, with the nested
+`appearance` values taking precedence as described in
+[Renamed options](#renamed-options).
 
 ### Tray Icon
 
