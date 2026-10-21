@@ -32,14 +32,17 @@ are omitted from the theme rather than guessed.
   - `[data-tid="app-bar-wrapper"]`
 - Chat-list column:
   - `[data-tid="app-layout-area--mid-nav"]`
-  - scoped `[role="treeitem"]`, selected tree items, and filter toolbars
+  - scoped `h1`, `[role="tree"]`, `[role="treeitem"]`, audited
+    `.fui-TreeItemLayout`, the single roving
+    `[role="treeitem"][tabindex="0"]` active row, and filter toolbars
 - Conversation header:
   - `[data-tid="entity-header"]`
   - `[data-tid="chat-title"]`
   - scoped tablist/tab selectors
 - Messages:
   - `[data-tid="message-pane-layout"]`
-  - `[data-tid="chat-pane-message"]`
+  - `[data-tid="chat-pane-message"] > div.fui-Primitive` (the actual inner
+    bubble, not the full row/group)
   - `.fui-ChatMyMessage` (audited exact Fluent class; no stable mine attribute
     was present)
   - `[data-tid="message-author-name"]`
@@ -65,13 +68,18 @@ are omitted from the theme rather than guessed.
   - `[class*="header"]`, `[class*="title"]`, `[class*="mine"]`
   - `[class*="CounterBadge"]`
 - Overbroad document selectors:
-  - `:root`, `body`, `h1`, `time`, global `:focus-visible`, global scrollbars
+  - `:root`, `body`, `time`, global `:focus-visible`, global scrollbars
+  - unscoped `h1`; the audited chat-list `h1` is retained
   - global menu/dialog/listbox selectors
 - Unobserved candidates:
   - attachment/file-card selectors
   - message timestamp selector
   - app-header/app-bar/chat-list/left-rail aliases
   - generic compose wrappers and the old send-button ID
+
+No `aria-selected` or `aria-current` marker was present on the active chat
+row. Teams exposes one roving `tabindex="0"` tree item; the theme uses that
+audited state for the selected-row treatment.
 
 ## Dark-mode decision
 

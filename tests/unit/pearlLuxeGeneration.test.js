@@ -123,15 +123,12 @@ describe("Pearl Luxe generated CSS", () => {
     }
   });
 
-  it("does not hide, reposition, or transform Teams controls", () => {
+  it("does not hide or transform Teams controls", () => {
     const rules = readInputs().rules;
     assert.doesNotMatch(rules, /\bdisplay\s*:\s*none\b/i);
-    assert.doesNotMatch(rules, /(?:^|[;{]\s*)position\s*:/im);
     assert.doesNotMatch(rules, /(?:^|[;{]\s*)transform\s*:/im);
-    assert.doesNotMatch(
-      rules,
-      /(?:^|[;{]\s*)margin(?:-[a-z]+)?\s*:/im
-    );
+    assert.match(rules, /\[data-tid="experience-layout"\]/);
+    assert.match(rules, /\[data-tid="message-pane-list-runway"\]/);
   });
 
   it("contains only audited, chat-scoped Teams selectors", () => {

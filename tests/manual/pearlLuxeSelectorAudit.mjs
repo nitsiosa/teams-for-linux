@@ -29,13 +29,19 @@ const GROUPS = Object.freeze({
   ],
   appRail: [
     '[data-tid="app-bar"]',
+    '[data-tid="app-layout-area--nav"] [aria-current]',
+    '[data-tid="app-layout-area--nav"] [aria-selected="true"]',
+    '[data-tid="app-layout-area--nav"] [data-tid="data-tid-Chat"]',
   ],
   chatList: [
     '[data-tid="chat-list"]',
     '[data-tid="left-rail"]',
     '[role="tree"]',
     '[role="treeitem"]',
+    '[role="treeitem"][tabindex="0"]',
     '[role="treeitem"][aria-selected="true"]',
+    '[role="treeitem"][aria-current="page"]',
+    '[data-tid="app-layout-area--mid-nav"] [role="heading"]',
     '[data-tid="chat-list-section-header"]',
   ],
   filters: [
@@ -54,6 +60,8 @@ const GROUPS = Object.freeze({
     '[data-tid="message-body"]',
     '[data-tid="chat-pane-message"][data-mine="true"]',
     '[data-tid="chat-pane-item"] [data-tid="message-body"]',
+    '.fui-ChatMessage:not(.fui-ChatMyMessage) [data-tid="chat-pane-message"]',
+    '.fui-ChatMyMessage [data-tid="chat-pane-message"]',
     '[data-tid="message-author-name"]',
     '[data-tid="message-timestamp"]',
   ],
@@ -83,6 +91,49 @@ const GROUPS = Object.freeze({
     ".fui-DialogSurface",
   ],
 });
+const STYLE_PROBES = Object.freeze({
+  appLayout: '[data-tid="experience-layout"]',
+  titleBar: '[data-tid="title-bar"]',
+  appRail: '[data-tid="app-layout-area--nav"]',
+  chatList: '[data-tid="app-layout-area--mid-nav"]',
+  selectedChat:
+    '[data-tid="app-layout-area--mid-nav"] [role="treeitem"][aria-selected="true"]',
+  conversationHeader: '[data-tid="entity-header"]',
+  conversationTitle: '[data-tid="chat-title"]',
+  message: '[data-tid="chat-pane-message"]',
+  incomingMessage:
+    '.fui-ChatMessage:not(.fui-ChatMyMessage) [data-tid="chat-pane-message"]',
+  incomingBubble:
+    '.fui-ChatMessage:not(.fui-ChatMyMessage) [data-tid="chat-pane-message"] > div.fui-Primitive',
+  myMessage:
+    '.fui-ChatMyMessage [data-tid="chat-pane-message"]',
+  myBubble:
+    '.fui-ChatMyMessage [data-tid="chat-pane-message"] > div.fui-Primitive',
+  composer: '[data-tid="chat-pane-compose-message-footer"]',
+  composerEditor:
+    '[data-tid="chat-pane-compose-message-footer"] [data-tid="ckeditor"]',
+  composerToolbar:
+    '[data-tid="chat-pane-compose-message-footer"] [data-tid="simplified-formatting-toolbar"]',
+  composerGutter:
+    '[data-tid="chat-pane-compose-message-footer"] [data-tid="chat-pane-gutter-box"]',
+  send: '[data-tid="sendMessageCommands-send"]',
+});
+const STYLE_PROPERTIES = Object.freeze([
+  "background-color",
+  "color",
+  "border-color",
+  "border-radius",
+  "box-shadow",
+  "font-family",
+  "font-size",
+  "line-height",
+  "padding",
+  "width",
+  "height",
+  "gap",
+  "grid-template-columns",
+  "grid-template-rows",
+]);
 
 const teamsHosts = new Set([
   "teams.cloud.microsoft",
@@ -107,7 +158,7 @@ for (const context of browser.contexts()) {
     if (frames.length === 0) continue;
     let frameIndex = 0;
     for (const frame of frames) {
-      const result = await frame.evaluate((groups) => {
+      const result = await frame.evaluate(({ groups, probes, properties }) => {
         const output = {};
         const visible = (element) => {
           const style = getComputedStyle(element);
@@ -116,7 +167,11 @@ for (const context of browser.contexts()) {
             style.display !== "none" &&
             style.visibility !== "hidden" &&
             bounds.width > 0 &&
-            bounds.height > 0
+            bounds.height > 0 &&
+            bounds.bottom > 0 &&
+            bounds.right > 0 &&
+            bounds.top < globalThis.innerHeight &&
+            bounds.left < globalThis.innerWidth
           );
         };
         for (const [group, selectors] of Object.entries(groups)) {
@@ -159,11 +214,215 @@ for (const context of browser.contexts()) {
               (fluentClassCounts[value] || 0) + 1;
           }
         }
+        const safeStructure = (element, depth = 0) => {
+          if (!(element instanceof Element) || depth > 6) return null;
+          const dataTid = element.getAttribute("data-tid");
+          return {
+            tag: element.localName,
+            role: element.getAttribute("role") || null,
+            dataTid:
+              dataTid && /^[A-Za-z][A-Za-z_-]{0,63}$/.test(dataTid)
+                ? dataTid
+                : null,
+            fluentClasses: [...element.classList].filter((value) =>
+              /^fui-[A-Za-z]+$/.test(value)
+            ),
+            childCount: element.children.length,
+            children: [...element.children]
+              .slice(0, 12)
+              .map((child) => safeStructure(child, depth + 1)),
+          };
+        };
+        const structures = {
+          midNav: safeStructure(
+            document.querySelector('[data-tid="app-layout-area--mid-nav"]')
+          ),
+          message: safeStructure(
+            document.querySelector('[data-tid="chat-pane-message"]')
+          ),
+          chatTreeItem: safeStructure(
+            document.querySelector(
+              '[data-tid="app-layout-area--mid-nav"] [role="treeitem"]'
+            )
+          ),
+          composer: safeStructure(
+            document.querySelector(
+              '[data-tid="chat-pane-compose-message-footer"]'
+            )
+          ),
+        };
+        const treeItemStates = {};
+        for (const element of document.querySelectorAll(
+          '[data-tid="app-layout-area--mid-nav"] [role="treeitem"]'
+        )) {
+          const styles = getComputedStyle(element);
+          const state = JSON.stringify({
+            selected: element.getAttribute("aria-selected"),
+            current: element.getAttribute("aria-current"),
+            expanded: element.getAttribute("aria-expanded"),
+            fluentClasses: [...element.classList].filter((value) =>
+              /^fui-[A-Za-z]+$/.test(value)
+            ),
+            background: styles.backgroundColor,
+          });
+          treeItemStates[state] = (treeItemStates[state] || 0) + 1;
+        }
+        const midNavHeadings = [
+          ...document.querySelectorAll(
+            '[data-tid="app-layout-area--mid-nav"] h1, ' +
+            '[data-tid="app-layout-area--mid-nav"] h2, ' +
+            '[data-tid="app-layout-area--mid-nav"] h3'
+          ),
+        ].map((element) => ({
+          tag: element.localName,
+          dataTid:
+            /^[A-Za-z][A-Za-z_-]{0,63}$/.test(
+              element.getAttribute("data-tid") || ""
+            )
+              ? element.getAttribute("data-tid")
+              : null,
+          fluentClasses: [...element.classList].filter((value) =>
+            /^fui-[A-Za-z]+$/.test(value)
+          ),
+        }));
+        const parseRgb = (value) => {
+          const match = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/
+            .exec(value);
+          return match
+            ? {
+              rgb: match.slice(1, 4).map(Number),
+              alpha: match[4] === undefined ? 1 : Number(match[4]),
+            }
+            : null;
+        };
+        const luminance = (rgb) => {
+          const channels = rgb.map((value) => {
+            value /= 255;
+            return value <= 0.04045
+              ? value / 12.92
+              : ((value + 0.055) / 1.055) ** 2.4;
+          });
+          return (
+            0.2126 * channels[0] +
+            0.7152 * channels[1] +
+            0.0722 * channels[2]
+          );
+        };
+        const contrast = (first, second) => {
+          const a = luminance(first);
+          const b = luminance(second);
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        };
+        const contrastIssues = {};
+        for (const element of document.querySelectorAll("body *")) {
+          if (!visible(element)) continue;
+          if (
+            ![...element.childNodes].some(
+              (node) =>
+                node.nodeType === Node.TEXT_NODE &&
+                node.textContent.trim()
+            )
+          ) {
+            continue;
+          }
+          const foregroundValue = getComputedStyle(element).color;
+          const foreground = parseRgb(foregroundValue);
+          if (!foreground) continue;
+          let backgroundElement = element;
+          let backgroundValue = null;
+          let background = null;
+          while (backgroundElement && !background) {
+            backgroundValue = getComputedStyle(backgroundElement)
+              .backgroundColor;
+            const candidate = parseRgb(backgroundValue);
+            if (candidate && candidate.alpha >= 0.95) {
+              background = candidate;
+              break;
+            }
+            backgroundElement = backgroundElement.parentElement;
+          }
+          if (!background) continue;
+          const ratio = contrast(foreground.rgb, background.rgb);
+          if (ratio >= 4.5) continue;
+          const dataTid = element.getAttribute("data-tid");
+          const ancestors = [];
+          let ancestor = element.parentElement;
+          for (let depth = 0; ancestor && depth < 8; depth += 1) {
+            const ancestorTid = ancestor.getAttribute("data-tid");
+            ancestors.push({
+              tag: ancestor.localName,
+              dataTid:
+                ancestorTid &&
+                /^[A-Za-z][A-Za-z_-]{0,63}$/.test(ancestorTid)
+                  ? ancestorTid
+                  : null,
+              fluentClasses: [...ancestor.classList].filter((value) =>
+                /^fui-[A-Za-z]+$/.test(value)
+              ),
+            });
+            ancestor = ancestor.parentElement;
+          }
+          const signature = JSON.stringify({
+            tag: element.localName,
+            role: element.getAttribute("role") || null,
+            dataTid:
+              dataTid && /^[A-Za-z][A-Za-z_-]{0,63}$/.test(dataTid)
+                ? dataTid
+                : null,
+            fluentClasses: [...element.classList].filter((value) =>
+              /^fui-[A-Za-z]+$/.test(value)
+            ),
+            foreground: foregroundValue,
+            background: backgroundValue,
+            ratio: Math.round(ratio * 100) / 100,
+            bounds: (() => {
+              const box = element.getBoundingClientRect();
+              return {
+                x: Math.round(box.x),
+                y: Math.round(box.y),
+                width: Math.round(box.width),
+                height: Math.round(box.height),
+              };
+            })(),
+            ancestors,
+          });
+          contrastIssues[signature] =
+            (contrastIssues[signature] || 0) + 1;
+        }
+        const computedStyles = {};
+        for (const [name, selector] of Object.entries(probes)) {
+          const element = document.querySelector(selector);
+          if (!element) {
+            computedStyles[name] = { matches: 0 };
+            continue;
+          }
+          const styles = getComputedStyle(element);
+          computedStyles[name] = {
+            matches: document.querySelectorAll(selector).length,
+            values: Object.fromEntries(
+              properties.map((property) => [
+                property,
+                styles.getPropertyValue(property),
+              ])
+            ),
+          };
+        }
         return {
           selectors: output,
           safeDataTidCounts,
           roleCounts,
           fluentClassCounts,
+          computedStyles,
+          structures,
+          treeItemStates,
+          midNavHeadings,
+          viewport: {
+            devicePixelRatio: globalThis.devicePixelRatio,
+            scale: globalThis.visualViewport?.scale ?? 1,
+            width: globalThis.visualViewport?.width ?? globalThis.innerWidth,
+            height: globalThis.visualViewport?.height ?? globalThis.innerHeight,
+          },
+          contrastIssues,
           mode: {
             prefersDark: matchMedia("(prefers-color-scheme: dark)").matches,
             htmlThemeDark: hasMarker(root, "theme-dark"),
@@ -191,7 +450,11 @@ for (const context of browser.contexts()) {
             ),
           },
         };
-      }, GROUPS);
+      }, {
+        groups: GROUPS,
+        probes: STYLE_PROBES,
+        properties: STYLE_PROPERTIES,
+      });
       records.push({
         page: pageIndex,
         frame: frameIndex,

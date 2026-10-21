@@ -92,7 +92,9 @@ test('multi-account enabled, no profiles yet = same redirect to Microsoft login'
     expect(pill.width).toBe(SWITCHER_PILL_SIZE);
     expect(pill.height).toBe(SWITCHER_PILL_SIZE);
     expect(pill.y).toBe(view.contentHeight - SWITCHER_PILL_SIZE);
-    expect(view.urls[0]).toMatch(/profileSwitcher\/switcher\.html$/);
+    expect(view.urls[0]).toMatch(
+      /profileSwitcher\/switcher\.html\?pearlTheme=(?:auto|dark)$/
+    );
   } finally {
     await closeAndCleanup(ctx);
   }
@@ -205,7 +207,7 @@ test('switching to a profile view fills the window and keeps the pill topmost', 
     expect(pill.height).toBe(SWITCHER_PILL_SIZE);
     expect(pill.y).toBe(view.contentHeight - SWITCHER_PILL_SIZE);
     expect(view.urls[view.count - 1]).toMatch(
-      /profileSwitcher\/switcher\.html$/
+      /profileSwitcher\/switcher\.html\?pearlTheme=(?:auto|dark)$/
     );
 
     // The active profile view fills the whole content area (no inset).

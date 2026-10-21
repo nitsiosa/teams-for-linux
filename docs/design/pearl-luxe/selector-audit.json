@@ -49,6 +49,18 @@
           "[data-tid=\"app-bar\"]": {
             "matches": 0,
             "visible": 0
+          },
+          "[data-tid=\"app-layout-area--nav\"] [aria-current]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"app-layout-area--nav\"] [aria-selected=\"true\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"app-layout-area--nav\"] [data-tid=\"data-tid-Chat\"]": {
+            "matches": 0,
+            "visible": 0
           }
         },
         "chatList": {
@@ -68,7 +80,19 @@
             "matches": 97,
             "visible": 97
           },
+          "[role=\"treeitem\"][tabindex=\"0\"]": {
+            "matches": 1,
+            "visible": 1
+          },
           "[role=\"treeitem\"][aria-selected=\"true\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[role=\"treeitem\"][aria-current=\"page\"]": {
+            "matches": 0,
+            "visible": 0
+          },
+          "[data-tid=\"app-layout-area--mid-nav\"] [role=\"heading\"]": {
             "matches": 0,
             "visible": 0
           },
@@ -126,6 +150,14 @@
             "matches": 0,
             "visible": 0
           },
+          ".fui-ChatMessage:not(.fui-ChatMyMessage) [data-tid=\"chat-pane-message\"]": {
+            "matches": 11,
+            "visible": 11
+          },
+          ".fui-ChatMyMessage [data-tid=\"chat-pane-message\"]": {
+            "matches": 9,
+            "visible": 9
+          },
           "[data-tid=\"message-author-name\"]": {
             "matches": 20,
             "visible": 20
@@ -177,8 +209,8 @@
         },
         "badgesAndIndicators": {
           "[data-tid*=\"badge\"]": {
-            "matches": 34,
-            "visible": 34
+            "matches": 35,
+            "visible": 35
           },
           ".fui-CounterBadge": {
             "matches": 2,
@@ -318,12 +350,12 @@
           "visible": 1
         },
         "PersonaAvatar": {
-          "matches": 25,
-          "visible": 25
+          "matches": 26,
+          "visible": 26
         },
         "presence-badge": {
-          "matches": 34,
-          "visible": 34
+          "matches": 35,
+          "visible": 35
         },
         "app-profile-card-trigger": {
           "matches": 3,
@@ -619,10 +651,10 @@
         "none": 75,
         "button": 21,
         "search": 1,
-        "presentation": 127,
+        "presentation": 126,
         "combobox": 1,
         "listbox": 1,
-        "img": 64,
+        "img": 65,
         "navigation": 1,
         "status": 3,
         "toolbar": 10,
@@ -637,7 +669,8 @@
         "tab": 6,
         "separator": 1,
         "heading": 23,
-        "textbox": 1
+        "textbox": 1,
+        "log": 2
       },
       "fluentClassCounts": {
         "fui-FluentProvider": 1,
@@ -650,7 +683,7 @@
         "fui-Badge": 3,
         "fui-CounterBadge": 2,
         "fui-Avatar": 84,
-        "fui-PresenceBadge": 35,
+        "fui-PresenceBadge": 36,
         "fui-Text": 1,
         "fui-Toolbar": 4,
         "fui-Overflow": 1,
@@ -675,6 +708,616 @@
         "fui-ChatMessage": 11,
         "fui-Link": 5
       },
+      "computedStyles": {
+        "titleBar": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgb(235, 235, 235)",
+            "color": "rgb(255, 255, 255)",
+            "border-color": "rgb(255, 255, 255) rgb(255, 255, 255) rgba(0, 0, 0, 0.06)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "0px"
+          }
+        },
+        "appRail": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "0px"
+          }
+        },
+        "chatList": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "0px"
+          }
+        },
+        "selectedChat": {
+          "matches": 0
+        },
+        "conversationHeader": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgb(255, 255, 255)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36) rgb(36, 36, 36) rgb(224, 224, 224)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "12px",
+            "line-height": "17.1432px",
+            "padding": "0px 7px 0px 20px"
+          }
+        },
+        "conversationTitle": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "18px",
+            "line-height": "25.7148px",
+            "padding": "0px"
+          }
+        },
+        "message": {
+          "matches": 20,
+          "values": {
+            "background-color": "rgb(232, 235, 250)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgba(0, 0, 0, 0)",
+            "border-radius": "6px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "6px 15px 8px"
+          }
+        },
+        "incomingMessage": {
+          "matches": 11,
+          "values": {
+            "background-color": "rgb(245, 245, 245)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgba(0, 0, 0, 0)",
+            "border-radius": "6px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "6px 15px 8px"
+          }
+        },
+        "incomingBubble": {
+          "matches": 11,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "2px"
+          }
+        },
+        "myMessage": {
+          "matches": 9,
+          "values": {
+            "background-color": "rgb(232, 235, 250)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgba(0, 0, 0, 0)",
+            "border-radius": "6px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "6px 15px 8px"
+          }
+        },
+        "myBubble": {
+          "matches": 9,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "2px"
+          }
+        },
+        "composer": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(36, 36, 36)",
+            "border-color": "rgb(36, 36, 36)",
+            "border-radius": "0px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "20.0004px",
+            "padding": "0px"
+          }
+        },
+        "send": {
+          "matches": 1,
+          "values": {
+            "background-color": "rgba(0, 0, 0, 0)",
+            "color": "rgb(66, 66, 66)",
+            "border-color": "rgba(0, 0, 0, 0)",
+            "border-radius": "4px",
+            "box-shadow": "none",
+            "font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif",
+            "font-size": "14px",
+            "line-height": "16.1px",
+            "padding": "0px"
+          }
+        }
+      },
+      "structures": {
+        "midNav": {
+          "tag": "div",
+          "role": null,
+          "dataTid": "app-layout-area--mid-nav",
+          "fluentClasses": [
+            "fui-AppLayoutArea"
+          ],
+          "childCount": 2,
+          "children": [
+            {
+              "tag": "span",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [],
+              "childCount": 0,
+              "children": []
+            },
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": "slot-measurer",
+              "fluentClasses": [],
+              "childCount": 2,
+              "children": [
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 8,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 2,
+                      "children": [
+                        null,
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Primitive"
+                      ],
+                      "childCount": 1,
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": "tree",
+                      "dataTid": "simple-collab-dnd-rail",
+                      "fluentClasses": [
+                        "fui-Tree"
+                      ],
+                      "childCount": 13,
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "tag": "div",
+                      "role": "status",
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "tag": "span",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 35,
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Primitive"
+                      ],
+                      "childCount": 1,
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": "toolbar",
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Toolbar",
+                        "fui-RailJumperToolbar"
+                      ],
+                      "childCount": 4,
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 2,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": "slider",
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 2,
+                      "children": [
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "message": {
+          "tag": "div",
+          "role": "group",
+          "dataTid": "chat-pane-message",
+          "fluentClasses": [],
+          "childCount": 2,
+          "children": [
+            {
+              "tag": "button",
+              "role": null,
+              "dataTid": "message-actions-menu-hidden-button",
+              "fluentClasses": [
+                "fui-Primitive"
+              ],
+              "childCount": 0,
+              "children": []
+            },
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [
+                "fui-Primitive"
+              ],
+              "childCount": 2,
+              "children": [
+                {
+                  "tag": "p",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 0,
+                  "children": []
+                },
+                {
+                  "tag": "p",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Primitive"
+                      ],
+                      "childCount": 1,
+                      "children": [
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "chatTreeItem": {
+          "tag": "div",
+          "role": "treeitem",
+          "dataTid": null,
+          "fluentClasses": [
+            "fui-TreeItem"
+          ],
+          "childCount": 1,
+          "children": [
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [
+                "fui-TreeItemLayout"
+              ],
+              "childCount": 2,
+              "children": [
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 2,
+                      "children": [
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [],
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "tag": "span",
+                      "role": "text",
+                      "dataTid": null,
+                      "fluentClasses": [],
+                      "childCount": 0,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "composer": {
+          "tag": "div",
+          "role": null,
+          "dataTid": "chat-pane-compose-message-footer",
+          "fluentClasses": [
+            "fui-Primitive"
+          ],
+          "childCount": 4,
+          "children": [
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [],
+              "childCount": 0,
+              "children": []
+            },
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": "chat-pane-gutter-box",
+              "fluentClasses": [
+                "fui-Flex"
+              ],
+              "childCount": 2,
+              "children": [
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [
+                    "fui-Primitive"
+                  ],
+                  "childCount": 0,
+                  "children": []
+                },
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [
+                    "fui-Primitive"
+                  ],
+                  "childCount": 2,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": "toolbar",
+                      "dataTid": "smart-replies-renderer",
+                      "fluentClasses": [
+                        "fui-Flex"
+                      ],
+                      "childCount": 3,
+                      "children": [
+                        null,
+                        null,
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Flex"
+                      ],
+                      "childCount": 0,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [],
+              "childCount": 1,
+              "children": [
+                {
+                  "tag": "div",
+                  "role": null,
+                  "dataTid": null,
+                  "fluentClasses": [
+                    "fui-Primitive"
+                  ],
+                  "childCount": 2,
+                  "children": [
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Primitive"
+                      ],
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "tag": "div",
+                      "role": null,
+                      "dataTid": null,
+                      "fluentClasses": [
+                        "fui-Flex"
+                      ],
+                      "childCount": 1,
+                      "children": [
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "role": null,
+              "dataTid": null,
+              "fluentClasses": [
+                "fui-Flex"
+              ],
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      },
+      "treeItemStates": {
+        "{\"selected\":null,\"current\":null,\"expanded\":null,\"fluentClasses\":[\"fui-TreeItem\"],\"background\":\"rgba(0, 0, 0, 0)\"}": 81,
+        "{\"selected\":null,\"current\":null,\"expanded\":\"true\",\"fluentClasses\":[\"fui-TreeItem\"],\"background\":\"rgba(0, 0, 0, 0)\"}": 12,
+        "{\"selected\":null,\"current\":null,\"expanded\":\"false\",\"fluentClasses\":[\"fui-TreeItem\"],\"background\":\"rgba(0, 0, 0, 0)\"}": 4
+      },
+      "midNavHeadings": [
+        {
+          "tag": "h1",
+          "dataTid": null,
+          "fluentClasses": [
+            "fui-Text"
+          ]
+        }
+      ],
       "mode": {
         "prefersDark": false,
         "htmlThemeDark": false,
