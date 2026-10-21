@@ -1,0 +1,117 @@
+/* Pearl Luxe — design tokens (light + dark "Night")
+   Single source of truth. theme.css and the wrapper-owned dialogs both read these.
+   Contrast values are against --lx-canvas (#F7F3EC) unless noted. */
+:root {
+  /* Grounds */
+  --lx-canvas:          #F7F3EC; /* pearl — main conversation background */
+  --lx-sidebar:         #F2ECE2; /* linen — chat list column */
+  --lx-rail:            #ECE4D7; /* sand — far-left app rail */
+  --lx-surface:         #FCFAF6; /* ivory — cards, others' bubbles, composer */
+  --lx-surface-raised:  #FFFFFF; /* menus, popovers, dialogs */
+  --lx-mine:            #EEE4D2; /* champagne — my bubbles */
+  --lx-selected:        #E8DCC8; /* selected chat row */
+  --lx-hover:           #EFE7DA; /* hover rows */
+
+  /* Lines */
+  --lx-hairline:        #E3D8C7;
+  --lx-hairline-strong: #D3C4AD;
+
+  /* Ink */
+  --lx-ink:             #2A2520; /* 13.7:1 */
+  --lx-ink-muted:       #625850; /*  6.3:1 (5.1 on selected) — timestamps, secondary labels */
+  --lx-ink-faint:       #8E8478; /*  3.3:1 — 18px+ or decorative only */
+
+  /* Accents (pale pastels + one metal) */
+  --lx-gold:            #C4A574; /* decorative only: rules, indicator bars, icon accents */
+  --lx-gold-ink:        #765826; /*  5.9:1 (4.9 on selected) — gold text, links, active tab label, focus ring */
+  --lx-espresso:        #3A322B; /* primary buttons, send button (ivory text 11:1) */
+  --lx-espresso-hover:  #4A4037;
+  --lx-primary:         var(--lx-espresso);       /* primary fill: buttons, send, active chip */
+  --lx-primary-hover:   var(--lx-espresso-hover);
+  --lx-primary-pressed: #2A2520;
+  --lx-on-primary:      #FCFAF6;                  /* text/icons on primary */
+  --lx-badge:           var(--lx-blush-ink);      /* unread count */
+  --lx-on-badge:        #FFFFFF;
+  --lx-status-on:       #6F8A72;
+  --lx-status-away:     #C9A44E;
+  --lx-status-busy:     var(--lx-blush-ink);
+  --lx-surface-alpha:   rgba(252, 250, 246, .85);
+  --lx-backdrop:        #DCD3C4;                  /* outside-window ground (preview only) */
+  --lx-sage:            #DDE5D9;  --lx-sage-ink:  #4B6350; /* available / success */
+  --lx-blush:           #F3E2DB;  --lx-blush-ink: #8E4F43; /* unread badge, error  */
+  --lx-mist:            #DFE5EC;  --lx-mist-ink:  #485A6E; /* info, mentions        */
+  --lx-butter:          #F4EAD0;  --lx-butter-ink:#7A5E1E; /* away / warning        */
+
+  /* Type */
+  --lx-font-display: "Cormorant Garamond", "Cormorant", "Libre Baskerville", Georgia, "DejaVu Serif", serif;
+  --lx-font-body:    "Inter", "Ubuntu", "Segoe UI", system-ui, sans-serif;
+  --lx-tracking-label: 0.08em; /* uppercase micro-labels only */
+
+  /* Shape */
+  --lx-radius-sm: 8px;
+  --lx-radius-md: 12px;
+  --lx-radius-lg: 16px;
+  --lx-radius-pill: 999px;
+
+  /* Depth — warm, low, wide. Never grey-blue shadows. */
+  --lx-shadow-1: 0 1px 2px rgba(58, 50, 43, .04), 0 2px 8px rgba(58, 50, 43, .04);
+  --lx-shadow-2: 0 1px 2px rgba(58, 50, 43, .05), 0 10px 28px rgba(58, 50, 43, .08);
+  --lx-shadow-3: 0 2px 6px rgba(58, 50, 43, .06), 0 24px 56px rgba(58, 50, 43, .12);
+
+  /* Space (4px base, generous) */
+  --lx-space-1: 4px;  --lx-space-2: 8px;  --lx-space-3: 12px;
+  --lx-space-4: 16px; --lx-space-5: 24px; --lx-space-6: 32px; --lx-space-7: 48px;
+
+  /* Motion */
+  --lx-ease: cubic-bezier(.2, .7, .2, 1);
+  --lx-dur: 180ms;
+}
+
+/* ------------------------------------------------------------------
+   Pearl Luxe Night — dark values. Same names, so every rule works in both.
+   Lifted warm graphite-brown with large lightness steps between layers so
+   they separate on low-contrast screens; ivory ink; champagne primary.
+   Contrast measured against --lx-canvas #36312C.
+   ------------------------------------------------------------------ */
+:root[data-lx-theme="dark"] {
+  --lx-canvas:          #36312C; /* warm graphite-brown, clearly lifted */
+  --lx-sidebar:         #423B35; /* walnut */
+  --lx-rail:            #2B2723; /* rail: one step darker */
+  --lx-surface:         #48413A; /* others' bubbles, cards */
+  --lx-surface-raised:  #544C44; /* menus, dialogs, composer, file cards */
+  --lx-mine:            #5E4F3C; /* bronze champagne */
+  --lx-selected:        #5C4E3C;
+  --lx-hover:           #4E463F;
+
+  --lx-hairline:        #5F564C;
+  --lx-hairline-strong: #756A5D;
+
+  --lx-ink:             #F6F1E8; /* 11.4:1 on canvas */
+  --lx-ink-muted:       #D6CDC0; /*  8.2:1 (5.1 on selected) */
+  --lx-ink-faint:       #A69A8A; /*  4.7:1 — 18px+ or decorative only */
+
+  --lx-gold:            #D4B47A; /* decorative */
+  --lx-gold-ink:        #EBD3A3; /*  8.8:1 */
+  --lx-espresso:        #3A322B; /* kept for reference; not the primary in dark */
+  --lx-espresso-hover:  #4A4037;
+  --lx-primary:         #EBDABA; /* champagne fill */
+  --lx-primary-hover:   #F3E6CC;
+  --lx-primary-pressed: #DFCAA2;
+  --lx-on-primary:      #2B2723; /* 10.8:1 */
+  --lx-sage:   #43523F;  --lx-sage-ink:   #C6DAC2;
+  --lx-blush:  #5A423B;  --lx-blush-ink:  #F2CABF;
+  --lx-mist:   #3F4A57;  --lx-mist-ink:   #CBD8E8;
+  --lx-butter: #5A4E31;  --lx-butter-ink: #F0DCAA;
+  --lx-badge:           #E3A497;
+  --lx-on-badge:        #2B2723; /*  7.1:1 */
+  --lx-status-on:       #8FB593;
+  --lx-status-away:     #DDBC70;
+  --lx-status-busy:     #E3A497;
+  --lx-surface-alpha:   rgba(72, 65, 58, .9);
+  --lx-backdrop:        #221F1B;
+
+  --lx-shadow-1: 0 1px 2px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .16);
+  --lx-shadow-2: 0 1px 2px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .26);
+  --lx-shadow-3: 0 2px 6px rgba(0, 0, 0, .28), 0 28px 64px rgba(0, 0, 0, .38);
+  color-scheme: dark;
+}

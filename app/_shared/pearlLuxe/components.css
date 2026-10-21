@@ -1,0 +1,150 @@
+/* Shared Pearl Luxe primitives for wrapper-owned local views.
+ * Keep selectors under .tfl-pl so Microsoft-owned documents are unaffected.
+ */
+.tfl-pl {
+  background: var(--lx-canvas);
+  color: var(--lx-ink);
+  font-family: var(--lx-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tfl-pl *,
+.tfl-pl *::before,
+.tfl-pl *::after {
+  box-sizing: border-box;
+}
+
+.tfl-pl h1,
+.tfl-pl h2,
+.tfl-pl h3 {
+  color: var(--lx-ink);
+  font-family: var(--lx-font-display);
+  font-weight: 600;
+}
+
+.tfl-pl p,
+.tfl-pl .hint,
+.tfl-pl .subtitle,
+.tfl-pl .description {
+  color: var(--lx-ink-muted);
+}
+
+.tfl-pl a {
+  color: var(--lx-gold-ink);
+}
+
+.tfl-pl label {
+  color: var(--lx-ink-muted);
+  font-family: var(--lx-font-body);
+  font-weight: 600;
+}
+
+.tfl-pl input,
+.tfl-pl textarea,
+.tfl-pl select {
+  background: var(--lx-surface-raised);
+  border: 1px solid var(--lx-hairline-strong);
+  border-radius: var(--lx-radius-sm);
+  color: var(--lx-ink);
+  font-family: var(--lx-font-body);
+}
+
+.tfl-pl input::placeholder,
+.tfl-pl textarea::placeholder {
+  color: var(--lx-ink-faint);
+}
+
+.tfl-pl input.invalid,
+.tfl-pl textarea.invalid,
+.tfl-pl [aria-invalid="true"] {
+  border-color: var(--lx-blush-ink);
+}
+
+.tfl-pl button {
+  border-radius: var(--lx-radius-sm);
+  font-family: var(--lx-font-body);
+  transition:
+    background-color var(--lx-dur) var(--lx-ease),
+    border-color var(--lx-dur) var(--lx-ease),
+    color var(--lx-dur) var(--lx-ease);
+}
+
+.tfl-pl button.primary,
+.tfl-pl .primary-action {
+  background: var(--lx-primary);
+  border-color: var(--lx-primary);
+  color: var(--lx-on-primary);
+}
+
+.tfl-pl button.primary:hover:not(:disabled),
+.tfl-pl .primary-action:hover:not(:disabled) {
+  background: var(--lx-primary-hover);
+  border-color: var(--lx-primary-hover);
+}
+
+.tfl-pl button.primary:active:not(:disabled),
+.tfl-pl .primary-action:active:not(:disabled) {
+  background: var(--lx-primary-pressed);
+  border-color: var(--lx-primary-pressed);
+}
+
+.tfl-pl button.secondary,
+.tfl-pl .secondary-action {
+  background: var(--lx-surface);
+  border: 1px solid var(--lx-hairline-strong);
+  color: var(--lx-ink);
+}
+
+.tfl-pl button.secondary:hover:not(:disabled),
+.tfl-pl .secondary-action:hover:not(:disabled) {
+  background: var(--lx-hover);
+}
+
+.tfl-pl button:disabled {
+  background: var(--lx-hairline);
+  border-color: var(--lx-hairline);
+  color: var(--lx-ink-faint);
+  cursor: not-allowed;
+}
+
+.tfl-pl .error,
+.tfl-pl .error-state,
+.tfl-pl [role="alert"] {
+  color: var(--lx-blush-ink);
+}
+
+.tfl-pl .warning {
+  color: var(--lx-butter-ink);
+}
+
+.tfl-pl :focus-visible {
+  outline: 2px solid var(--lx-gold-ink) !important;
+  outline-offset: 2px !important;
+}
+
+.tfl-pl {
+  scrollbar-color: var(--lx-hairline-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tfl-pl *,
+  .tfl-pl *::before,
+  .tfl-pl *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .tfl-pl :focus-visible {
+    outline-color: Highlight !important;
+  }
+
+  .tfl-pl button,
+  .tfl-pl input,
+  .tfl-pl textarea,
+  .tfl-pl select {
+    forced-color-adjust: auto;
+  }
+}

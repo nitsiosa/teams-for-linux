@@ -1,0 +1,408 @@
+/* =====================================================================
+   Pearl Luxe (auto light/dark) — Teams for Linux custom theme  v1.3.0
+   Install: copy this folder to <configPath>/themes/pearl-luxe/, restart,
+   then Settings > Theme > Custom > Pearl Luxe.  Light/dark follow the system.
+
+   Layer 0  tokens         (inlined from tokens/pearl-luxe.tokens.css)
+   Layer 1  Fluent remap   Teams v2 is built on Fluent UI v9, which reads
+                           --color*/--borderRadius*/--fontFamily* custom
+                           properties. Remapping them restyles most of the
+                           app with no DOM selectors at all. Most robust layer.
+   Layer 2  Region polish  Targeted rules for bubbles, rail, list, composer.
+                           Selectors marked VERIFY must be confirmed in
+                           DevTools (Ctrl+Shift+I) — Teams DOM changes often.
+   Rules: never hide or move controls, never change layout widths, never
+   touch anything inside call/meeting video stages.
+   ===================================================================== */
+
+/* @import must stay first. Optional webfonts. Teams' CSP may block remote fonts; if DevTools shows a
+   CSP error, delete this line — the stacks fall back to Georgia / Ubuntu. */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap");
+
+/* ---------- Layer 0: tokens ---------- */
+:root {
+  /* Grounds */
+  --lx-canvas:          #F7F3EC; /* pearl — main conversation background */
+  --lx-sidebar:         #F2ECE2; /* linen — chat list column */
+  --lx-rail:            #ECE4D7; /* sand — far-left app rail */
+  --lx-surface:         #FCFAF6; /* ivory — cards, others' bubbles, composer */
+  --lx-surface-raised:  #FFFFFF; /* menus, popovers, dialogs */
+  --lx-mine:            #EEE4D2; /* champagne — my bubbles */
+  --lx-selected:        #E8DCC8; /* selected chat row */
+  --lx-hover:           #EFE7DA; /* hover rows */
+
+  /* Lines */
+  --lx-hairline:        #E3D8C7;
+  --lx-hairline-strong: #D3C4AD;
+
+  /* Ink */
+  --lx-ink:             #2A2520; /* 13.7:1 */
+  --lx-ink-muted:       #625850; /*  6.3:1 (5.1 on selected) — timestamps, secondary labels */
+  --lx-ink-faint:       #8E8478; /*  3.3:1 — 18px+ or decorative only */
+
+  /* Accents (pale pastels + one metal) */
+  --lx-gold:            #C4A574; /* decorative only: rules, indicator bars, icon accents */
+  --lx-gold-ink:        #765826; /*  5.9:1 (4.9 on selected) — gold text, links, active tab label, focus ring */
+  --lx-espresso:        #3A322B; /* primary buttons, send button (ivory text 11:1) */
+  --lx-espresso-hover:  #4A4037;
+  --lx-primary:         var(--lx-espresso);       /* primary fill: buttons, send, active chip */
+  --lx-primary-hover:   var(--lx-espresso-hover);
+  --lx-primary-pressed: #2A2520;
+  --lx-on-primary:      #FCFAF6;                  /* text/icons on primary */
+  --lx-badge:           var(--lx-blush-ink);      /* unread count */
+  --lx-on-badge:        #FFFFFF;
+  --lx-status-on:       #6F8A72;
+  --lx-status-away:     #C9A44E;
+  --lx-status-busy:     var(--lx-blush-ink);
+  --lx-surface-alpha:   rgba(252, 250, 246, .85);
+  --lx-backdrop:        #DCD3C4;                  /* outside-window ground (preview only) */
+  --lx-sage:            #DDE5D9;  --lx-sage-ink:  #4B6350; /* available / success */
+  --lx-blush:           #F3E2DB;  --lx-blush-ink: #8E4F43; /* unread badge, error  */
+  --lx-mist:            #DFE5EC;  --lx-mist-ink:  #485A6E; /* info, mentions        */
+  --lx-butter:          #F4EAD0;  --lx-butter-ink:#7A5E1E; /* away / warning        */
+
+  /* Type */
+  --lx-font-display: "Cormorant Garamond", "Cormorant", "Libre Baskerville", Georgia, "DejaVu Serif", serif;
+  --lx-font-body:    "Inter", "Ubuntu", "Segoe UI", system-ui, sans-serif;
+  --lx-tracking-label: 0.08em; /* uppercase micro-labels only */
+
+  /* Shape */
+  --lx-radius-sm: 8px;
+  --lx-radius-md: 12px;
+  --lx-radius-lg: 16px;
+  --lx-radius-pill: 999px;
+
+  /* Depth — warm, low, wide. Never grey-blue shadows. */
+  --lx-shadow-1: 0 1px 2px rgba(58, 50, 43, .04), 0 2px 8px rgba(58, 50, 43, .04);
+  --lx-shadow-2: 0 1px 2px rgba(58, 50, 43, .05), 0 10px 28px rgba(58, 50, 43, .08);
+  --lx-shadow-3: 0 2px 6px rgba(58, 50, 43, .06), 0 24px 56px rgba(58, 50, 43, .12);
+
+  /* Space (4px base, generous) */
+  --lx-space-1: 4px;  --lx-space-2: 8px;  --lx-space-3: 12px;
+  --lx-space-4: 16px; --lx-space-5: 24px; --lx-space-6: 32px; --lx-space-7: 48px;
+
+  /* Motion */
+  --lx-ease: cubic-bezier(.2, .7, .2, 1);
+  --lx-dur: 180ms;
+}
+
+/* Dark ("Night"): follows the OS/Electron colour scheme. Turn on
+   appearance.followSystemTheme so Teams switches with it. If Teams is set to
+   Dark by hand, the second block catches Teams' own dark marker — VERIFY the
+   real class/attribute in DevTools (toggle Teams Settings > Appearance and
+   watch <html>/<body>), then replace the guessed selectors. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lx-canvas:          #36312C; /* warm graphite-brown, clearly lifted */
+    --lx-sidebar:         #423B35; /* walnut */
+    --lx-rail:            #2B2723; /* rail: one step darker */
+    --lx-surface:         #48413A; /* others' bubbles, cards */
+    --lx-surface-raised:  #544C44; /* menus, dialogs, composer, file cards */
+    --lx-mine:            #5E4F3C; /* bronze champagne */
+    --lx-selected:        #5C4E3C;
+    --lx-hover:           #4E463F;
+
+    --lx-hairline:        #5F564C;
+    --lx-hairline-strong: #756A5D;
+
+    --lx-ink:             #F6F1E8; /* 11.4:1 on canvas */
+    --lx-ink-muted:       #D6CDC0; /*  8.2:1 (5.1 on selected) */
+    --lx-ink-faint:       #A69A8A; /*  4.7:1 — 18px+ or decorative only */
+
+    --lx-gold:            #D4B47A; /* decorative */
+    --lx-gold-ink:        #EBD3A3; /*  8.8:1 */
+    --lx-espresso:        #3A322B; /* kept for reference; not the primary in dark */
+    --lx-espresso-hover:  #4A4037;
+    --lx-primary:         #EBDABA; /* champagne fill */
+    --lx-primary-hover:   #F3E6CC;
+    --lx-primary-pressed: #DFCAA2;
+    --lx-on-primary:      #2B2723; /* 10.8:1 */
+    --lx-sage:   #43523F;  --lx-sage-ink:   #C6DAC2;
+    --lx-blush:  #5A423B;  --lx-blush-ink:  #F2CABF;
+    --lx-mist:   #3F4A57;  --lx-mist-ink:   #CBD8E8;
+    --lx-butter: #5A4E31;  --lx-butter-ink: #F0DCAA;
+    --lx-badge:           #E3A497;
+    --lx-on-badge:        #2B2723; /*  7.1:1 */
+    --lx-status-on:       #8FB593;
+    --lx-status-away:     #DDBC70;
+    --lx-status-busy:     #E3A497;
+    --lx-surface-alpha:   rgba(72, 65, 58, .9);
+    --lx-backdrop:        #221F1B;
+
+    --lx-shadow-1: 0 1px 2px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .16);
+    --lx-shadow-2: 0 1px 2px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .26);
+    --lx-shadow-3: 0 2px 6px rgba(0, 0, 0, .28), 0 28px 64px rgba(0, 0, 0, .38);
+    color-scheme: dark;
+}
+}
+html.theme-dark, html[data-theme="dark"], body.theme-dark /* VERIFY */ {
+  --lx-canvas:          #36312C; /* warm graphite-brown, clearly lifted */
+  --lx-sidebar:         #423B35; /* walnut */
+  --lx-rail:            #2B2723; /* rail: one step darker */
+  --lx-surface:         #48413A; /* others' bubbles, cards */
+  --lx-surface-raised:  #544C44; /* menus, dialogs, composer, file cards */
+  --lx-mine:            #5E4F3C; /* bronze champagne */
+  --lx-selected:        #5C4E3C;
+  --lx-hover:           #4E463F;
+
+  --lx-hairline:        #5F564C;
+  --lx-hairline-strong: #756A5D;
+
+  --lx-ink:             #F6F1E8; /* 11.4:1 on canvas */
+  --lx-ink-muted:       #D6CDC0; /*  8.2:1 (5.1 on selected) */
+  --lx-ink-faint:       #A69A8A; /*  4.7:1 — 18px+ or decorative only */
+
+  --lx-gold:            #D4B47A; /* decorative */
+  --lx-gold-ink:        #EBD3A3; /*  8.8:1 */
+  --lx-espresso:        #3A322B; /* kept for reference; not the primary in dark */
+  --lx-espresso-hover:  #4A4037;
+  --lx-primary:         #EBDABA; /* champagne fill */
+  --lx-primary-hover:   #F3E6CC;
+  --lx-primary-pressed: #DFCAA2;
+  --lx-on-primary:      #2B2723; /* 10.8:1 */
+  --lx-sage:   #43523F;  --lx-sage-ink:   #C6DAC2;
+  --lx-blush:  #5A423B;  --lx-blush-ink:  #F2CABF;
+  --lx-mist:   #3F4A57;  --lx-mist-ink:   #CBD8E8;
+  --lx-butter: #5A4E31;  --lx-butter-ink: #F0DCAA;
+  --lx-badge:           #E3A497;
+  --lx-on-badge:        #2B2723; /*  7.1:1 */
+  --lx-status-on:       #8FB593;
+  --lx-status-away:     #DDBC70;
+  --lx-status-busy:     #E3A497;
+  --lx-surface-alpha:   rgba(72, 65, 58, .9);
+  --lx-backdrop:        #221F1B;
+
+  --lx-shadow-1: 0 1px 2px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .16);
+  --lx-shadow-2: 0 1px 2px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .26);
+  --lx-shadow-3: 0 2px 6px rgba(0, 0, 0, .28), 0 28px 64px rgba(0, 0, 0, .38);
+  color-scheme: dark;
+}
+
+/* ---------- Layer 1: Fluent v9 token remap ---------- */
+:root,
+.fui-FluentProvider,
+[class*="fui-FluentProvider"] {
+  /* neutrals: backgrounds */
+  --colorNeutralBackground1:          var(--lx-canvas) !important;
+  --colorNeutralBackground1Hover:     var(--lx-hover) !important;
+  --colorNeutralBackground1Pressed:   var(--lx-selected) !important;
+  --colorNeutralBackground1Selected:  var(--lx-selected) !important;
+  --colorNeutralBackground2:          var(--lx-sidebar) !important;
+  --colorNeutralBackground2Hover:     var(--lx-hover) !important;
+  --colorNeutralBackground2Selected:  var(--lx-selected) !important;
+  --colorNeutralBackground3:          var(--lx-rail) !important;
+  --colorNeutralBackground4:          var(--lx-rail) !important;
+  --colorNeutralBackground5:          var(--lx-rail) !important;
+  --colorNeutralBackground6:          var(--lx-hairline) !important;
+  --colorNeutralBackgroundAlpha:      var(--lx-surface-alpha) !important;
+  --colorSubtleBackgroundHover:       var(--lx-hover) !important;
+  --colorSubtleBackgroundPressed:     var(--lx-selected) !important;
+  --colorSubtleBackgroundSelected:    var(--lx-selected) !important;
+  --colorNeutralCardBackground:       var(--lx-surface) !important;
+  --colorNeutralCardBackgroundHover:  var(--lx-surface-raised) !important;
+
+  /* neutrals: text */
+  --colorNeutralForeground1:          var(--lx-ink) !important;
+  --colorNeutralForeground1Hover:     var(--lx-ink) !important;
+  --colorNeutralForeground2:          var(--lx-ink) !important;
+  --colorNeutralForeground2Hover:     var(--lx-ink) !important;
+  --colorNeutralForeground3:          var(--lx-ink-muted) !important;
+  --colorNeutralForeground4:          var(--lx-ink-muted) !important;
+  --colorNeutralForegroundDisabled:   var(--lx-ink-faint) !important;
+  --colorNeutralForegroundOnBrand:    var(--lx-on-primary) !important;
+
+  /* neutrals: strokes */
+  --colorNeutralStroke1:              var(--lx-hairline-strong) !important;
+  --colorNeutralStroke1Hover:         var(--lx-gold) !important;
+  --colorNeutralStroke2:              var(--lx-hairline) !important;
+  --colorNeutralStroke3:              var(--lx-hairline) !important;
+  --colorNeutralStrokeAccessible:     var(--lx-ink-muted) !important;
+  --colorStrokeFocus2:                var(--lx-gold-ink) !important;
+
+  /* brand: primary fill (espresso / champagne at night), gold for text/indicators */
+  --colorBrandBackground:             var(--lx-primary) !important;
+  --colorBrandBackgroundHover:        var(--lx-primary-hover) !important;
+  --colorBrandBackgroundPressed:      var(--lx-primary-pressed) !important;
+  --colorBrandBackgroundSelected:     var(--lx-primary) !important;
+  --colorBrandBackground2:            var(--lx-mine) !important;
+  --colorBrandBackground2Hover:       var(--lx-selected) !important;
+  --colorBrandForeground1:            var(--lx-gold-ink) !important;
+  --colorBrandForeground2:            var(--lx-gold-ink) !important;
+  --colorBrandForegroundLink:         var(--lx-gold-ink) !important;
+  --colorBrandForegroundLinkHover:    var(--lx-ink) !important;
+  --colorBrandStroke1:                var(--lx-gold) !important;
+  --colorBrandStroke2:                var(--lx-hairline-strong) !important;
+  --colorCompoundBrandForeground1:    var(--lx-gold-ink) !important;
+  --colorCompoundBrandBackground:     var(--lx-gold-ink) !important;
+  --colorCompoundBrandStroke:         var(--lx-gold) !important;
+
+  /* status */
+  --colorPaletteRedBackground3:       var(--lx-badge) !important;
+  --colorPaletteRedForeground1:       var(--lx-blush-ink) !important;
+  --colorPaletteGreenForeground1:     var(--lx-sage-ink) !important;
+  --colorPaletteGreenBackground3:     var(--lx-status-on) !important;
+  --colorStatusDangerBackground3:     var(--lx-badge) !important;
+
+  /* shape, type, depth */
+  --borderRadiusSmall:   6px !important;
+  --borderRadiusMedium:  var(--lx-radius-sm) !important;
+  --borderRadiusLarge:   var(--lx-radius-md) !important;
+  --borderRadiusXLarge:  var(--lx-radius-lg) !important;
+  --fontFamilyBase:      var(--lx-font-body) !important;
+  --shadow2:  var(--lx-shadow-1) !important;
+  --shadow4:  var(--lx-shadow-1) !important;
+  --shadow8:  var(--lx-shadow-2) !important;
+  --shadow16: var(--lx-shadow-2) !important;
+  --shadow28: var(--lx-shadow-3) !important;
+  --shadow64: var(--lx-shadow-3) !important;
+}
+
+/* ---------- Layer 2: region polish ---------- */
+body { background: var(--lx-canvas) !important; -webkit-font-smoothing: antialiased; }
+
+::selection { background: var(--lx-mine); color: var(--lx-ink); }
+
+:focus-visible {
+  outline: 2px solid var(--lx-gold-ink) !important;
+  outline-offset: 2px !important;
+}
+
+/* Thin, warm scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--lx-hairline-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--lx-hairline-strong); border-radius: 999px;
+  border: 3px solid transparent; background-clip: content-box;
+}
+
+/* Title bar / top search band — VERIFY selectors */
+[data-tid="app-header"], [data-tid="title-bar"], header[role="banner"] {
+  background: var(--lx-rail) !important;
+  border-bottom: 1px solid var(--lx-hairline) !important;
+}
+/* Search field: pill, ivory, hairline */
+[data-tid="searchInputField"], input[type="search"], input[placeholder^="Search"] {
+  background: var(--lx-surface) !important;
+  border: 1px solid var(--lx-hairline) !important;
+  border-radius: var(--lx-radius-pill) !important;
+  color: var(--lx-ink) !important;
+}
+
+/* App rail (far left) — VERIFY */
+[data-tid="app-bar"], nav[aria-label="App bar"] {
+  background: var(--lx-rail) !important;
+  border-right: 1px solid var(--lx-hairline) !important;
+}
+
+/* Chat list column — VERIFY */
+[data-tid="chat-list"], [data-tid="left-rail"], [aria-label="Chat list"] {
+  background: var(--lx-sidebar) !important;
+  border-right: 1px solid var(--lx-hairline) !important;
+}
+/* Rows: rounded, inset, quiet hover, champagne selection with gold bar */
+[role="treeitem"], [role="tree"] [role="treeitem"] > div {
+  border-radius: var(--lx-radius-sm) !important;
+  transition: background-color var(--lx-dur) var(--lx-ease) !important;
+}
+[role="treeitem"][aria-selected="true"] {
+  background: var(--lx-selected) !important;
+  box-shadow: inset 3px 0 0 var(--lx-gold) !important;
+}
+/* Section headers (Testers / Product / Chats): small caps label */
+[role="treeitem"][aria-expanded] > div [class*="header"], [data-tid="chat-list-section-header"] {
+  font-size: 11px !important; letter-spacing: var(--lx-tracking-label) !important;
+  text-transform: uppercase !important; color: var(--lx-ink-muted) !important; font-weight: 600 !important;
+}
+/* Filter chips (Unread / Channels / Chats / Meeting chats) */
+[role="toolbar"] button[aria-pressed], [data-tid*="filter"] button {
+  border-radius: var(--lx-radius-pill) !important;
+  border: 1px solid var(--lx-hairline-strong) !important;
+  background: var(--lx-surface) !important;
+}
+[role="toolbar"] button[aria-pressed="true"] {
+  background: var(--lx-primary) !important; color: var(--lx-on-primary) !important;
+  border-color: var(--lx-primary) !important;
+}
+
+/* Page + conversation titles in serif — VERIFY */
+[data-tid="chat-header-title"], [data-tid="chat-title"], h1, h2[class*="title"] {
+  font-family: var(--lx-font-display) !important;
+  font-weight: 600 !important; letter-spacing: .005em !important;
+}
+
+/* Header tabs (Chat / Shared / Notes / Recap): gold underline */
+[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--lx-ink) !important; }
+[role="tablist"] [role="tab"][aria-selected="true"]::after,
+[role="tablist"] [role="tab"][aria-selected="true"] > span::after {
+  background: var(--lx-gold) !important; height: 2px !important; border-radius: 2px !important;
+}
+
+/* Message bubbles — VERIFY: find the bubble wrapper and the "mine" modifier */
+[data-tid="chat-pane-message"], [data-tid="message-body"] {
+  background: var(--lx-surface) !important;
+  border: 1px solid var(--lx-hairline) !important;
+  border-radius: var(--lx-radius-lg) !important;
+  box-shadow: var(--lx-shadow-1) !important;
+  padding: 10px 14px !important;
+  line-height: 1.55 !important;
+}
+[data-tid="chat-pane-message"][data-mine="true"],
+[data-tid="chat-pane-item"] [class*="mine"] [data-tid="message-body"] {
+  background: var(--lx-mine) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+/* Author / timestamp line */
+[data-tid="message-author-name"], [data-tid="message-timestamp"], time {
+  color: var(--lx-ink-muted) !important; font-size: 12px !important; letter-spacing: .01em !important;
+}
+
+/* File / link cards inside messages */
+[data-tid="file-attachment-grid"] > *, [data-tid*="attachment"] {
+  background: var(--lx-surface-raised) !important;
+  border: 1px solid var(--lx-hairline) !important;
+  border-radius: var(--lx-radius-md) !important;
+  box-shadow: var(--lx-shadow-1) !important;
+}
+
+/* Reactions: pale pill */
+[data-tid*="reaction"] button, [data-tid*="reaction"] [role="button"] {
+  border-radius: var(--lx-radius-pill) !important;
+  background: var(--lx-surface) !important;
+  border: 1px solid var(--lx-hairline) !important;
+}
+
+/* Composer — VERIFY */
+[data-tid="ckeditor"], [data-tid="message-compose-box"], [data-tid*="compose"] [contenteditable="true"] {
+  background: var(--lx-surface-raised) !important;
+  border-radius: var(--lx-radius-lg) !important;
+}
+[data-tid*="compose"] {
+  border-radius: var(--lx-radius-lg) !important;
+  box-shadow: var(--lx-shadow-2) !important;
+  border-color: var(--lx-hairline) !important;
+}
+[data-tid="newMessageCommands-send"], button[aria-label^="Send"] {
+  background: var(--lx-primary) !important; color: var(--lx-on-primary) !important;
+  border-radius: var(--lx-radius-pill) !important;
+}
+
+/* Unread badge on rail: blush, not red */
+[data-tid*="badge"], .fui-CounterBadge, [class*="CounterBadge"] {
+  background: var(--lx-badge) !important; color: var(--lx-on-badge) !important;
+}
+/* Unread dot in list */
+[data-tid*="unread-indicator"] { background: var(--lx-gold-ink) !important; }
+
+/* Menus, popovers, dialogs */
+[role="menu"], [role="dialog"], [role="listbox"], .fui-PopoverSurface, .fui-DialogSurface {
+  background: var(--lx-surface-raised) !important;
+  border: 1px solid var(--lx-hairline) !important;
+  border-radius: var(--lx-radius-lg) !important;
+  box-shadow: var(--lx-shadow-3) !important;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

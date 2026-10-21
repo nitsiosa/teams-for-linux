@@ -33,6 +33,14 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 - `feat/ubuntu-wayland-media` was pushed to `https://github.com/nitsiosa/teams-for-linux` on 2026-10-21. GitHub reported the remote SHA equal to local `HEAD`; the branch was 23 commits ahead of and 0 behind the fork's `main` before this ledger update.
 - No pull request exists in the fork or upstream. No GitHub Actions run was created for the branch because the repository's push workflows are filtered to `main`; remote CI, merge checks, review comments and automated-review findings therefore remain unverified.
 
+## Pearl Luxe reskin (started 2026-10-21)
+
+- Approved scope: Pearl Luxe is a one-time forced default; all existing themes remain selectable afterwards; adaptive Light/Night and forced Night ship together; all wrapper-owned HTML surfaces are included; native OS/portal surfaces and Microsoft call stages are excluded.
+- Pinned source: `docs/design/pearl-luxe/handoff/`, handoff version 1.3.0, SHA-256 `119c99e1befded687521bfcf3a2694acf9242827b0aaea1aec661ee8e7e7aa60`.
+- Foundation: token JSON is the source of truth; `scripts/generatePearlLuxeCss.js` generates adaptive Teams, forced Night and wrapper token CSS without external font requests. Shared wrapper component/surface sheets are scoped under `.tfl-pl`.
+- Foundation validation: lint PASS; unit suite 1069 tests, 1068 pass, 0 fail, 1 skipped; token completeness, reproducibility, shared Light/Night rules, forbidden layout declarations and normal-text AA contrast PASS.
+- Next: privacy-safe live selector audit, then default migration/profile-frame integration and wrapper-surface adoption.
+
 ## Automated gates
 
 | Gate | Status (NOT RUN/PASS/FAIL/BLOCKED) | Command | Evidence/failure reason |

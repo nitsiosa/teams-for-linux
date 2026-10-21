@@ -1,0 +1,13 @@
+---
+description: Pearl Luxe theme rules for Teams for Linux
+globs: app/assets/css/pearlLuxe.css, app/assets/css/pearlLuxeNight.css, app/customCSS/**, app/profileDialogs/**, app/joinMeetingDialog/**
+alwaysApply: false
+---
+- Colours, radii, shadows and fonts come only from --lx-* tokens (tokens/pearl-luxe.tokens.css). Never introduce new hex values.
+- Gold (--lx-gold) is decorative only; text accents use --lx-gold-ink.
+- Light and Night share every rule; differences live only in token values. Primary fills use --lx-primary with --lx-on-primary text, never --lx-espresso directly.
+- Serif display font only for page and conversation titles.
+- Theme CSS may change colour, type, radius, shadow and spacing; never display:none, position or width changes on Teams controls.
+- Prefer data-tid, role and aria-* selectors over generated class names.
+- Do not modify CSP, IPC, contextIsolation, sandbox, nodeIntegration, startup flags or capture consent.
+- Every text colour must pass WCAG AA on its background; keep :focus-visible rings.

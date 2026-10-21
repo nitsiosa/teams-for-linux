@@ -1,0 +1,248 @@
+/* Surface-specific Pearl Luxe adaptations for wrapper-owned local HTML. */
+
+/* Forms and security prompts */
+.tfl-pl-dialog,
+.tfl-pl-prompt,
+.tfl-pl-login {
+  background: var(--lx-canvas);
+}
+
+.tfl-pl-dialog .container,
+.tfl-pl-prompt form,
+.tfl-pl-login form {
+  background: var(--lx-surface);
+  border: 1px solid var(--lx-hairline);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-shadow-1);
+}
+
+.tfl-pl-add-profile .container,
+.tfl-pl-manage-profiles .container,
+.tfl-pl-join-meeting .container {
+  padding: var(--lx-space-4);
+}
+
+.tfl-pl-manage-profiles .profile-row {
+  background: var(--lx-surface);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-md);
+}
+
+.tfl-pl-manage-profiles .profile-row.active {
+  background: var(--lx-selected);
+  box-shadow: inset var(--lx-space-1) 0 0 var(--lx-gold);
+}
+
+.tfl-pl-manage-profiles .profile-active-badge {
+  background: var(--lx-mist);
+  color: var(--lx-mist-ink);
+}
+
+.tfl-pl-manage-profiles .profile-pin-btn.pinned {
+  background: var(--lx-mine);
+  color: var(--lx-gold-ink);
+}
+
+.tfl-pl-prompt {
+  padding: var(--lx-space-4);
+}
+
+.tfl-pl-prompt form {
+  border: 0;
+  box-shadow: none;
+}
+
+/* Profile switcher overlay */
+.tfl-pl-profile-switcher .scrim {
+  background: var(--lx-backdrop);
+  opacity: 0.36;
+}
+
+.tfl-pl-profile-switcher .dropdown {
+  background: var(--lx-surface-raised);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-md);
+  box-shadow: var(--lx-shadow-3);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-profile-switcher .profile-row {
+  color: var(--lx-ink);
+}
+
+.tfl-pl-profile-switcher .profile-row:hover {
+  background: var(--lx-hover);
+}
+
+.tfl-pl-profile-switcher .profile-row.active {
+  background: var(--lx-selected);
+}
+
+.tfl-pl-profile-switcher .dropdown-footer {
+  border-color: var(--lx-hairline);
+}
+
+.tfl-pl-profile-switcher .link,
+.tfl-pl-profile-switcher .shortcut-hint {
+  color: var(--lx-gold-ink);
+}
+
+/* Quick Chat */
+.tfl-pl-quick-chat {
+  background: var(--lx-surface-raised);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-shadow-3);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-quick-chat header,
+.tfl-pl-quick-chat footer,
+.tfl-pl-quick-chat .compose-header {
+  border-color: var(--lx-hairline);
+}
+
+.tfl-pl-quick-chat .search-input,
+.tfl-pl-quick-chat .compose-input {
+  background: var(--lx-surface);
+  border-color: var(--lx-hairline-strong);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-quick-chat .contact-item:hover,
+.tfl-pl-quick-chat .compose-back-btn:hover {
+  background: var(--lx-hover);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-quick-chat .contact-name,
+.tfl-pl-quick-chat .compose-recipient-name {
+  color: var(--lx-ink);
+}
+
+.tfl-pl-quick-chat .contact-email,
+.tfl-pl-quick-chat .contact-title,
+.tfl-pl-quick-chat .compose-recipient-email,
+.tfl-pl-quick-chat footer {
+  color: var(--lx-ink-muted);
+}
+
+.tfl-pl-quick-chat .contact-avatar {
+  background: var(--lx-mist);
+  color: var(--lx-mist-ink);
+}
+
+.tfl-pl-quick-chat kbd {
+  background: var(--lx-mine);
+  color: var(--lx-ink);
+}
+
+/* Toasts */
+.tfl-pl-toast {
+  background: var(--lx-surface-raised);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-shadow-3);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-toast:hover {
+  background: var(--lx-hover);
+  box-shadow: var(--lx-shadow-3);
+}
+
+.tfl-pl-toast main p,
+.tfl-pl-toast footer {
+  color: var(--lx-ink-muted);
+}
+
+.tfl-pl-toast footer {
+  border-color: var(--lx-hairline);
+}
+
+.tfl-pl-incoming-call {
+  background: var(--lx-surface-raised);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-incoming-call footer button {
+  background: var(--lx-primary);
+  color: var(--lx-on-primary);
+}
+
+.tfl-pl-incoming-call footer button.decline {
+  background: var(--lx-blush);
+  color: var(--lx-blush-ink);
+}
+
+/* Modern screen picker maps its existing component variables to Pearl. */
+.tfl-pl-screen-picker {
+  --bg-app: var(--lx-backdrop);
+  --bg-shell: var(--lx-surface-raised);
+  --bg-shell-2: var(--lx-surface);
+  --bg-tile: var(--lx-sidebar);
+  --bg-tile-hi: var(--lx-hover);
+  --bg-input: var(--lx-surface-raised);
+  --bg-slot: var(--lx-rail);
+  --ink: var(--lx-ink);
+  --ink-mute: var(--lx-ink-muted);
+  --ink-dim: var(--lx-ink-muted);
+  --ink-faint: var(--lx-ink-faint);
+  --ink-on-accent: var(--lx-on-primary);
+  --line: var(--lx-hairline);
+  --line-strong: var(--lx-hairline-strong);
+  --accent: var(--lx-primary);
+  --accent-strong: var(--lx-primary-hover);
+  --accent-glow: var(--lx-mine);
+  --accent-edge: var(--lx-gold);
+  --ok: var(--lx-status-on);
+  --radius: var(--lx-radius-md);
+  --radius-sm: var(--lx-radius-sm);
+  --sans: var(--lx-font-body);
+}
+
+.tfl-pl-screen-picker .picker {
+  border-color: var(--lx-hairline-strong);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-shadow-3);
+}
+
+/* Legacy picker remains functional but visually joins the same system. */
+.tfl-pl-legacy-picker #sources-container {
+  gap: var(--lx-space-3);
+}
+
+.tfl-pl-legacy-picker .source {
+  background: var(--lx-surface);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-md);
+  box-shadow: var(--lx-shadow-1);
+  color: var(--lx-ink);
+}
+
+.tfl-pl-legacy-picker .source:hover {
+  background: var(--lx-hover);
+  border-color: var(--lx-gold);
+}
+
+/* Share preview: preserve the existing black media canvas, theme chrome only. */
+.tfl-pl-share-preview .status-overlay {
+  background: var(--lx-surface-alpha);
+  border-bottom: 1px solid var(--lx-hairline);
+  color: var(--lx-ink);
+  font-family: var(--lx-font-body);
+}
+
+/* Documentation wrapper shell */
+.tfl-pl-documentation {
+  background: var(--lx-canvas);
+}
+
+.tfl-pl-documentation .loading {
+  color: var(--lx-ink);
+  font-family: var(--lx-font-body);
+}
+
+.tfl-pl-documentation .loading p {
+  color: var(--lx-ink-muted);
+}
