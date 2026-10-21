@@ -16,6 +16,24 @@
   box-shadow: var(--lx-shadow-1);
 }
 
+.tfl-pl-login form {
+  display: grid;
+  gap: var(--lx-space-2);
+}
+
+.tfl-pl-login br {
+  display: none;
+}
+
+.tfl-pl-login input {
+  width: 100%;
+}
+
+.tfl-pl-login input[type="submit"] {
+  justify-self: end;
+  min-width: 80px;
+}
+
 .tfl-pl-add-profile .container,
 .tfl-pl-manage-profiles .container,
 .tfl-pl-join-meeting .container {
@@ -53,6 +71,10 @@
 }
 
 /* Profile switcher overlay */
+.tfl-pl-profile-switcher {
+  background: transparent;
+}
+
 .tfl-pl-profile-switcher .scrim {
   background: var(--lx-backdrop);
   opacity: 0.36;

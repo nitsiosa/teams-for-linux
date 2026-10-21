@@ -101,11 +101,18 @@
             transform: rotate(135deg);
         }
     </style>
+  <link rel="stylesheet" href="../_shared/pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/components.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/surfaces.css">
 </head>
 
-<body>
+<body class="tfl-pl tfl-pl-toast tfl-pl-incoming-call">
     <header>
-        <img src="../assets/icons/icon-monochrome-light-16x16.png" alt="logo" /><span>Teams for Linux</span>
+        <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="../assets/icons/icon-monochrome-light-16x16.png">
+            <img src="../assets/icons/icon-monochrome-dark-16x16.png" alt="logo">
+        </picture>
+        <span>Teams for Linux</span>
     </header>
     <main>
         <div>
@@ -115,9 +122,9 @@
         <p id="text"></p>
     </main>
     <footer>
-        <button class="button accept-video"><i class="bi bi-camera-video-fill"></i></button>
-        <button class="button accept-audio"><i class="bi bi-telephone-fill"></i></button>
-        <button class="button decline"><i class="bi bi-telephone-fill"></i></button>
+        <button class="button accept-video" aria-label="Accept with video"><i class="bi bi-camera-video-fill"></i></button>
+        <button class="button accept-audio" aria-label="Accept with audio"><i class="bi bi-telephone-fill"></i></button>
+        <button class="button decline" aria-label="Decline call"><i class="bi bi-telephone-fill"></i></button>
     </footer>
     <script>
         document.body.addEventListener('click', (event) => {

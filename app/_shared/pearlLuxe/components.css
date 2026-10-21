@@ -69,7 +69,16 @@
     color var(--lx-dur) var(--lx-ease);
 }
 
+.tfl-pl input[type="submit"] {
+  border: 0;
+  border-radius: var(--lx-radius-sm);
+  cursor: pointer;
+  font-family: var(--lx-font-body);
+  padding: var(--lx-space-2) var(--lx-space-4);
+}
+
 .tfl-pl button.primary,
+.tfl-pl input[type="submit"].primary,
 .tfl-pl .primary-action {
   background: var(--lx-primary);
   border-color: var(--lx-primary);
@@ -77,12 +86,14 @@
 }
 
 .tfl-pl button.primary:hover:not(:disabled),
+.tfl-pl input[type="submit"].primary:hover:not(:disabled),
 .tfl-pl .primary-action:hover:not(:disabled) {
   background: var(--lx-primary-hover);
   border-color: var(--lx-primary-hover);
 }
 
 .tfl-pl button.primary:active:not(:disabled),
+.tfl-pl input[type="submit"].primary:active:not(:disabled),
 .tfl-pl .primary-action:active:not(:disabled) {
   background: var(--lx-primary-pressed);
   border-color: var(--lx-primary-pressed);

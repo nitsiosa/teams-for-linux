@@ -441,7 +441,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       { name: "customStickers", path: "./tools/customStickers" },
       { name: "dockIconRenderer", path: "./tools/dockIconRenderer" },
       { name: "preventDeviceSwitching", path: "./tools/preventDeviceSwitching" },
-      { name: "documentPictureInPicture", path: "./tools/documentPictureInPicture" }
+      { name: "documentPictureInPicture", path: "./tools/documentPictureInPicture" },
+      // Load last so scoped Pearl overrides win over each injected tool's
+      // local legacy style block without changing Teams-owned elements.
+      { name: "pearlLuxeStyles", path: "./tools/pearlLuxeStyles" }
     ];
 
     // CRITICAL: These modules need ipcRenderer for IPC communication (see CLAUDE.md)

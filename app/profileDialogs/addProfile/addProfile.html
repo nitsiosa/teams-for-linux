@@ -6,8 +6,11 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
   <title>Add profile</title>
   <link rel="stylesheet" href="addProfile.css">
+  <link rel="stylesheet" href="../../_shared/pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="../../_shared/pearlLuxe/components.css">
+  <link rel="stylesheet" href="../../_shared/pearlLuxe/surfaces.css">
 </head>
-<body>
+<body class="tfl-pl tfl-pl-dialog tfl-pl-add-profile">
   <div class="container">
     <h2>Add a profile</h2>
     <p>A profile is an isolated Teams session — useful for signing into multiple tenants in the same window.</p>
@@ -29,7 +32,7 @@
       </div>
     </div>
 
-    <div class="error" id="error-message"></div>
+    <div class="error" id="error-message" role="alert" aria-live="assertive"></div>
     <div class="buttons">
       <button id="cancel-btn" type="button" class="secondary">Cancel</button>
       <button id="add-btn" type="button" class="primary" disabled>Add</button>

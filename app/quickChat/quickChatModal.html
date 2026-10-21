@@ -316,9 +316,12 @@
             cursor: not-allowed;
         }
     </style>
+  <link rel="stylesheet" href="../_shared/pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/components.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/surfaces.css">
 </head>
 
-<body>
+<body class="tfl-pl tfl-pl-quick-chat">
     <header>
         <h2>Quick Chat</h2>
         <div class="search-container">
@@ -335,14 +338,14 @@
     </header>
 
     <main>
-        <div id="loading" class="loading-state" style="display: none;">
+        <div id="loading" class="loading-state" role="status" aria-live="polite" style="display: none;">
             Searching...
         </div>
-        <div id="error" class="error-state" style="display: none;"></div>
+        <div id="error" class="error-state" role="alert" aria-live="assertive" style="display: none;"></div>
         <div id="empty" class="empty-state">
             Type to search for contacts
         </div>
-        <ul id="contacts" class="contact-list" style="display: none;"></ul>
+        <ul id="contacts" class="contact-list" role="listbox" aria-label="Search results" style="display: none;"></ul>
     </main>
 
     <div id="compose-view" class="compose-view">
@@ -362,14 +365,17 @@
                 rows="4"
             ></textarea>
             <div class="compose-footer">
-                <span id="compose-status" class="compose-status"></span>
+                <span id="compose-status" class="compose-status" role="status" aria-live="polite"></span>
                 <button id="compose-send" class="compose-send-btn">Send</button>
             </div>
         </div>
     </div>
 
     <footer>
-        <img src="../assets/icons/icon-monochrome-light-16x16.png" alt="logo">
+        <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="../assets/icons/icon-monochrome-light-16x16.png">
+            <img src="../assets/icons/icon-monochrome-dark-16x16.png" alt="logo">
+        </picture>
         <span>Teams for Linux</span>
         <span class="keyboard-hint"><kbd>Esc</kbd> to close</span>
     </footer>
@@ -439,6 +445,7 @@
                 const li = document.createElement('li');
                 li.className = 'contact-item';
                 li.tabIndex = 0;
+                li.role = 'option';
 
                 const email = getContactEmail(contact);
                 const displayName = contact.displayName || 'Unknown';
@@ -481,7 +488,8 @@
 
                 li.addEventListener('click', () => openChat(email, displayName, contactId));
                 li.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
                         openChat(email, displayName, contactId);
                     }
                 });

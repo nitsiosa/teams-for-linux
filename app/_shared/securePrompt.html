@@ -15,11 +15,14 @@
       button.primary:disabled { background: #9db8e0; border-color: #9db8e0; cursor: not-allowed; }
       button.secondary { background: #fff; color: #333; }
     </style>
-  </head>
-  <body>
+    <link rel="stylesheet" href="pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="pearlLuxe/components.css">
+  <link rel="stylesheet" href="pearlLuxe/surfaces.css">
+</head>
+  <body class="tfl-pl tfl-pl-prompt tfl-pl-secure-prompt">
     <h3 id="heading">Enter PIN</h3>
     <p id="message"></p>
-    <p class="warning" id="warning" hidden></p>
+    <p class="warning" id="warning" role="alert" aria-live="assertive" hidden></p>
     <form id="prompt-form">
       <input type="password" id="secret" placeholder="PIN" aria-label="PIN" autofocus autocomplete="off" required />
       <div class="buttons">

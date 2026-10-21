@@ -277,6 +277,7 @@ function buildScreenTile(item) {
   tile.tabIndex = 0;
   tile.dataset.id = item.source.id;
   tile.setAttribute("role", "option");
+  tile.setAttribute("aria-selected", "false");
   tile.setAttribute(
     "aria-label",
     `${item.label}${item.internal ? " (Main)" : ""}, display ${item.displayNumber}`
@@ -369,13 +370,17 @@ function setSelectedWindow(id) {
 }
 
 function applySelectionClasses() {
-  for (const t of document.querySelectorAll(".screen-tile.selected, .window-tile.selected")) {
-    t.classList.remove("selected");
+  for (const tile of document.querySelectorAll(".screen-tile, .window-tile")) {
+    tile.classList.remove("selected");
+    tile.setAttribute("aria-selected", "false");
   }
   if (!state.selectedId) return;
   const sel = state.selectedKind === "screen" ? ".screen-tile" : ".window-tile";
   const tile = document.querySelector(`${sel}[data-id="${CSS.escape(state.selectedId)}"]`);
-  if (tile) tile.classList.add("selected");
+  if (tile) {
+    tile.classList.add("selected");
+    tile.setAttribute("aria-selected", "true");
+  }
 }
 
 function renderDetail() {
@@ -488,6 +493,7 @@ function buildWindowTile(source) {
   tile.tabIndex = 0;
   tile.dataset.id = source.id;
   tile.setAttribute("role", "option");
+  tile.setAttribute("aria-selected", "false");
   tile.setAttribute("aria-label", source.name || "Window");
 
   const thumb = document.createElement("div");

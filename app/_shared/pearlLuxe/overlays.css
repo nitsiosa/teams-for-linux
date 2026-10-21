@@ -1,0 +1,99 @@
+/* Pearl Luxe overrides for app-owned controls injected into Teams. */
+
+#tfl-nav-buttons-container .tfl-nav-button {
+  background: transparent;
+  border-radius: var(--lx-radius-sm);
+  color: var(--lx-ink);
+  transition:
+    background-color var(--lx-dur) var(--lx-ease),
+    color var(--lx-dur) var(--lx-ease);
+}
+
+#tfl-nav-buttons-container .tfl-nav-button:hover:not(:disabled) {
+  background: var(--lx-hover);
+}
+
+#tfl-nav-buttons-container .tfl-nav-button:active:not(:disabled) {
+  background: var(--lx-selected);
+}
+
+#tfl-nav-buttons-container .tfl-nav-button:focus-visible,
+#tfl-sticker-button:focus-visible {
+  outline: 2px solid var(--lx-gold-ink);
+  outline-offset: 2px;
+}
+
+#tfl-sticker-button {
+  background: var(--lx-primary);
+  color: var(--lx-on-primary);
+}
+
+#tfl-sticker-panel {
+  background: var(--lx-surface-raised);
+  border: 1px solid var(--lx-hairline);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-shadow-3);
+  color: var(--lx-ink);
+  font-family: var(--lx-font-body);
+}
+
+#tfl-sticker-panel .tfl-sticker-header,
+#tfl-sticker-panel .tfl-sticker-url-row {
+  border-color: var(--lx-hairline);
+}
+
+#tfl-sticker-panel .tfl-sticker-url-input {
+  background: var(--lx-surface);
+  border-color: var(--lx-hairline-strong);
+  border-radius: var(--lx-radius-sm);
+  color: var(--lx-ink);
+}
+
+#tfl-sticker-panel .tfl-sticker-url-button {
+  background: var(--lx-primary);
+  color: var(--lx-on-primary);
+}
+
+#tfl-sticker-panel .tfl-sticker-cell {
+  background: var(--lx-surface);
+  border-color: var(--lx-hairline);
+  border-radius: var(--lx-radius-sm);
+}
+
+#tfl-sticker-panel .tfl-sticker-cell:hover {
+  background: var(--lx-hover);
+  border-color: var(--lx-gold);
+}
+
+#tfl-sticker-panel .tfl-sticker-empty {
+  color: var(--lx-ink-muted);
+}
+
+#tfl-sticker-panel .tfl-sticker-toast {
+  background: var(--lx-surface-raised);
+  border: 1px solid var(--lx-hairline);
+  color: var(--lx-ink);
+}
+
+#speaking-indicator-overlay {
+  border-color: var(--lx-surface-raised);
+  box-shadow: var(--lx-shadow-1);
+}
+
+#speaking-indicator-overlay.speaking {
+  background: var(--lx-status-on);
+}
+
+#speaking-indicator-overlay.silent {
+  background: var(--lx-ink-faint);
+}
+
+#speaking-indicator-overlay.muted {
+  background: var(--lx-status-busy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #speaking-indicator-overlay {
+    animation: none !important;
+  }
+}

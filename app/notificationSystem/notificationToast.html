@@ -105,9 +105,12 @@
             opacity: 0.8;
         }
     </style>
+  <link rel="stylesheet" href="../_shared/pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/components.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/surfaces.css">
 </head>
 
-<body>
+<body class="tfl-pl tfl-pl-toast tfl-pl-notification-toast" role="button" tabindex="0" aria-label="Open notification">
     <header>
         <div class="title-container">
             <div class="title" id="title"></div>
@@ -117,7 +120,10 @@
         <p id="body"></p>
     </main>
     <footer>
-        <img src="../assets/icons/icon-monochrome-light-16x16.png" alt="logo">
+        <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="../assets/icons/icon-monochrome-light-16x16.png">
+            <img src="../assets/icons/icon-monochrome-dark-16x16.png" alt="logo">
+        </picture>
         <span>Teams for Linux</span>
     </footer>
 
@@ -129,6 +135,12 @@
 
         document.body.addEventListener('click', () => {
             globalThis.notificationApi.notifyClick();
+        });
+        document.body.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                globalThis.notificationApi.notifyClick();
+            }
         });
     </script>
 </body>

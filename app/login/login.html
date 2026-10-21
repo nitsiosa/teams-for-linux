@@ -3,20 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <title>Login Dialog</title>
-  </head>
+    <link rel="stylesheet" href="../_shared/pearlLuxe/tokens.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/components.css">
+  <link rel="stylesheet" href="../_shared/pearlLuxe/surfaces.css">
+</head>
 
-  <body>
+  <body class="tfl-pl tfl-pl-login">
     <form name="form" onSubmit="JavaScript:sendForm(event)">
       <input
-        type="text"
+        type="email"
         name="username"
         id="username"
         aria-label="Username"
         value=""
         placeholder="email of/or domain\username"
-        type="email"
         autofocus
-        style="width: 342px"
       />
       <br /><br />
       <input
@@ -26,19 +27,12 @@
         aria-label="Password"
         value=""
         placeholder="Password"
-        style="width: 342px"
       />
       <br /><br />
       <input
         type="submit"
+        class="primary"
         value="Submit"
-        style="
-          background-color: rgb(23, 87, 189);
-          border: none;
-          min-width: 80px;
-          padding: 4px 20px 6px 20px;
-          color: rgb(255, 255, 255);
-        "
       />
     </form>
 
