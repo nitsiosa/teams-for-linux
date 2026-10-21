@@ -1,5 +1,6 @@
 const { ipcMain } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../../_shared/pearlLuxe/mode");
 const createDialogWindow = require("../../_shared/createDialogWindow");
 
 // Single-instance dispatch pointer mirrors `JoinMeetingDialog`: handlers are
@@ -59,7 +60,10 @@ class AddProfileDialog {
       onCancel: this.#handleCancel,
     };
 
-    this.#window.loadFile(path.join(__dirname, "addProfile.html"));
+    this.#window.loadFile(
+      path.join(__dirname, "addProfile.html"),
+      withPearlLuxeQuery()
+    );
 
     this.#window.once("ready-to-show", () => {
       this.#window.show();

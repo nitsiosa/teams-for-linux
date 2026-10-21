@@ -19,6 +19,7 @@
 
 const { BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../_shared/pearlLuxe/mode");
 const log = require("./log");
 
 /**
@@ -103,7 +104,10 @@ function buildPinWindow({ strategyLabel, strategyName, modal, parent, alwaysOnTo
       if (focusAfterShow) win.focus();
       log.debug(`${logPrefix}: ${focusAfterShow ? "window shown and focused" : "modal window shown"}`);
     });
-    win.loadFile(path.join(__dirname, "pinDialog.html"));
+    win.loadFile(
+      path.join(__dirname, "pinDialog.html"),
+      withPearlLuxeQuery()
+    );
   });
 }
 

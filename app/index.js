@@ -118,6 +118,7 @@ const appConfig = new AppConfiguration(
 );
 
 const config = appConfig.startupConfig;
+require("./_shared/pearlLuxe/mode").setWrapperThemeMode(config);
 config.appPath = path.join(__dirname, app.isPackaged ? "../../" : "");
 // Runtime-only: the per-launch PiP frame name reaches the browser tool through get-config.
 config.documentPictureInPictureFrameName = PIP_FRAME_NAME;

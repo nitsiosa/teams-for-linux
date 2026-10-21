@@ -1,5 +1,6 @@
 const { BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
+const { withPearlLuxeQuery } = require('../_shared/pearlLuxe/mode');
 const { moveWindow } = require('../utils/windowPositioner');
 
 class IncomingCallToast {
@@ -22,7 +23,10 @@ class IncomingCallToast {
                 preload: path.join(__dirname, 'incomingCallToastPreload.js')
             }
         });
-        this.toast.loadFile(path.join(__dirname, 'incomingCallToast.html'));
+        this.toast.loadFile(
+          path.join(__dirname, 'incomingCallToast.html'),
+          withPearlLuxeQuery()
+        );
         // Handle incoming call actions (accept/decline)
         ipcMain.on('incoming-call-action', (event, action) => {
             this.hide();

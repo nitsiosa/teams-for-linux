@@ -1,5 +1,6 @@
 const { ipcMain, WebContentsView } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../_shared/pearlLuxe/mode");
 
 class StreamSelector {
   #parent;
@@ -39,7 +40,10 @@ class StreamSelector {
       },
     });
 
-    this.#view.webContents.loadFile(path.join(__dirname, "index.html"));
+    this.#view.webContents.loadFile(
+      path.join(__dirname, "index.html"),
+      withPearlLuxeQuery()
+    );
     this.#parent.contentView.addChildView(this.#view);
 
     this.#resizeHandler = () => {

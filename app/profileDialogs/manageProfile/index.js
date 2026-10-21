@@ -1,5 +1,6 @@
 const { ipcMain, dialog } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../../_shared/pearlLuxe/mode");
 const createDialogWindow = require("../../_shared/createDialogWindow");
 
 // Single-instance dispatch pointer mirrors `AddProfileDialog` — handlers are
@@ -77,7 +78,10 @@ class ManageProfileDialog {
       onClose: this.#handleClose,
     };
 
-    this.#window.loadFile(path.join(__dirname, "manageProfile.html"));
+    this.#window.loadFile(
+      path.join(__dirname, "manageProfile.html"),
+      withPearlLuxeQuery()
+    );
 
     this.#window.once("ready-to-show", () => {
       this.#window.show();

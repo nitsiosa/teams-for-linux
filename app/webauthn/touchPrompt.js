@@ -20,6 +20,7 @@
 
 const { BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../_shared/pearlLuxe/mode");
 const log = require("./log");
 
 /**
@@ -99,7 +100,10 @@ function showTouchPrompt(onCancel) {
     win.show();
     win.focus();
   });
-  win.loadFile(path.join(__dirname, "touchPrompt.html"));
+  win.loadFile(
+    path.join(__dirname, "touchPrompt.html"),
+    withPearlLuxeQuery()
+  );
 
   return {
     dismiss() {

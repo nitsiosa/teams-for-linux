@@ -1,6 +1,7 @@
 const { app, ipcMain, BrowserWindow } = require("electron");
 const { execSync } = require("node:child_process");
 const path = require("node:path");
+const { fileUrl } = require("../_shared/pearlLuxe/mode");
 
 // Per-`webContents` first-try tracking (ADR-020 § "Shared-state audit").
 // A module-level boolean would lie once profile switching exists: profile
@@ -55,7 +56,7 @@ exports.loginService = function loginService(parentWindow, callback) {
     win = null;
   });
 
-  win.loadURL(`file://${__dirname}/login.html`);
+  win.loadURL(fileUrl(path.join(__dirname, "login.html")));
 };
 
 exports.handleLoginDialogTry = function handleLoginDialogTry(

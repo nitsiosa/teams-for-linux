@@ -35,6 +35,23 @@ const SURFACES = new Map([
   ["app/webauthn/pinDialog.html", "tfl-pl-webauthn-pin"],
   ["app/webauthn/touchPrompt.html", "tfl-pl-webauthn-touch"],
 ]);
+const LOADERS = [
+  "app/_shared/securePrompt.js",
+  "app/documentationWindow/index.js",
+  "app/incomingCallToast/index.js",
+  "app/joinMeetingDialog/index.js",
+  "app/login/index.js",
+  "app/mainAppWindow/index.js",
+  "app/mainAppWindow/profileViewManager.js",
+  "app/notificationSystem/NotificationToast.js",
+  "app/profileDialogs/addProfile/index.js",
+  "app/profileDialogs/manageProfile/index.js",
+  "app/quickChat/QuickChatModal.js",
+  "app/screenSharing/index.js",
+  "app/screenSharing/service.js",
+  "app/webauthn/pinDialog.js",
+  "app/webauthn/touchPrompt.js",
+];
 
 function walkHtml(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -60,6 +77,7 @@ describe("Pearl Luxe wrapper surfaces", () => {
       assert.match(html, /pearlLuxe\/tokens\.css/);
       assert.match(html, /pearlLuxe\/components\.css/);
       assert.match(html, /pearlLuxe\/surfaces\.css/);
+      assert.match(html, /pearlLuxe\/bootstrap\.js/);
       assert.ok(html.includes(surfaceClass), relative);
     }
   });
@@ -111,5 +129,27 @@ describe("Pearl Luxe wrapper surfaces", () => {
       (incoming.match(/aria-label="(?:Accept|Decline)/g) || []).length,
       3
     );
+  });
+
+  it("passes the validated wrapper color mode into every main-side load", () => {
+    for (const relative of LOADERS) {
+      const source = fs.readFileSync(path.join(ROOT, relative), "utf8");
+      assert.match(
+        source,
+        /withPearlLuxeQuery|fileUrl/,
+        relative
+      );
+    }
+    const bootstrap = fs.readFileSync(
+      path.join(
+        ROOT,
+        "app",
+        "_shared",
+        "pearlLuxe",
+        "bootstrap.js"
+      ),
+      "utf8"
+    );
+    assert.match(bootstrap, /mode === "light" \|\| mode === "dark"/);
   });
 });

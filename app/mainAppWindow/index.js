@@ -28,6 +28,9 @@ const deepLinkRouter = require("./deepLinkRouter");
 const { DeferredDeepLink } = require("./deferredDeepLink");
 const os = require("node:os");
 const path = require("node:path");
+const {
+  withPearlLuxeQuery,
+} = require("../_shared/pearlLuxe/mode");
 const { installProfileWindowOpenHandler } = require("./profileWindowOpenPolicy");
 const {
   isDocumentPictureInPictureRequest,
@@ -220,7 +223,8 @@ function createScreenSharePreviewWindow() {
   });
 
   newPreviewWindow.loadFile(
-    path.join(__dirname, "..", "screenSharing", "previewWindow.html")
+    path.join(__dirname, "..", "screenSharing", "previewWindow.html"),
+    withPearlLuxeQuery()
   );
 
   newPreviewWindow.once("ready-to-show", () => {

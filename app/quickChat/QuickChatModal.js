@@ -1,5 +1,6 @@
 const { BrowserWindow } = require('electron');
 const path = require('node:path');
+const { withPearlLuxeQuery } = require('../_shared/pearlLuxe/mode');
 const { moveWindow } = require('../utils/windowPositioner');
 
 /**
@@ -33,7 +34,10 @@ class QuickChatModal {
       },
     });
 
-    this.#window.loadFile(path.join(__dirname, 'quickChatModal.html'));
+    this.#window.loadFile(
+      path.join(__dirname, 'quickChatModal.html'),
+      withPearlLuxeQuery()
+    );
 
     // Hide on blur (clicking outside)
     this.#window.on('blur', () => {

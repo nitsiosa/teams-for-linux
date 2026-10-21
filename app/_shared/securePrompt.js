@@ -31,6 +31,9 @@
 
 const { BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
+const {
+  withPearlLuxeQuery,
+} = require("./pearlLuxe/mode");
 
 // dialog webContents id -> { resolve, reject, win }
 const pending = new Map();
@@ -116,7 +119,7 @@ function showSecurePrompt({ title, heading, message, warning, submitLabel, cance
     // process-wide unhandledRejection handler (which exits the app), and
     // ready-to-show would never fire, leaving the prompt pending forever.
     win
-      .loadFile(path.join(__dirname, "securePrompt.html"), {
+      .loadFile(path.join(__dirname, "securePrompt.html"), withPearlLuxeQuery({
         query: {
           heading: heading ?? "",
           message: message ?? "",
@@ -124,7 +127,7 @@ function showSecurePrompt({ title, heading, message, warning, submitLabel, cance
           submitLabel: submitLabel ?? "OK",
           cancelLabel: cancelLabel ?? "Cancel",
         },
-      })
+      }))
       .catch((error) => {
         // Log only the error code: the message can embed the file path.
         console.error("[SECURE-PROMPT] Failed to load dialog", {

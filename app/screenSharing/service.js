@@ -1,5 +1,6 @@
 const { ipcMain, BrowserWindow, desktopCapturer, screen } = require("electron");
 const path = require("node:path");
+const { withPearlLuxeQuery } = require("../_shared/pearlLuxe/mode");
 
 class ScreenSharingService {
   #picker = null;
@@ -216,7 +217,10 @@ class ScreenSharingService {
         },
       });
 
-      this.#picker.loadFile(path.join(__dirname, "..", "screenPicker", "index.html"));
+      this.#picker.loadFile(
+        path.join(__dirname, "..", "screenPicker", "index.html"),
+        withPearlLuxeQuery()
+      );
 
       this.#picker.webContents.on("did-finish-load", () => {
         this.#picker.webContents.send("sources-list", sources);

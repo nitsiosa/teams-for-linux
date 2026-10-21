@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const path = require('node:path');
+const { withPearlLuxeQuery } = require('../_shared/pearlLuxe/mode');
 const createDialogWindow = require('../_shared/createDialogWindow');
 
 // Only one JoinMeetingDialog instance exists; its handlers dispatch via this
@@ -62,7 +63,10 @@ class JoinMeetingDialog {
       onCancel: this.#handleCancel,
     };
 
-    this.#window.loadFile(path.join(__dirname, 'joinMeeting.html'));
+    this.#window.loadFile(
+      path.join(__dirname, 'joinMeeting.html'),
+      withPearlLuxeQuery()
+    );
 
     this.#window.once('ready-to-show', () => {
       this.#window.webContents.send('init-dialog', {

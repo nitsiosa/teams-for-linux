@@ -1,5 +1,8 @@
 const { WebContentsView, session, ipcMain } = require("electron");
 const path = require("node:path");
+const {
+  withPearlLuxeQuery,
+} = require("../_shared/pearlLuxe/mode");
 const SenderProfileMap = require("./senderProfileMap");
 
 const LEGACY_PARTITION = "persist:teams-4-linux";
@@ -851,7 +854,8 @@ class ProfileViewManager {
     this.#applyChromeBounds();
     this.#window.contentView.addChildView(view);
     view.webContents.loadFile(
-      path.join(__dirname, "..", "profileSwitcher", "switcher.html")
+      path.join(__dirname, "..", "profileSwitcher", "switcher.html"),
+      withPearlLuxeQuery()
     );
     // Push the initial profile state once the renderer is ready. The renderer
     // also pulls state itself on load (via profile-list / profile-get-active),

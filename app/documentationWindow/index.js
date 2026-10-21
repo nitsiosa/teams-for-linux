@@ -1,5 +1,6 @@
 const { BrowserWindow } = require('electron');
 const path = require('node:path');
+const { withPearlLuxeQuery } = require('../_shared/pearlLuxe/mode');
 
 class DocumentationWindow {
   window = null;
@@ -31,7 +32,10 @@ class DocumentationWindow {
       },
     });
 
-    this.window.loadFile(path.join(__dirname, 'documentation.html'));
+    this.window.loadFile(
+      path.join(__dirname, 'documentation.html'),
+      withPearlLuxeQuery()
+    );
 
     this.window.once('ready-to-show', () => {
       this.window.show();

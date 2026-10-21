@@ -1,5 +1,6 @@
 const { BrowserWindow } = require('electron');
 const path = require('node:path');
+const { withPearlLuxeQuery } = require('../_shared/pearlLuxe/mode');
 const { moveWindow } = require('../utils/windowPositioner');
 
 class NotificationToast {
@@ -31,7 +32,10 @@ class NotificationToast {
       },
     });
 
-    this.#window.loadFile(path.join(__dirname, 'notificationToast.html'));
+    this.#window.loadFile(
+      path.join(__dirname, 'notificationToast.html'),
+      withPearlLuxeQuery()
+    );
 
     this.#window.webContents.once('did-finish-load', () => {
       this.#window.webContents.send('notification-toast-init', data);
