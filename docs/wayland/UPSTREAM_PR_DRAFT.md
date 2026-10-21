@@ -9,6 +9,7 @@ Nothing here has been pushed or opened. Pushing to the fork and opening any upst
 | Portal picker and diagnostics | `9e58d2b4` (Wayland switch tests), `cf91da0a` (`wayland.portalPicker`), `0d6748b8` (startup diagnostics) | Yes: generic, opt-in, the shape the maintainer asked for in the #2872 review |
 | Wayland launcher in the `.deb` | `2c9cc7dd`, `9d557739` | Ask first in an issue: it leaves the ADR-031 default alone but adds a second launcher, which is a packaging policy decision |
 | Screen-sharing probe | `abc2e712`, `3724a152`, `260383c7`, `7add29c2` | Optional: answers the maintainer's question on #2871 about how many portal prompts appear; offer separately |
+| Harbour Huddle artwork | `084eca21` | Fork-only branding; do not include in an upstream PR |
 | Kit, progress notes, this file | `6d18be9b` and every `docs(wayland)` commit | Never: fork-internal |
 
 To prepare the first PR: branch from `upstream/main`, cherry-pick `9e58d2b4 cf91da0a 0d6748b8`, then run `npm run lint`, `npm run test:unit`, `npm run generate-config-docs` (no diff), `npm run test:e2e` and the docs-site build.

@@ -1,6 +1,6 @@
 # Security and privacy review of the fork's changes
 
-Reviewed 2026-10-20 at `e133cf21`. Product code changed in four commits since upstream `39ac73bb`: `2c9cc7dd`, `cf91da0a`, `9d557739`, `0d6748b8` (12 files, +240/-11). This is an engineering review, not the enterprise security review upstream's README asks for before corporate deployment.
+Reviewed 2026-10-21 through `084eca21`. Product code and assets changed in five commits since upstream `39ac73bb`: `2c9cc7dd`, `cf91da0a`, `9d557739`, `0d6748b8`, `084eca21` (26 files, +241/-11; the additional files are binary icon assets and their SVG source). This is an engineering review, not the enterprise security review upstream's README asks for before corporate deployment.
 
 ## Findings
 
@@ -13,6 +13,7 @@ Reviewed 2026-10-20 at `e133cf21`. Product code changed in four commits since up
 | Package contents | Changed permissions or shipped test code | Binary and `chrome-sandbox` `755` as before (postinst sets `4755` only without user namespaces); the new desktop file is `664` root-owned like upstream's generated entry; `app.asar` holds no `tests/` files | `dpkg-deb -c`; `@electron/asar` listing (2684 entries, 0 under `/tests`) |
 | Startup diagnostics (`app/screenSharing/waylandPrerequisites.js`) | Information disclosure, slow or risky startup work | Reads environment variables, checks for files under `XDG_DATA_DIRS` and reads small `.portal` files; no subprocesses, D-Bus calls or network; messages carry no paths; skipped inside Flatpak and snap | 8 unit tests, including one that keeps user paths out of messages |
 | Test-only probe (`tests/manual/waylandShareProbe.mjs`) | Leaking screen or camera content; weakening the shipped app | Not shipped. Runs the checkout with `--no-sandbox` and `E2E_TESTING` only on a developer desktop; reduces captured frames to brightness numbers inside the renderer; never listens to the microphone; reads only ScreenCast portal traffic during a run and saves nothing | Code review; asar listing |
+| Harbour Huddle application artwork (`084eca21`) | Malformed image input, executable SVG content, or unlicensed public assets | Supplied PNGs are fixed square dimensions; missing 96px/1024px variants are deterministic resizes; unit tests pin every packaged size and SHA-256 and require runtime copies to match. The SVG has no scripts, event handlers or external references and is tracked as source rather than shipped. The fork maintainer explicitly confirmed ownership or permission to publish it | 3 icon integrity tests; clean `.deb` build; every hicolor and runtime icon compared byte-for-byte with package/asar; publication-rights confirmation on 2026-10-21 |
 
 Nothing in these changes adds IPC channels (so `app/security/ipcValidator.js` is unchanged), touches `contextIsolation`, `nodeIntegration` or `sandbox`, adds network endpoints, or adds dependencies.
 
@@ -24,4 +25,4 @@ Nothing in these changes adds IPC channels (so `app/security/ipcValidator.js` is
 
 ## Licence
 
-GPL-3.0-or-later is unchanged. No third-party code was copied; the portal picker re-implements the approach from upstream PR #2872 and credits it in the commit message.
+GPL-3.0-or-later is unchanged. No third-party code was copied; the portal picker re-implements the approach from upstream PR #2872 and credits it in the commit message. Harbour Huddle artwork was supplied by the fork maintainer and is published with permission; remaining upstream icons retain their existing Icon Duck CC BY 4.0 attribution.

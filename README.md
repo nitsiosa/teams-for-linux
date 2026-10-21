@@ -1,5 +1,9 @@
 # Teams for Linux
 
+<p align="center">
+  <img src="build/icon-source/harbour-huddle-app-icon.svg" alt="Harbour Huddle application icon" width="128">
+</p>
+
 [![Matrix Space](https://img.shields.io/matrix/teams-for-linux-space%3Amatrix.org?server_fqdn=matrix.org&label=Matrix%20Space)](https://matrix.to/#/#teams-for-linux-space:matrix.org "Matrix Space")
 ![](https://img.shields.io/github/release/IsmaelMartinez/teams-for-linux.svg?style=flat)
 ![](https://img.shields.io/github/downloads/IsmaelMartinez/teams-for-linux/total.svg?style=flat)
@@ -18,6 +22,59 @@
 
 > [!NOTE]
 > This is an independent project, not affiliated with Microsoft. Some features are limited by the Teams web app.
+
+## Ubuntu Wayland prototype in this fork
+
+The `feat/ubuntu-wayland-media` branch is a fork-local prototype for Ubuntu
+desktops running GNOME on Wayland. It keeps the upstream application and
+profile name, and adds:
+
+- a **Teams for Linux (Wayland)** launcher that selects native Wayland before
+  Electron starts;
+- an opt-in xdg-desktop-portal screen/window picker, enabled by that launcher,
+  so a cancelled picker cancels the share instead of returning a dead stream;
+- the unchanged **Teams for Linux** X11/XWayland launcher as a fallback;
+- startup diagnostics for missing PipeWire, xdg-desktop-portal, or a ScreenCast
+  portal backend; and
+- Harbour Huddle application artwork for the package, launcher, windows,
+  notifications, and default color tray icon.
+
+The monochrome tray variants remain upstream artwork because they are designed
+for contrast on light and dark desktop panels.
+
+### Install this fork's `.deb`
+
+The package is not published as a release. Build it from this branch with
+Node.js 24:
+
+```bash
+git clone https://github.com/nitsiosa/teams-for-linux.git
+cd teams-for-linux
+git switch feat/ubuntu-wayland-media
+npm ci
+npx electron-builder --x64 -l deb --publish never
+sha256sum dist/teams-for-linux_2.27.0_amd64.deb
+sudo apt install ./dist/teams-for-linux_2.27.0_amd64.deb
+```
+
+The install adds two application-grid entries:
+
+- **Teams for Linux (Wayland)** — recommended on a Wayland desktop when full
+  desktop sharing is required.
+- **Teams for Linux** — the upstream X11/XWayland fallback.
+
+To remove the local package:
+
+```bash
+sudo apt remove teams-for-linux
+```
+
+Automated validation, known limitations, the security review, and the
+two-person meeting checklist live in [`docs/wayland/`](docs/wayland/).
+Automated tests and local portal probes do not prove real Teams media success;
+use [`ACCEPTANCE_CHECKLIST.md`](docs/wayland/ACCEPTANCE_CHECKLIST.md) before
+treating the package as accepted. Remote control and Outlook are out of scope
+for this fork.
 
 ## Sponsor
 
@@ -99,4 +156,6 @@ Read about the history of this project in the [`HISTORY.md`](HISTORY.md) file.
 
 **GPL-3.0** — See [`LICENSE.md`](LICENSE.md)
 
-Icons from [Icon Duck](https://iconduck.com/sets/hugeicons-essential-free-icons) (CC BY 4.0)
+The Harbour Huddle application icon was supplied by the fork maintainer and is
+published here with permission. Remaining upstream icons are from
+[Icon Duck](https://iconduck.com/sets/hugeicons-essential-free-icons) (CC BY 4.0).

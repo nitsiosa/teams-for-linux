@@ -13,7 +13,7 @@ Everything automatable has run; these checks need a person, a signed-in Teams ac
 ```bash
 cd ~/development/teams-for-linux
 sha256sum dist/teams-for-linux_2.27.0_amd64.deb
-# expect 01948528be5c2a3aadb73eb2a8b130a0f3c98bb4cd00f1231f0a0d075ff9259b
+# expect e15b142204add8bd163ce57a8c597e469cc63f9fdf4adcd95b124c2ac1628237
 sudo apt install ./dist/teams-for-linux_2.27.0_amd64.deb
 ```
 
