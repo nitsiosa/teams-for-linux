@@ -1,6 +1,10 @@
 # Upstream contribution plan and draft (not opened)
 
-Nothing here has been pushed or opened. Pushing to the fork and opening any upstream PR each need the user's approval, and remote CI must be checked after a push.
+The full fork branch `feat/ubuntu-wayland-media` is pushed to
+`nitsiosa/teams-for-linux`. Nothing has been opened as a pull request. The
+focused upstream branches described below have not been created or pushed;
+opening any upstream PR still needs the user's approval, followed by remote CI
+and review checks.
 
 ## How the branch splits
 

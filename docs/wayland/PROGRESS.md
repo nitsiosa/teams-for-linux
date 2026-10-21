@@ -4,10 +4,10 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
 
 ## Environment / checkout
 
-- Date: 2026-10-20
+- Date: 2026-10-21
 - `origin`: https://github.com/nitsiosa/teams-for-linux (fork)
 - `upstream`: https://github.com/IsmaelMartinez/teams-for-linux
-- Branch / upstream commit SHA: `feat/ubuntu-wayland-media` at `39ac73bb0e8f113fabc8b30aed980fc12ca1166f` (`v2.27.0-1-g39ac73bb`), equal to `upstream/main` and `origin/main` per `git ls-remote` on 2026-10-20. Branch not pushed. Working tree holds only the untracked kit files (`.cursor/`, `CURSOR_START_HERE.md`, `docs/wayland/`, `scripts/validate-wayland.sh`, `scripts/wayland-preflight.sh`); build and test output is gitignored.
+- Baseline upstream commit SHA: `39ac73bb0e8f113fabc8b30aed980fc12ca1166f` (`v2.27.0-1-g39ac73bb`), equal to `upstream/main` and `origin/main` when Phase 0 started. Current branch: `feat/ubuntu-wayland-media`, tracking the branch of the same name in the `origin` fork. Working tree clean after the branding and README commits; build and test output is gitignored.
 - Package: `teams-for-linux` 2.27.0 (GPL-3.0-or-later), Electron 44.9.0, electron-builder 26.15.7, @playwright/test 1.64.1.
 - Node/npm: Node v24.22.0 and npm 11.19.1 from the official tarball (SHA-256 verified) in `~/.local/opt/node-v24.22.0-linux-x64`, not on the default `PATH`. Agent shells prefix `PATH="$HOME/.local/opt/node-v24.22.0-linux-x64/bin:$PATH"`.
 - Agent shell quirks: Cursor exports `ELECTRON_RUN_AS_NODE=1`, which turns the Electron binary into plain Node, so prefix anything that launches Electron with `env -u ELECTRON_RUN_AS_NODE`. npm warns about an unknown `devdir` env config (`npm_config_devdir`); harmless.
@@ -27,6 +27,11 @@ Keep this file terse and current. Statuses are evidence-based: NOT RUN and BLOCK
   | xdg-desktop-portal-kde, -wlr | not installed | inactive |
 
   The script reports `xdg-desktop-portal not in PATH` because the binary lives in `/usr/libexec`; dpkg and systemd confirm it is installed and running. Inside the agent sandbox every service reads `unknown`, so run the script unsandboxed. Not installed: `teams-for-linux`, `pactl`, `xvfb-run`. Present: `pw-cli`, `gh`, `dpkg-deb`, `make`, `g++`, `python3`.
+
+## Remote fork status
+
+- `feat/ubuntu-wayland-media` was pushed to `https://github.com/nitsiosa/teams-for-linux` on 2026-10-21. GitHub reported the remote SHA equal to local `HEAD`; the branch was 23 commits ahead of and 0 behind the fork's `main` before this ledger update.
+- No pull request exists in the fork or upstream. No GitHub Actions run was created for the branch because the repository's push workflows are filtered to `main`; remote CI, merge checks, review comments and automated-review findings therefore remain unverified.
 
 ## Automated gates
 
@@ -174,6 +179,7 @@ Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWaylan
 | `7add29c2` | Probe places the magenta window and the main window side by side | Lint pass; used for Phase 3 run 2 |
 | `57d72759`, `e133cf21` and the other `docs(wayland)` commits after `260383c7` | Phase 3 evidence and the rebuilt `.deb` | Docs only |
 | `084eca21` | Harbour Huddle packaged/runtime color icons, vector source and integrity tests; monochrome tray icons preserved | 3 targeted icon tests; full unit: 1063 tests, 1062 pass, 0 fail, 1 skipped; lint pass; config docs in sync; clean `.deb` build and byte-for-byte package/asar comparison |
+| `9cd73678` | Fork-focused README with behavior, build/install/uninstall instructions, validation caveat and Harbour Huddle attribution; security/progress/acceptance/PR-plan docs refreshed | Docs only; `git diff --check` and IDE diagnostics clean |
 
 ## Known failures and blockers
 
@@ -197,4 +203,4 @@ Two observations. First, with `WebRTCPipeWireCapturer` on, capture under XWaylan
 - Redacted error logs: none captured; the checklist says how to report failures without private data
 - User action required (one consolidated request): `docs/wayland/ACCEPTANCE_CHECKLIST.md` (install the `.deb`, then L-01 to L-12 with a second participant)
 - Security review: `docs/wayland/SECURITY_REVIEW.md` (no new IPC, permissions, sandbox or network changes; pre-existing upstream risks listed)
-- Ready for upstream PR review? Not yet. Plan and draft in `docs/wayland/UPSTREAM_PR_DRAFT.md`; open only after the acceptance checks pass and with your approval to push
+- Ready for upstream PR review? Not yet. The full fork branch is pushed, but no PR exists and no remote checks ran. Plan and draft are in `docs/wayland/UPSTREAM_PR_DRAFT.md`; create focused upstream branches and open a PR only after the acceptance checks pass and with your approval
