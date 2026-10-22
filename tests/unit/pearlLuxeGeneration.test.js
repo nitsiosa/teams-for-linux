@@ -226,6 +226,27 @@ describe("Pearl Luxe generated CSS", () => {
     assert.match(card.declarations.get("background"), /var\(--lx-surface-raised\)/);
   });
 
+  it("keeps the composer's edges clean", () => {
+    const blocks = ruleBlocks(readInputs().rules);
+    const rings = blocks.filter((block) => block.selector.includes(":focus-visible"));
+    assert.ok(rings.length > 0);
+    for (const ring of rings) {
+      assert.match(ring.selector, /:not\(\[data-tid="ckeditor"\]/, ring.selector);
+    }
+    const card = blocks.find(
+      (block) =>
+        block.selector ===
+        '[data-tid="chat-pane-compose-message-footer"] > div:has([data-tid="ckeditor"])'
+    );
+    assert.match(card.declarations.get("overflow"), /^hidden\b/);
+    const chip = blocks.find(
+      (block) => block.selector === '[data-tid="smart-replies-renderer"] button'
+    );
+    assert.ok(chip);
+    assert.match(chip.declarations.get("border"), /var\(--lx-hairline-strong\)/);
+    assert.match(chip.declarations.get("background"), /var\(--lx-surface\)/);
+  });
+
   it("contains only audited, chat-scoped Teams selectors", () => {
     const rules = readInputs().rules;
     assert.doesNotMatch(rules, /\bVERIFY\b/);

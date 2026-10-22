@@ -87,7 +87,7 @@
   [data-tid="entity-header"],
   [data-tid="message-pane-layout"],
   [data-tid="chat-pane-compose-message-footer"]
-) :focus-visible {
+) :focus-visible:where(:not([data-tid="ckeditor"], [contenteditable="true"])) {
   outline: 2px solid var(--lx-gold-ink) !important;
   outline-offset: 2px !important;
 }
@@ -421,6 +421,7 @@
   color: var(--lx-ink) !important;
   font-size: 13px !important;
   min-height: 40px !important;
+  outline: none !important;
 }
 
 [data-tid="chat-pane-compose-message-footer"]
@@ -435,8 +436,14 @@
 
 /* The footer also holds the smart-reply row above the editor and an empty
  * row below it, so the Pearl card frames only the editor row and replaces
- * Teams' own frame inside it. */
+ * Teams' own frame inside it. The editor's focus shows as Teams' underline,
+ * which the card clips to its corners; an offset ring would be clipped too. */
 [data-tid="chat-pane-compose-message-footer"] {
+  --colorBrandStroke1: var(--lx-gold-ink) !important;
+  --colorBrandStroke2: var(--lx-hairline-strong) !important;
+  --colorCompoundBrandStroke: var(--lx-gold-ink) !important;
+  --colorCompoundBrandStrokeHover: var(--lx-gold-ink) !important;
+  --colorCompoundBrandStrokePressed: var(--lx-gold-ink) !important;
   box-sizing: border-box !important;
   margin-inline: auto !important;
   max-width: 1000px !important;
@@ -450,6 +457,8 @@
   border: 1px solid var(--lx-hairline) !important;
   border-radius: 18px !important;
   box-shadow: var(--lx-shadow-2) !important;
+  margin-top: var(--lx-space-1) !important;
+  overflow: hidden !important;
 }
 
 [data-tid="chat-pane-compose-message-footer"]
@@ -461,11 +470,24 @@
 }
 
 [data-tid="smart-replies-renderer"] button {
+  background: var(--lx-surface) !important;
+  border: 1px solid var(--lx-hairline-strong) !important;
   border-radius: var(--lx-radius-pill) !important;
+  color: var(--lx-ink-muted) !important;
   font-size: 11px !important;
   line-height: 1.2 !important;
   min-height: 24px !important;
   padding: 3px 10px !important;
+}
+
+[data-tid="smart-replies-renderer"] button * {
+  color: inherit !important;
+}
+
+[data-tid="smart-replies-renderer"] button:hover {
+  background: var(--lx-hover) !important;
+  border-color: var(--lx-gold) !important;
+  color: var(--lx-ink) !important;
 }
 
 /* Teams' editor row leaves about 33px for its buttons; a larger send button
