@@ -206,7 +206,24 @@ describe("Pearl Luxe generated CSS", () => {
     );
     assert.ok(outer);
     assert.match(outer.declarations.get("background"), /^transparent\b/);
-    assert.match(outer.declarations.get("padding"), /^0\b/);
+    assert.match(outer.declarations.get("box-shadow"), /^none\b/);
+  });
+
+  it("frames only the composer's editor row, not the whole footer", () => {
+    const blocks = ruleBlocks(readInputs().rules);
+    for (const footer of blocks.filter(
+      (block) => block.selector === '[data-tid="chat-pane-compose-message-footer"]'
+    )) {
+      assert.ok(!footer.declarations.has("background"));
+      assert.ok(!footer.declarations.has("box-shadow"));
+    }
+    const card = blocks.find(
+      (block) =>
+        block.selector ===
+        '[data-tid="chat-pane-compose-message-footer"] > div:has([data-tid="ckeditor"])'
+    );
+    assert.ok(card);
+    assert.match(card.declarations.get("background"), /var\(--lx-surface-raised\)/);
   });
 
   it("contains only audited, chat-scoped Teams selectors", () => {

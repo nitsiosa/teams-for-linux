@@ -377,11 +377,12 @@
 }
 
 /* chat-pane-message is Teams' own coloured message box; the Pearl bubble is
- * its content child, so the outer box must not paint a second frame. */
+ * its content child, so the outer box paints no second frame and its padding
+ * only keeps bubbles clear of each other, the avatar and the read receipt. */
 [data-tid="chat-pane-message"] {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding: 2px var(--lx-space-1) !important;
 }
 
 [data-tid="message-pane-list-runway"] {
@@ -496,17 +497,31 @@
   color: var(--lx-ink-muted) !important;
 }
 
+/* The footer also holds the smart-reply row above the editor and an empty
+ * row below it, so the Pearl card frames only the editor row and replaces
+ * Teams' own frame inside it. */
 [data-tid="chat-pane-compose-message-footer"] {
   box-sizing: border-box !important;
+  margin-inline: auto !important;
+  max-width: 1000px !important;
+  padding: 0 !important;
+  width: calc(100% - (2 * var(--lx-space-6))) !important;
+}
+
+[data-tid="chat-pane-compose-message-footer"]
+  > div:has([data-tid="ckeditor"]) {
   background: var(--lx-surface-raised) !important;
+  border: 1px solid var(--lx-hairline) !important;
   border-radius: 18px !important;
   box-shadow: var(--lx-shadow-2) !important;
-  margin-inline: auto !important;
-  margin-bottom: var(--lx-space-4) !important;
-  max-width: 1000px !important;
-  min-height: 48px !important;
-  padding: 4px 8px 4px 12px !important;
-  width: calc(100% - (2 * var(--lx-space-6))) !important;
+}
+
+[data-tid="chat-pane-compose-message-footer"]
+  > div:has([data-tid="ckeditor"])
+  > .fui-Primitive {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 [data-tid="smart-replies-renderer"] button {
@@ -517,15 +532,17 @@
   padding: 3px 10px !important;
 }
 
+/* Teams' editor row leaves about 33px for its buttons; a larger send button
+ * spills over the card's lower edge. */
 [data-tid="sendMessageCommands-send"] {
   background: var(--lx-primary) !important;
   border-radius: var(--lx-radius-pill) !important;
   color: var(--lx-on-primary) !important;
-  height: 40px !important;
+  height: 32px !important;
   margin-left: var(--lx-space-1) !important;
-  min-height: 40px !important;
-  min-width: 40px !important;
-  width: 40px !important;
+  min-height: 32px !important;
+  min-width: 32px !important;
+  width: 32px !important;
 }
 
 [data-tid="sendMessageCommands-send"],
