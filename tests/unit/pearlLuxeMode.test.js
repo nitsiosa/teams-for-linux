@@ -21,6 +21,15 @@ describe("Pearl Luxe wrapper color mode", () => {
     assert.strictEqual(mode.getWrapperThemeMode(), "auto");
   });
 
+  it("keeps Teams dark under Pearl Luxe Night and follows the system otherwise", () => {
+    mode.setWrapperThemeMode({ appearance: { cssName: "pearlLuxeNight" } });
+    assert.strictEqual(mode.teamsUsesDark(false), true);
+    assert.strictEqual(mode.teamsUsesDark(true), true);
+    mode.setWrapperThemeMode({ appearance: { cssName: "pearlLuxe" } });
+    assert.strictEqual(mode.teamsUsesDark(false), false);
+    assert.strictEqual(mode.teamsUsesDark(true), true);
+  });
+
   it("uses the projected legacy value when present", () => {
     mode.setWrapperThemeMode({
       customCSSName: "pearlLuxeNight",

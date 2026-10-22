@@ -23,8 +23,9 @@ function ruleBlocks(css) {
           .filter((declaration) => declaration.includes(":"))
           .map((declaration) => {
             const colon = declaration.indexOf(":");
+            const property = declaration.slice(0, colon).trim();
             return [
-              declaration.slice(0, colon).trim().toLowerCase(),
+              property.startsWith("--") ? property : property.toLowerCase(),
               declaration.slice(colon + 1).trim(),
             ];
           })
@@ -126,6 +127,17 @@ describe("Pearl Luxe generated CSS", () => {
       ["--lx-ink-muted", "--lx-mine"],
       ["--lx-ink-muted", "--lx-selected"],
       ["--lx-gold-ink", "--lx-selected"],
+      ["--lx-gold-ink", "--lx-canvas"],
+      ["--lx-gold-ink", "--lx-sidebar"],
+      ["--lx-gold-ink", "--lx-rail"],
+      ["--lx-gold-ink", "--lx-surface"],
+      ["--lx-gold-ink", "--lx-surface-raised"],
+      ["--lx-gold-ink", "--lx-hover"],
+      ["--lx-gold-ink", "--lx-mine"],
+      ["--lx-ink", "--lx-hover"],
+      ["--lx-ink-muted", "--lx-rail"],
+      ["--lx-ink-muted", "--lx-hover"],
+      ["--lx-ink-muted", "--lx-surface-raised"],
       ["--lx-on-primary", "--lx-primary"],
       ["--lx-on-badge", "--lx-badge"],
       ["--lx-sage-ink", "--lx-sage"],
@@ -247,14 +259,34 @@ describe("Pearl Luxe generated CSS", () => {
     assert.match(chip.declarations.get("background"), /var\(--lx-surface\)/);
   });
 
-  it("contains only audited, chat-scoped Teams selectors", () => {
+  it("contains only audited Teams selectors", () => {
     const rules = readInputs().rules;
     assert.doesNotMatch(rules, /\bVERIFY\b/);
     assert.doesNotMatch(rules, /\[class\*=/);
     assert.doesNotMatch(rules, /\[aria-label[\^*]?=/);
     assert.doesNotMatch(rules, /\[placeholder[\^*]?=/);
-    assert.doesNotMatch(rules, /(^|})\s*:root\b/m);
     assert.doesNotMatch(rules, /(^|})\s*body\b/m);
     assert.doesNotMatch(rules, /\[role="dialog"\]/);
+  });
+
+  it("limits app-wide selectors to Pearl token declarations", () => {
+    const global = ruleBlocks(readInputs().rules).filter((block) =>
+      selectorList(block.selector).some(
+        (selector) => selector === ":root" || selector === ".fui-FluentProvider"
+      )
+    );
+    assert.strictEqual(global.length, 1);
+    assert.deepStrictEqual(selectorList(global[0].selector), [
+      ":root",
+      ".fui-FluentProvider",
+    ]);
+    for (const [property, value] of global[0].declarations) {
+      assert.match(
+        property,
+        /^--(?:color|borderRadius|shadow|fontFamily)[A-Za-z0-9]+$/,
+        property
+      );
+      assert.match(value, /^var\(--lx-[a-z0-9-]+\) !important$/, property);
+    }
   });
 });

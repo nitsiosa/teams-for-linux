@@ -29,6 +29,7 @@ const { DeferredDeepLink } = require("./deferredDeepLink");
 const os = require("node:os");
 const path = require("node:path");
 const {
+  teamsUsesDark,
   withPearlLuxeQuery,
 } = require("../_shared/pearlLuxe/mode");
 const { installProfileWindowOpenHandler } = require("./profileWindowOpenPolicy");
@@ -1138,7 +1139,7 @@ function onProfileDidFinishLoad(webContents) {
 }
 
 function sendSystemTheme() {
-  const dark = nativeTheme.shouldUseDarkColors;
+  const dark = teamsUsesDark(nativeTheme.shouldUseDarkColors);
   if (window && !window.isDestroyed()) {
     window.webContents.send("system-theme-changed", dark);
   }

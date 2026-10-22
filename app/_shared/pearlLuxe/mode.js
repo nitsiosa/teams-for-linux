@@ -15,6 +15,12 @@ function getWrapperThemeMode() {
   return wrapperMode;
 }
 
+// Forced Night must also switch Teams to its dark theme: the app-wide token
+// remap sits over Teams colours that are hard-coded per Teams theme.
+function teamsUsesDark(systemUsesDark) {
+  return wrapperMode === "dark" || Boolean(systemUsesDark);
+}
+
 function withPearlLuxeQuery(options = {}) {
   return {
     ...options,
@@ -35,5 +41,6 @@ module.exports = {
   fileUrl,
   getWrapperThemeMode,
   setWrapperThemeMode,
+  teamsUsesDark,
   withPearlLuxeQuery,
 };
