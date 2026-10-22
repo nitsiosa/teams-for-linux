@@ -7,9 +7,35 @@ const path = require("node:path");
 
 const ROOT = path.join(__dirname, "..", "..");
 const {
+  OUTPUTS,
   generatedOutputs,
   readInputs,
 } = require("../../scripts/generatePearlLuxeCss");
+
+function ruleBlocks(css) {
+  const body = css.replaceAll(/\/\*[\s\S]*?\*\//g, "");
+  return [...body.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(
+    ([, selector, block]) => ({
+      selector: selector.replaceAll(/\s+/g, " ").trim(),
+      declarations: new Map(
+        block
+          .split(";")
+          .filter((declaration) => declaration.includes(":"))
+          .map((declaration) => {
+            const colon = declaration.indexOf(":");
+            return [
+              declaration.slice(0, colon).trim().toLowerCase(),
+              declaration.slice(colon + 1).trim(),
+            ];
+          })
+      ),
+    })
+  );
+}
+
+function selectorList(selector) {
+  return selector.split(/,(?![^(]*\))/).map((part) => part.trim());
+}
 
 function resolveToken(name, values, seen = new Set()) {
   assert.ok(!seen.has(name), `circular token reference: ${name}`);
@@ -62,12 +88,10 @@ describe("Pearl Luxe generated CSS", () => {
   });
 
   it("keeps the Teams rules byte-identical in adaptive and forced Night", () => {
-    const outputs = [...generatedOutputs().values()];
-    const marker = "/* ---------- Layer 1: Fluent v9 token remap ---------- */";
-    assert.strictEqual(
-      outputs[0].slice(outputs[0].indexOf(marker)),
-      outputs[1].slice(outputs[1].indexOf(marker))
-    );
+    const outputs = generatedOutputs();
+    const { rules } = readInputs();
+    assert.ok(outputs.get(OUTPUTS.adaptive).endsWith(rules));
+    assert.ok(outputs.get(OUTPUTS.night).endsWith(rules));
   });
 
   it("gives forced Night and wrapper overrides the complete token contract", () => {
@@ -127,8 +151,62 @@ describe("Pearl Luxe generated CSS", () => {
     const rules = readInputs().rules;
     assert.doesNotMatch(rules, /\bdisplay\s*:\s*none\b/i);
     assert.doesNotMatch(rules, /(?:^|[;{]\s*)transform\s*:/im);
-    assert.match(rules, /\[data-tid="experience-layout"\]/);
     assert.match(rules, /\[data-tid="message-pane-list-runway"\]/);
+  });
+
+  it("leaves page, rail and chat-list geometry to Teams", () => {
+    const blocks = ruleBlocks(readInputs().rules);
+    for (const property of [
+      "grid-template",
+      "grid-template-columns",
+      "grid-template-rows",
+      "position",
+    ]) {
+      assert.deepStrictEqual(
+        blocks
+          .filter((block) => block.declarations.has(property))
+          .map((block) => block.selector),
+        [],
+        property
+      );
+    }
+    const rowGeometry =
+      /^(?:(?:min-|max-)?(?:width|height)|font-size|line-height|padding|margin)/;
+    for (const block of blocks) {
+      if (!/treeitem|TreeItemLayout|fui-Avatar|app-bar-wrapper/.test(block.selector)) {
+        continue;
+      }
+      assert.deepStrictEqual(
+        [...block.declarations.keys()].filter((property) =>
+          rowGeometry.test(property)
+        ),
+        [],
+        block.selector
+      );
+    }
+  });
+
+  it("styles chat-list section headers without restyling their nested chats", () => {
+    const sectionSelectors = ruleBlocks(readInputs().rules)
+      .flatMap((block) => selectorList(block.selector))
+      .filter((selector) => selector.includes("[aria-expanded"));
+    assert.ok(sectionSelectors.length > 0);
+    for (const selector of sectionSelectors) {
+      assert.match(
+        selector,
+        /\[aria-expanded[^\]]*\]\s*>\s*\.fui-TreeItemLayout/,
+        selector
+      );
+    }
+  });
+
+  it("clears Teams' own message box behind the Pearl bubble", () => {
+    const outer = ruleBlocks(readInputs().rules).find(
+      (block) => block.selector === '[data-tid="chat-pane-message"]'
+    );
+    assert.ok(outer);
+    assert.match(outer.declarations.get("background"), /^transparent\b/);
+    assert.match(outer.declarations.get("padding"), /^0\b/);
   });
 
   it("contains only audited, chat-scoped Teams selectors", () => {

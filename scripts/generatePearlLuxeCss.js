@@ -76,7 +76,7 @@ function header(version, target) {
     "/* AUTO-GENERATED — DO NOT EDIT.",
     `   Pearl Luxe ${version}; target: ${target}.`,
     "   Source: docs/design/pearl-luxe/handoff/tokens/pearl-luxe.tokens.json",
-    "   Rules: docs/design/pearl-luxe/teams.rules.css",
+    "   Rules: docs/design/pearl-luxe/teams.audited.css",
     "   Run: npm run generate-pearl-luxe-css */",
     "",
   ].join("\n");

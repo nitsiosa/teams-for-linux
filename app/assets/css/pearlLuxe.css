@@ -1,7 +1,7 @@
 /* AUTO-GENERATED — DO NOT EDIT.
    Pearl Luxe 1.3.0; target: Teams adaptive light/night.
    Source: docs/design/pearl-luxe/handoff/tokens/pearl-luxe.tokens.json
-   Rules: docs/design/pearl-luxe/teams.rules.css
+   Rules: docs/design/pearl-luxe/teams.audited.css
    Run: npm run generate-pearl-luxe-css */
 :root {
   color-scheme: light dark;
@@ -185,25 +185,9 @@
 }
 
 /* ---------- Layer 2: audited chat-region polish ---------- */
-[data-tid="experience-layout"] {
-  grid-template-columns:
-    0
-    clamp(56px, 4.45vw, 72px)
-    clamp(260px, 23.6vw, 387px)
-    minmax(0, 1fr)
-    0
-    0 !important;
-  grid-template-rows:
-    56px
-    0
-    0
-    72px
-    0
-    minmax(0, 1fr)
-    0
-    0 !important;
-}
-
+/* Teams owns the page grid, rail and chat-list geometry: it places about 15
+ * layout areas per view and positions chat-list rows from its own row
+ * heights, so forced tracks or row sizes hide the rail and overlap rows. */
 :is(
   [data-tid="title-bar"],
   [data-tid="app-layout-area--nav"],
@@ -220,7 +204,6 @@
   background: var(--lx-rail) !important;
   border-bottom: 1px solid var(--lx-hairline) !important;
   color: var(--lx-ink) !important;
-  min-height: 56px !important;
 }
 
 :is(
@@ -231,7 +214,8 @@
   color: var(--lx-ink) !important;
 }
 
-[data-tid="title-bar"] :is(button, input, span) {
+[data-tid="title-bar"]
+  :is(button, input, span):where(:not(.fui-PresenceBadge, .fui-PresenceBadge *)) {
   color: var(--lx-ink-muted) !important;
 }
 
@@ -247,8 +231,6 @@
 [data-tid="app-bar-wrapper"] {
   background: var(--lx-rail) !important;
   border-right: 1px solid var(--lx-hairline) !important;
-  max-width: none !important;
-  width: 100% !important;
 }
 
 [data-tid="app-layout-area--nav"] [data-tid="slot-measurer"],
@@ -261,52 +243,19 @@
   color: var(--lx-ink-muted) !important;
 }
 
-[data-tid="app-bar-wrapper"] * {
+[data-tid="app-bar-wrapper"]
+  *:where(:not(.fui-PresenceBadge, .fui-PresenceBadge *, .fui-CounterBadge, .fui-CounterBadge *)) {
   color: var(--lx-ink-muted) !important;
 }
 
 [data-tid="app-bar-wrapper"] button {
   border-radius: var(--lx-radius-md) !important;
-  color: var(--lx-ink-muted) !important;
-  height: 44px !important;
-  margin-bottom: 6px !important;
-  min-height: 44px !important;
-  min-width: 44px !important;
-  width: 44px !important;
-}
-
-[data-tid="app-bar-wrapper"] {
-  padding-top: 14px !important;
-}
-
-[data-tid="data-tid-Chat"] {
-  background: var(--lx-surface) !important;
-  box-shadow: var(--lx-shadow-1) !important;
-  color: var(--lx-ink) !important;
-  position: relative !important;
-}
-
-[data-tid="data-tid-Chat"] * {
-  color: var(--lx-ink) !important;
-}
-
-[data-tid="data-tid-Chat"]::before {
-  background: var(--lx-gold) !important;
-  border-radius: var(--lx-radius-pill) !important;
-  bottom: var(--lx-space-3) !important;
-  content: "" !important;
-  left: 0 !important;
-  position: absolute !important;
-  top: var(--lx-space-3) !important;
-  width: 3px !important;
 }
 
 [data-tid="app-layout-area--mid-nav"] {
   background: var(--lx-sidebar) !important;
   border-right: 1px solid var(--lx-hairline) !important;
   color: var(--lx-ink) !important;
-  max-width: none !important;
-  width: 100% !important;
 }
 
 [data-tid="app-layout-area--mid-nav"] [data-tid="slot-measurer"],
@@ -336,36 +285,26 @@
   padding: 22px 20px 12px !important;
 }
 
+/* Sections nest their chats inside the expanded treeitem, so row styling
+ * targets each item's own .fui-TreeItemLayout and never the treeitem. */
 [data-tid="app-layout-area--mid-nav"] [role="treeitem"] {
   color: var(--lx-ink) !important;
-  border-radius: var(--lx-radius-sm) !important;
-  font-size: 12px !important;
-  line-height: 1.35 !important;
-  min-height: 40px !important;
-  transition: background-color var(--lx-dur) var(--lx-ease) !important;
-}
-
-[data-tid="app-layout-area--mid-nav"] [role="treeitem"]:hover {
-  background: var(--lx-hover) !important;
 }
 
 [data-tid="app-layout-area--mid-nav"] .fui-TreeItemLayout {
   background: transparent !important;
   border-radius: var(--lx-radius-sm) !important;
-  min-height: 40px !important;
+  transition: background-color var(--lx-dur) var(--lx-ease) !important;
+}
+
+[data-tid="app-layout-area--mid-nav"] .fui-TreeItemLayout:hover {
+  background: var(--lx-hover) !important;
 }
 
 [data-tid="app-layout-area--mid-nav"]
   .fui-TreeItemLayout
-  * {
+  *:where(:not(.fui-PresenceBadge, .fui-PresenceBadge *, .fui-CounterBadge, .fui-CounterBadge *)) {
   color: var(--lx-ink) !important;
-}
-
-[data-tid="app-layout-area--mid-nav"] .fui-Avatar {
-  height: 28px !important;
-  min-height: 28px !important;
-  min-width: 28px !important;
-  width: 28px !important;
 }
 
 [data-tid="app-layout-area--mid-nav"]
@@ -376,9 +315,8 @@
 }
 
 [data-tid="app-layout-area--mid-nav"]
-  [role="treeitem"][aria-expanded="true"] {
-  color: var(--lx-ink-muted) !important;
-  font-size: 11px !important;
+  [role="treeitem"][aria-expanded]
+  > .fui-TreeItemLayout {
   font-weight: 600 !important;
   letter-spacing: var(--lx-tracking-label) !important;
   text-transform: uppercase !important;
@@ -386,7 +324,11 @@
 
 [data-tid="app-layout-area--mid-nav"]
   [role="treeitem"][aria-expanded]
-  * {
+  > .fui-TreeItemLayout,
+[data-tid="app-layout-area--mid-nav"]
+  [role="treeitem"][aria-expanded]
+  > .fui-TreeItemLayout
+  *:where(:not(.fui-PresenceBadge, .fui-PresenceBadge *, .fui-CounterBadge, .fui-CounterBadge *)) {
   color: var(--lx-ink-muted) !important;
 }
 
@@ -426,10 +368,10 @@
 [data-tid="entity-header"] {
   background: var(--lx-canvas) !important;
   border-bottom: 1px solid var(--lx-hairline) !important;
-  min-height: 72px !important;
 }
 
-[data-tid="entity-header"] * {
+[data-tid="entity-header"]
+  *:where(:not(.fui-PresenceBadge, .fui-PresenceBadge *, .fui-CounterBadge, .fui-CounterBadge *)) {
   color: var(--lx-ink-muted) !important;
 }
 
@@ -476,6 +418,14 @@
 
 .fui-ChatMessage {
   background: transparent !important;
+}
+
+/* chat-pane-message is Teams' own coloured message box; the Pearl bubble is
+ * its content child, so the outer box must not paint a second frame. */
+[data-tid="chat-pane-message"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 [data-tid="message-pane-list-runway"] {
@@ -598,28 +548,9 @@
   margin-inline: auto !important;
   margin-bottom: var(--lx-space-4) !important;
   max-width: 1000px !important;
-  height: 58px !important;
-  max-height: 58px !important;
   min-height: 48px !important;
   padding: 4px 8px 4px 12px !important;
-  position: relative !important;
   width: calc(100% - (2 * var(--lx-space-6))) !important;
-}
-
-[data-tid="chat-pane-compose-message-footer"]
-  > div:has([data-tid="ckeditor"]) {
-  height: 48px !important;
-  max-height: 48px !important;
-  min-height: 0 !important;
-}
-
-[data-tid="chat-pane-compose-message-footer"]
-  [data-tid="chat-pane-gutter-box"] {
-  bottom: calc(100% + var(--lx-space-2)) !important;
-  height: auto !important;
-  position: absolute !important;
-  right: 0 !important;
-  width: auto !important;
 }
 
 [data-tid="smart-replies-renderer"] button {
@@ -668,16 +599,6 @@
 }
 
 @media (max-width: 900px) {
-  [data-tid="experience-layout"] {
-    grid-template-columns:
-      0
-      56px
-      260px
-      minmax(0, 1fr)
-      0
-      0 !important;
-  }
-
   [data-tid="message-pane-list-runway"] {
     padding-inline: var(--lx-space-4) !important;
   }
