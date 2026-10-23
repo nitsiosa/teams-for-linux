@@ -39,9 +39,10 @@ profile name, and adds:
 - Harbour Huddle application artwork for the package, launcher, windows,
   notifications, and default color tray icon.
 - **Pearl Luxe** as the default appearance: adaptive warm Light/Night colours
-  across the Teams app, chat-specific layout polish, every wrapper-owned local
-  view, a forced Night option that also switches Teams to dark, and an explicit
-  Microsoft Teams/no-custom-theme fallback.
+  across the Teams app and its embedded Calendar, Engage, OneDrive and Copilot
+  apps, chat-specific layout polish, every wrapper-owned local view, a forced
+  Night option that also switches Teams to dark, and an explicit Microsoft
+  Teams/no-custom-theme fallback.
 
 The monochrome tray variants remain upstream artwork because they are designed
 for contrast on light and dark desktop panels.

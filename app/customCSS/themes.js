@@ -154,6 +154,18 @@ function discoverThemes(configPath) {
   return themes;
 }
 
+const EMBEDDED_CSS_FILES = Object.freeze({
+  pearlLuxe: "pearlLuxeEmbedded.css",
+  pearlLuxeNight: "pearlLuxeNightEmbedded.css",
+});
+
+/** Colour-only companion of a built-in Pearl theme for embedded Microsoft 365 apps. */
+function embeddedCssPathFor(cssPath) {
+  const theme = BUILTIN_THEMES.find((builtin) => builtin.cssPath === cssPath);
+  const file = theme && EMBEDDED_CSS_FILES[theme.id];
+  return file ? path.join(__dirname, "..", "assets", "css", file) : null;
+}
+
 /** Resolve a selected theme, retaining cssName precedence over cssLocation. */
 function resolveTheme(config, configPath, customThemes) {
   // Runtime config projects nested names onto legacy aliases. Reading those
@@ -190,5 +202,6 @@ module.exports = {
   NO_THEME,
   NO_THEME_ID,
   discoverThemes,
+  embeddedCssPathFor,
   resolveTheme,
 };

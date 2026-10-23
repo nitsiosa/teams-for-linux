@@ -7,6 +7,14 @@ const os = require("node:os");
 const path = require("node:path");
 
 const customCSS = require("../../app/customCSS");
+const { isEmbeddedAppUrl } = require("../../app/customCSS/embeddedApps");
+const {
+  BUILTIN_THEMES,
+  embeddedCssPathFor,
+} = require("../../app/customCSS/themes");
+
+const builtinCss = (id) =>
+  BUILTIN_THEMES.find((theme) => theme.id === id).cssPath;
 
 beforeEach(() => customCSS._clearCacheForTests());
 
@@ -69,6 +77,91 @@ describe("custom CSS injection scope", () => {
       file
     );
     assert.deepStrictEqual(loginCalls, []);
+  });
+
+  it("injects only the Pearl colour layer into embedded Microsoft 365 frames", async () => {
+    const calls = [];
+    await customCSS.onDidFrameFinishLoad(
+      {
+        url: "https://outlook.office.com/hosted/calendar/",
+        executeJavaScript: async (script) => calls.push(script),
+      },
+      {},
+      builtinCss("pearlLuxe")
+    );
+    assert.strictEqual(calls.length, 1);
+    assert.match(calls[0], /--colorNeutralBackground1/);
+    assert.match(calls[0], /adoptedStyleSheets/);
+    assert.doesNotMatch(calls[0], /data-tid/);
+  });
+
+  it("leaves embedded frames alone for other themes and unlisted hosts", async (t) => {
+    const calls = [];
+    const frame = (url) => ({
+      url,
+      executeJavaScript: async (script) => calls.push(script),
+    });
+    await customCSS.onDidFrameFinishLoad(
+      frame("https://outlook.office.com/calendar/"),
+      {},
+      cssFixture(t)
+    );
+    await customCSS.onDidFrameFinishLoad(
+      frame("https://outlook.office.com/calendar/"),
+      {},
+      builtinCss("compactDark")
+    );
+    await customCSS.onDidFrameFinishLoad(
+      frame("https://word.cloud.microsoft/doc"),
+      {},
+      builtinCss("pearlLuxe")
+    );
+    assert.deepStrictEqual(calls, []);
+  });
+
+  it("recognises only the approved embedded Microsoft 365 app hosts", () => {
+    for (const url of [
+      "https://outlook.cloud.microsoft/calendar/",
+      "https://outlook.office.com/hosted/calendar/",
+      "https://outlook.office365.com/calendar/",
+      "https://engage.cloud.microsoft/main/feed",
+      "https://web.yammer.com/embed/",
+      "https://onedrive.cloud.microsoft/",
+      "https://contoso-my.sharepoint.com/personal/",
+      "https://contoso.sharepoint.com/sites/team",
+      "https://copilot.cloud.microsoft/",
+      "https://m365.cloud.microsoft/chat",
+    ]) {
+      assert.strictEqual(isEmbeddedAppUrl(url), true, url);
+    }
+    for (const url of [
+      "http://outlook.office.com/",
+      "https://outlook.office.com.evil.invalid/",
+      "https://evil.invalid/outlook.office.com",
+      "https://sharepoint.com/",
+      "https://a.b.sharepoint.com/",
+      "https://contoso.sharepoint.com.evil.invalid/",
+      "https://word.cloud.microsoft/",
+      "https://teams.cloud.microsoft/",
+      "https://login.microsoftonline.com/",
+      "not a url",
+    ]) {
+      assert.strictEqual(isEmbeddedAppUrl(url), false, url);
+    }
+  });
+
+  it("maps only built-in Pearl themes to shipped colour-only companions", () => {
+    for (const [id, file] of [
+      ["pearlLuxe", "pearlLuxeEmbedded.css"],
+      ["pearlLuxeNight", "pearlLuxeNightEmbedded.css"],
+    ]) {
+      const companion = embeddedCssPathFor(builtinCss(id));
+      assert.strictEqual(path.basename(companion), file);
+      assert.ok(fs.existsSync(companion), companion);
+    }
+    assert.strictEqual(embeddedCssPathFor(builtinCss("compactDark")), null);
+    assert.strictEqual(embeddedCssPathFor("/tmp/custom.css"), null);
+    assert.strictEqual(embeddedCssPathFor(null), null);
   });
 
   it("reads a selected stylesheet once per launch", async (t) => {

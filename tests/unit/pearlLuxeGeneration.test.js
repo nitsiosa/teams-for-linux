@@ -95,6 +95,16 @@ describe("Pearl Luxe generated CSS", () => {
     assert.ok(outputs.get(OUTPUTS.night).endsWith(rules));
   });
 
+  it("gives embedded Microsoft 365 apps only the token remap", () => {
+    const outputs = generatedOutputs();
+    const { remap } = readInputs();
+    for (const file of [OUTPUTS.adaptiveEmbedded, OUTPUTS.nightEmbedded]) {
+      const css = outputs.get(file);
+      assert.ok(css.endsWith(remap), file);
+      assert.doesNotMatch(css, /Layer 2|data-tid/, file);
+    }
+  });
+
   it("gives forced Night and wrapper overrides the complete token contract", () => {
     const inputs = readInputs();
     const completeNight = { ...inputs.light, ...inputs.dark };

@@ -83,4 +83,12 @@ the root Teams document and to every secondary profile's main document and
 Teams content frames, but never to Microsoft sign-in or unrelated embedded
 content.
 
+The one exception is the Microsoft 365 apps Teams embeds from their own
+origins: Calendar (Outlook), Viva Engage, OneDrive and SharePoint, and
+Copilot, listed in `embeddedApps.js`. With a built-in Pearl Luxe theme
+selected, their frames receive only the colour layer (`pearlLuxeEmbedded.css`
+or `pearlLuxeNightEmbedded.css`) as a constructed stylesheet; other themes
+never reach them. Word, Excel, PowerPoint and other `cloud.microsoft` apps are
+not on the list.
+
 Configuration details and user instructions: [Theming & Appearance](../../docs-site/docs/configuration.md#theming--appearance).

@@ -1,0 +1,188 @@
+/* AUTO-GENERATED — DO NOT EDIT.
+   Pearl Luxe 1.3.0; target: embedded Microsoft 365 apps, forced Night.
+   Source: docs/design/pearl-luxe/handoff/tokens/pearl-luxe.tokens.json
+   Rules: docs/design/pearl-luxe/teams.audited.css
+   Run: npm run generate-pearl-luxe-css */
+:root {
+  color-scheme: dark;
+  --lx-canvas: #36312C;
+  --lx-sidebar: #423B35;
+  --lx-rail: #2B2723;
+  --lx-surface: #48413A;
+  --lx-surface-raised: #544C44;
+  --lx-mine: #5E4F3C;
+  --lx-selected: #5C4E3C;
+  --lx-hover: #4E463F;
+  --lx-hairline: #5F564C;
+  --lx-hairline-strong: #756A5D;
+  --lx-ink: #F6F1E8;
+  --lx-ink-muted: #D6CDC0;
+  --lx-ink-faint: #A69A8A;
+  --lx-gold: #D4B47A;
+  --lx-gold-ink: #EBD3A3;
+  --lx-espresso: #3A322B;
+  --lx-espresso-hover: #4A4037;
+  --lx-primary: #EBDABA;
+  --lx-primary-hover: #F3E6CC;
+  --lx-primary-pressed: #DFCAA2;
+  --lx-on-primary: #2B2723;
+  --lx-badge: #E3A497;
+  --lx-on-badge: #2B2723;
+  --lx-status-on: #8FB593;
+  --lx-status-away: #DDBC70;
+  --lx-status-busy: #E3A497;
+  --lx-surface-alpha: rgba(72, 65, 58, .9);
+  --lx-backdrop: #221F1B;
+  --lx-sage: #43523F;
+  --lx-sage-ink: #C6DAC2;
+  --lx-blush: #5A423B;
+  --lx-blush-ink: #F2CABF;
+  --lx-mist: #3F4A57;
+  --lx-mist-ink: #CBD8E8;
+  --lx-butter: #5A4E31;
+  --lx-butter-ink: #F0DCAA;
+  --lx-font-display: "Cormorant Garamond", "Cormorant", "Libre Baskerville", Georgia, "DejaVu Serif", serif;
+  --lx-font-body: "Inter", "Ubuntu", "Segoe UI", system-ui, sans-serif;
+  --lx-tracking-label: 0.08em;
+  --lx-radius-sm: 8px;
+  --lx-radius-md: 12px;
+  --lx-radius-lg: 16px;
+  --lx-radius-pill: 999px;
+  --lx-shadow-1: 0 1px 2px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .16);
+  --lx-shadow-2: 0 1px 2px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .26);
+  --lx-shadow-3: 0 2px 6px rgba(0, 0, 0, .28), 0 28px 64px rgba(0, 0, 0, .38);
+  --lx-space-1: 4px;
+  --lx-space-2: 8px;
+  --lx-space-3: 12px;
+  --lx-space-4: 16px;
+  --lx-space-5: 24px;
+  --lx-space-6: 32px;
+  --lx-space-7: 48px;
+  --lx-ease: cubic-bezier(.2, .7, .2, 1);
+  --lx-dur: 180ms;
+}
+
+/* Pearl Luxe rules audited against current Teams v2 on 2026-10-21.
+ * Counts only: docs/design/pearl-luxe/selector-audit.json.
+ *
+ * The token remap is app-wide. It sits on every Fluent provider as well as
+ * :root because each provider, including every portal's, redeclares all
+ * tokens on itself. Sign-in pages and embedded Office documents load from
+ * other origins and never receive this stylesheet.
+ */
+
+/* ---------- Layer 1: Fluent v9 token remap ---------- */
+:root,
+.fui-FluentProvider {
+  --colorNeutralBackground1: var(--lx-canvas) !important;
+  --colorNeutralBackground1Hover: var(--lx-hover) !important;
+  --colorNeutralBackground1Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground1Selected: var(--lx-selected) !important;
+  --colorNeutralBackground2: var(--lx-sidebar) !important;
+  --colorNeutralBackground2Hover: var(--lx-hover) !important;
+  --colorNeutralBackground2Selected: var(--lx-selected) !important;
+  --colorNeutralBackground3: var(--lx-rail) !important;
+  --colorNeutralBackground4: var(--lx-rail) !important;
+  --colorNeutralBackground5: var(--lx-rail) !important;
+  --colorNeutralBackground2Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground3Hover: var(--lx-hover) !important;
+  --colorNeutralBackground3Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground3Selected: var(--lx-selected) !important;
+  --colorNeutralBackground4Hover: var(--lx-hover) !important;
+  --colorNeutralBackground4Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground4Selected: var(--lx-selected) !important;
+  --colorNeutralBackground5Hover: var(--lx-hover) !important;
+  --colorNeutralBackground5Pressed: var(--lx-selected) !important;
+  --colorNeutralBackground5Selected: var(--lx-selected) !important;
+  --colorNeutralBackground6: var(--lx-hairline) !important;
+  --colorNeutralBackgroundAlpha: var(--lx-surface-alpha) !important;
+  --colorSubtleBackgroundHover: var(--lx-hover) !important;
+  --colorSubtleBackgroundPressed: var(--lx-selected) !important;
+  --colorSubtleBackgroundSelected: var(--lx-selected) !important;
+  --colorNeutralCardBackground: var(--lx-surface) !important;
+  --colorNeutralCardBackgroundHover: var(--lx-surface-raised) !important;
+  --colorNeutralCardBackgroundPressed: var(--lx-selected) !important;
+  --colorNeutralCardBackgroundSelected: var(--lx-selected) !important;
+  --colorNeutralForeground1: var(--lx-ink) !important;
+  --colorNeutralForeground1Hover: var(--lx-ink) !important;
+  --colorNeutralForeground2: var(--lx-ink) !important;
+  --colorNeutralForeground2Hover: var(--lx-ink) !important;
+  --colorNeutralForeground3: var(--lx-ink-muted) !important;
+  --colorNeutralForeground4: var(--lx-ink-muted) !important;
+  --colorNeutralForeground1Pressed: var(--lx-ink) !important;
+  --colorNeutralForeground1Selected: var(--lx-ink) !important;
+  --colorNeutralForeground2Pressed: var(--lx-ink) !important;
+  --colorNeutralForeground2Selected: var(--lx-ink) !important;
+  --colorNeutralForeground2BrandHover: var(--lx-gold-ink) !important;
+  --colorNeutralForeground2BrandPressed: var(--lx-gold-ink) !important;
+  --colorNeutralForeground2BrandSelected: var(--lx-gold-ink) !important;
+  --colorNeutralForeground3Hover: var(--lx-ink) !important;
+  --colorNeutralForeground3Pressed: var(--lx-ink) !important;
+  --colorNeutralForeground3Selected: var(--lx-ink) !important;
+  --colorNeutralForeground3BrandHover: var(--lx-gold-ink) !important;
+  --colorNeutralForeground3BrandPressed: var(--lx-gold-ink) !important;
+  --colorNeutralForeground3BrandSelected: var(--lx-gold-ink) !important;
+  --colorNeutralForegroundDisabled: var(--lx-ink-faint) !important;
+  --colorNeutralForegroundOnBrand: var(--lx-on-primary) !important;
+  --colorNeutralStroke1: var(--lx-hairline-strong) !important;
+  --colorNeutralStroke1Hover: var(--lx-gold) !important;
+  --colorNeutralStroke2: var(--lx-hairline) !important;
+  --colorNeutralStroke3: var(--lx-hairline) !important;
+  --colorNeutralStrokeAccessible: var(--lx-ink-muted) !important;
+  --colorNeutralStroke1Pressed: var(--lx-gold) !important;
+  --colorNeutralStroke1Selected: var(--lx-gold) !important;
+  --colorNeutralStrokeAccessibleHover: var(--lx-ink) !important;
+  --colorNeutralStrokeAccessiblePressed: var(--lx-ink) !important;
+  --colorNeutralStrokeAccessibleSelected: var(--lx-gold-ink) !important;
+  --colorStrokeFocus2: var(--lx-gold-ink) !important;
+  --colorBrandBackground: var(--lx-primary) !important;
+  --colorBrandBackgroundHover: var(--lx-primary-hover) !important;
+  --colorBrandBackgroundPressed: var(--lx-primary-pressed) !important;
+  --colorBrandBackgroundSelected: var(--lx-primary) !important;
+  --colorBrandBackground2: var(--lx-mine) !important;
+  --colorBrandBackground2Hover: var(--lx-selected) !important;
+  --colorBrandBackground2Pressed: var(--lx-selected) !important;
+  --colorBrandBackgroundStatic: var(--lx-primary) !important;
+  --colorBrandForeground1: var(--lx-gold-ink) !important;
+  --colorBrandForeground2: var(--lx-gold-ink) !important;
+  --colorBrandForegroundLink: var(--lx-gold-ink) !important;
+  --colorBrandForegroundLinkHover: var(--lx-ink) !important;
+  --colorBrandForegroundLinkPressed: var(--lx-ink) !important;
+  --colorBrandForegroundLinkSelected: var(--lx-gold-ink) !important;
+  --colorBrandForeground2Hover: var(--lx-gold-ink) !important;
+  --colorBrandForeground2Pressed: var(--lx-gold-ink) !important;
+  --colorBrandForegroundOnLight: var(--lx-gold-ink) !important;
+  --colorBrandForegroundOnLightHover: var(--lx-gold-ink) !important;
+  --colorBrandForegroundOnLightPressed: var(--lx-gold-ink) !important;
+  --colorBrandForegroundOnLightSelected: var(--lx-gold-ink) !important;
+  --colorBrandStroke1: var(--lx-gold) !important;
+  --colorBrandStroke2: var(--lx-hairline-strong) !important;
+  --colorBrandStroke2Hover: var(--lx-gold) !important;
+  --colorBrandStroke2Pressed: var(--lx-gold-ink) !important;
+  --colorBrandStroke2Contrast: var(--lx-hairline-strong) !important;
+  --colorCompoundBrandForeground1: var(--lx-gold-ink) !important;
+  --colorCompoundBrandBackground: var(--lx-primary) !important;
+  --colorCompoundBrandStroke: var(--lx-gold) !important;
+  --colorCompoundBrandForeground1Hover: var(--lx-gold-ink) !important;
+  --colorCompoundBrandForeground1Pressed: var(--lx-gold-ink) !important;
+  --colorCompoundBrandBackgroundHover: var(--lx-primary-hover) !important;
+  --colorCompoundBrandBackgroundPressed: var(--lx-primary-pressed) !important;
+  --colorCompoundBrandStrokeHover: var(--lx-gold) !important;
+  --colorCompoundBrandStrokePressed: var(--lx-gold-ink) !important;
+  --colorPaletteRedBackground3: var(--lx-badge) !important;
+  --colorPaletteRedForeground1: var(--lx-blush-ink) !important;
+  --colorPaletteGreenForeground1: var(--lx-sage-ink) !important;
+  --colorPaletteGreenBackground3: var(--lx-status-on) !important;
+  --colorStatusDangerBackground3: var(--lx-badge) !important;
+  --borderRadiusSmall: var(--lx-radius-sm) !important;
+  --borderRadiusMedium: var(--lx-radius-sm) !important;
+  --borderRadiusLarge: var(--lx-radius-md) !important;
+  --borderRadiusXLarge: var(--lx-radius-lg) !important;
+  --fontFamilyBase: var(--lx-font-body) !important;
+  --shadow2: var(--lx-shadow-1) !important;
+  --shadow4: var(--lx-shadow-1) !important;
+  --shadow8: var(--lx-shadow-2) !important;
+  --shadow16: var(--lx-shadow-2) !important;
+  --shadow28: var(--lx-shadow-3) !important;
+  --shadow64: var(--lx-shadow-3) !important;
+}

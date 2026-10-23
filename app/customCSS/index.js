@@ -1,5 +1,6 @@
 const fs = require("node:fs");
-const { resolveTheme } = require("./themes");
+const { embeddedCssPathFor, resolveTheme } = require("./themes");
+const { isEmbeddedAppUrl } = require("./embeddedApps");
 const { isTeamsHost } = require("../helpers/teamsHosts");
 
 const cssCache = new Map();
@@ -53,12 +54,16 @@ exports.onDidFrameFinishLoad = async function onDidFrameFinishLoad(
   config,
   customCssLocation = resolveTheme(config)
 ) {
-  if (
-    customCssLocation &&
-    webFrame &&
-    isTeamsContentUrl(webFrame.url)
-  ) {
+  if (!customCssLocation || !webFrame) return;
+  if (isTeamsContentUrl(webFrame.url)) {
     await applyCustomCSSToFrame(webFrame, customCssLocation);
+    return;
+  }
+  const embeddedCss = isEmbeddedAppUrl(webFrame.url)
+    ? embeddedCssPathFor(customCssLocation)
+    : null;
+  if (embeddedCss) {
+    await applyEmbeddedCSSToFrame(webFrame, embeddedCss);
   }
 };
 
@@ -99,6 +104,33 @@ async function applyCustomCSSToFrame(webFrame, cssLocation) {
   } catch {
     // Sandboxed about:blank frames, disposed frames and unreadable user theme
     // files are expected failure modes. Never log their URL or filesystem path.
+    console.debug("[customCSS] Theme injection skipped.");
+  }
+}
+
+/**
+ * Applies the colour-only Pearl layer to an embedded Microsoft 365 app frame.
+ * A constructed stylesheet is used because these apps' content security
+ * policies may refuse an injected <style> element.
+ */
+async function applyEmbeddedCSSToFrame(webFrame, cssLocation) {
+  try {
+    const css = await readCss(cssLocation);
+    await webFrame.executeJavaScript(`(() => {
+      if (window.__tflPearlEmbeddedTheme) return;
+      window.__tflPearlEmbeddedTheme = true;
+      const css = ${JSON.stringify(css)};
+      try {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(css);
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+      } catch {
+        const style = document.createElement("style");
+        style.textContent = css;
+        document.head.appendChild(style);
+      }
+    })()`);
+  } catch {
     console.debug("[customCSS] Theme injection skipped.");
   }
 }

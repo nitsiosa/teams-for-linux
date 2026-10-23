@@ -17,9 +17,27 @@ const DARK_SELECTORS_FILE = path.join(
   "teams-dark-selectors.json"
 );
 
+// Embedded Microsoft 365 apps get only the token remap before this marker;
+// the chat polish after it targets Teams' own DOM.
+const POLISH_MARKER = "/* ---------- Layer 2:";
+
 const OUTPUTS = Object.freeze({
   adaptive: path.join(ROOT, "app", "assets", "css", "pearlLuxe.css"),
   night: path.join(ROOT, "app", "assets", "css", "pearlLuxeNight.css"),
+  adaptiveEmbedded: path.join(
+    ROOT,
+    "app",
+    "assets",
+    "css",
+    "pearlLuxeEmbedded.css"
+  ),
+  nightEmbedded: path.join(
+    ROOT,
+    "app",
+    "assets",
+    "css",
+    "pearlLuxeNightEmbedded.css"
+  ),
   wrapper: path.join(
     ROOT,
     "app",
@@ -55,12 +73,17 @@ function readInputs() {
   ) {
     throw new Error("Pearl Luxe dark selectors must be an array.");
   }
+  const polishStart = rules.indexOf(POLISH_MARKER);
+  if (polishStart === -1) {
+    throw new Error("teams.audited.css must keep its Layer 2 marker.");
+  }
   return {
     version: String(tokens.version ?? "unknown"),
     light: tokens.modes.light,
     dark: tokens.modes.dark,
     lightKeys,
     rules,
+    remap: rules.slice(0, polishStart).trimEnd() + "\n",
     darkSelectors,
   };
 }
@@ -82,32 +105,57 @@ function header(version, target) {
   ].join("\n");
 }
 
-function buildAdaptive(inputs) {
+function adaptiveTokens(inputs) {
   const darkSelector = inputs.darkSelectors.join(",\n");
   const teamsDarkOverride = darkSelector
     ? `${darkSelector} {\n${declarationBlock(inputs.dark)}\n}\n\n`
     : "";
   return (
-    header(inputs.version, "Teams adaptive light/night") +
     ":root {\n  color-scheme: light dark;\n" +
     declarationBlock(inputs.light) +
     "\n}\n\n" +
     "@media (prefers-color-scheme: dark) {\n  :root {\n" +
     declarationBlock(inputs.dark, "    ") +
     "\n  }\n}\n\n" +
-    teamsDarkOverride +
+    teamsDarkOverride
+  );
+}
+
+function nightTokens(inputs) {
+  const merged = { ...inputs.light, ...inputs.dark };
+  return (
+    ":root {\n  color-scheme: dark;\n" +
+    declarationBlock(merged) +
+    "\n}\n\n"
+  );
+}
+
+function buildAdaptive(inputs) {
+  return (
+    header(inputs.version, "Teams adaptive light/night") +
+    adaptiveTokens(inputs) +
     inputs.rules
   );
 }
 
 function buildNight(inputs) {
-  const merged = { ...inputs.light, ...inputs.dark };
   return (
     header(inputs.version, "Teams forced Night") +
-    ":root {\n  color-scheme: dark;\n" +
-    declarationBlock(merged) +
-    "\n}\n\n" +
+    nightTokens(inputs) +
     inputs.rules
+  );
+}
+
+function buildEmbedded(inputs, { night = false } = {}) {
+  return (
+    header(
+      inputs.version,
+      night
+        ? "embedded Microsoft 365 apps, forced Night"
+        : "embedded Microsoft 365 apps, adaptive light/night"
+    ) +
+    (night ? nightTokens(inputs) : adaptiveTokens(inputs)) +
+    inputs.remap
   );
 }
 
@@ -137,6 +185,8 @@ function generatedOutputs() {
   return new Map([
     [OUTPUTS.adaptive, buildAdaptive(inputs)],
     [OUTPUTS.night, buildNight(inputs)],
+    [OUTPUTS.adaptiveEmbedded, buildEmbedded(inputs)],
+    [OUTPUTS.nightEmbedded, buildEmbedded(inputs, { night: true })],
     [OUTPUTS.wrapper, buildWrapperTokens(inputs)],
   ]);
 }
@@ -156,6 +206,7 @@ if (require.main === module) {
 module.exports = {
   OUTPUTS,
   buildAdaptive,
+  buildEmbedded,
   buildNight,
   buildWrapperTokens,
   generatedOutputs,
