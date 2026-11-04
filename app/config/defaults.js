@@ -23,8 +23,25 @@ const NETWORK_ERROR_PATTERNS = [
   'ERR_NAME_NOT_RESOLVED',
 ];
 
+// Chromium net error codes for NETWORK_ERROR_PATTERNS. did-fail-load can report
+// a main-frame failure with an empty description, which no name matches; an
+// ERR_NETWORK_CHANGED (-21) as Wi-Fi came up after login left the window on
+// "Waiting for network..." with no retry scheduled.
+const NETWORK_ERROR_CODES = Object.freeze({
+  ERR_TUNNEL_CONNECTION_FAILED: -111,
+  ERR_PROXY_CONNECTION_FAILED: -130,
+  ERR_INTERNET_DISCONNECTED: -106,
+  ERR_NETWORK_CHANGED: -21,
+  ERR_CONNECTION_RESET: -101,
+  ERR_CONNECTION_REFUSED: -102,
+  ERR_CONNECTION_TIMED_OUT: -118,
+  ERR_TIMED_OUT: -7,
+  ERR_NAME_NOT_RESOLVED: -105,
+});
+
 const defaults = {
   meetupJoinRegEx: String.raw`^https://teams\.(?:microsoft\.com|live\.com|cloud\.microsoft)/(v2/\?meetingjoin=|meet/|l/(?:app|call|channel|chat|entity|file|meet(?:ing|up-join)|message|task|team)/)`,
+  NETWORK_ERROR_CODES,
   NETWORK_ERROR_PATTERNS,
 };
 

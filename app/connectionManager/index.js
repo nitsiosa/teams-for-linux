@@ -239,17 +239,26 @@ class ConnectionManager {
   }
 }
 
-const { NETWORK_ERROR_PATTERNS } = require("../config/defaults");
+const {
+  NETWORK_ERROR_CODES,
+  NETWORK_ERROR_PATTERNS,
+} = require("../config/defaults");
 
 // Network errors that should trigger an automatic reconnection attempt.
 // These cover disconnections, network changes, and proxy/tunnel failures.
 const RECOVERABLE_NETWORK_ERRORS = new Set(NETWORK_ERROR_PATTERNS);
+const RECOVERABLE_NETWORK_ERROR_CODES = new Set(
+  Object.values(NETWORK_ERROR_CODES)
+);
 
 function assignOnDidFailLoadEventHandler(cm) {
   return (event, code, description, validatedURL, isMainFrame) => {
     if (isMainFrame) {
       console.error(`[CONNECTION] Main frame failed to load: ${description} (code: ${code})`);
-      if (RECOVERABLE_NETWORK_ERRORS.has(description)) {
+      if (
+        RECOVERABLE_NETWORK_ERRORS.has(description) ||
+        RECOVERABLE_NETWORK_ERROR_CODES.has(code)
+      ) {
         console.debug(`Network error detected: ${description}, scheduling debounced refresh...`);
         _ConnectionManager_needsReload.set(cm, true);
         cm.debouncedRefresh();
